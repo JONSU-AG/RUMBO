@@ -1515,45 +1515,45 @@ export const UserProfile = () => {
               </div>
             </div>
 
-            {/* Modern Glass KPI Metrics Cards (Visual Hierarchy & Clarity) */}
+            {/* Modern Glass KPI Metrics Cards (Ultra-Compact on Mobile) */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-              gap: '12px',
-              paddingTop: '20px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+              gap: '8px',
+              paddingTop: '16px',
               borderTop: '1px solid var(--card-border)'
             }}>
               {/* Card 1: Aportes en el Muro */}
               <div style={{
                 background: 'rgba(0, 122, 255, 0.05)',
                 border: '1.5px solid rgba(0, 122, 255, 0.16)',
-                borderRadius: '20px',
-                padding: '14px 16px',
+                borderRadius: '16px',
+                padding: '8px 10px',
                 textAlign: 'center',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '4px'
+                gap: '2px'
               }}>
                 <div style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '10px',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
                   background: 'rgba(0, 122, 255, 0.12)',
                   color: 'var(--accent-color)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <BookOpen size={18} />
+                  <BookOpen size={15} />
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--accent-color)', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent-color)', lineHeight: 1.1 }}>
                   {userUploads.length}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                  Aportes en Muro
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
+                  Aportes Muro
                 </div>
               </div>
 
@@ -1561,33 +1561,33 @@ export const UserProfile = () => {
               <div style={{
                 background: 'rgba(245, 158, 11, 0.05)',
                 border: '1.5px solid rgba(245, 158, 11, 0.18)',
-                borderRadius: '20px',
-                padding: '14px 16px',
+                borderRadius: '16px',
+                padding: '8px 10px',
                 textAlign: 'center',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '4px'
+                gap: '2px'
               }}>
                 <div style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '10px',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
                   background: 'rgba(245, 158, 11, 0.14)',
                   color: '#F59E0B',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <Sparkles size={18} />
+                  <Sparkles size={15} />
                 </div>
-                <div style={{ fontSize: '1.55rem', fontWeight: 800, color: '#F59E0B', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#F59E0B', lineHeight: 1.1 }}>
                   ⭐ {profileUser.totalReactionsReceived || (userUploads.length * 3) || 0}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                  Reputación Total
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
+                  Reputación
                 </div>
               </div>
 
@@ -1595,33 +1595,33 @@ export const UserProfile = () => {
               <div style={{
                 background: profileUser.isAlly ? 'rgba(52, 168, 83, 0.06)' : 'rgba(120, 120, 128, 0.06)',
                 border: profileUser.isAlly ? '1.5px solid rgba(52, 168, 83, 0.25)' : '1.5px solid var(--card-border)',
-                borderRadius: '20px',
-                padding: '14px 16px',
+                borderRadius: '16px',
+                padding: '8px 10px',
                 textAlign: 'center',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '4px'
+                gap: '2px'
               }}>
                 <div style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '10px',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
                   background: profileUser.isAlly ? 'rgba(52, 168, 83, 0.15)' : 'rgba(120, 120, 128, 0.1)',
                   color: profileUser.isAlly ? '#34A853' : 'var(--text-main)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <Shield size={18} />
+                  <Shield size={15} />
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: profileUser.isAlly ? '#34A853' : 'var(--text-main)', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '1.05rem', fontWeight: 800, color: profileUser.isAlly ? '#34A853' : 'var(--text-main)', lineHeight: 1.1, whiteSpace: 'nowrap' }}>
                   {profileUser.isAlly ? 'Aliado Oficial' : 'Estudiante'}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                  Rango Comunitario
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
+                  Rango
                 </div>
               </div>
 
@@ -1629,33 +1629,33 @@ export const UserProfile = () => {
               <div style={{
                 background: 'rgba(168, 85, 247, 0.05)',
                 border: '1.5px solid rgba(168, 85, 247, 0.18)',
-                borderRadius: '20px',
-                padding: '14px 16px',
+                borderRadius: '16px',
+                padding: '8px 10px',
                 textAlign: 'center',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '4px'
+                gap: '2px'
               }}>
                 <div style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '10px',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
                   background: 'rgba(168, 85, 247, 0.14)',
                   color: '#A855F7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <GraduationCap size={18} />
+                  <GraduationCap size={15} />
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#A855F7', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#A855F7', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                   {profileUser.universidad ? profileUser.universidad.split(' ')[0] : 'UNSA'}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                  Meta Universitaria
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
+                  Meta
                 </div>
               </div>
             </div>

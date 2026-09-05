@@ -49,6 +49,39 @@ export const UserDirectChat = ({ profileUid, profileName = 'este usuario', isOwn
     }
   }, [profileUid]);
 
+  const [chatFilter, setChatFilter] = useState('todos'); // 'todos' | 'por_usuario'
+  const [selectedAuthorUid, setSelectedAuthorUid] = useState(null);
+
+  // Group messages by authorUid
+  const groupedAuthors = React.useMemo(() => {
+    const map = {};
+    messages.forEach(msg => {
+      if (!map[msg.authorUid]) {
+        map[msg.authorUid] = {
+          authorUid: msg.authorUid,
+          authorName: msg.authorName,
+          authorPhoto: msg.authorPhoto,
+          lastMsg: msg,
+          count: 0,
+          messages: []
+        };
+      }
+      map[msg.authorUid].count += 1;
+      map[msg.authorUid].messages.push(msg);
+      if ((msg.timestamp || 0) > (map[msg.authorUid].lastMsg.timestamp || 0)) {
+        map[msg.authorUid].lastMsg = msg;
+      }
+    });
+    return Object.values(map).sort((a, b) => (b.lastMsg.timestamp || 0) - (a.lastMsg.timestamp || 0));
+  }, [messages]);
+
+  const filteredMessages = React.useMemo(() => {
+    if (chatFilter === 'por_usuario' && selectedAuthorUid) {
+      return messages.filter(m => m.authorUid === selectedAuthorUid);
+    }
+    return messages;
+  }, [messages, chatFilter, selectedAuthorUid]);
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !user || submitting) return;
@@ -152,79 +185,183 @@ export const UserDirectChat = ({ profileUid, profileName = 'este usuario', isOwn
         </span>
       </div>
 
-      {/* Messages Feed Container */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        maxHeight: '380px',
-        overflowY: 'auto',
-        paddingRight: '4px'
-      }}>
-        {messages.length === 0 ? (
-          <div style={{ padding: '30px 16px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            <MessageSquare size={32} style={{ opacity: 0.3, marginBottom: '8px' }} />
-            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
-              {isOwnProfile ? 'Aún no tienes mensajes en tu perfil' : `Sé el primero en enviar un mensaje a ${profileName}`}
-            </p>
-            <span style={{ fontSize: '0.8rem' }}>
-              Escribe un saludo, consulta de estudios o recomendación académica.
-            </span>
-          </div>
-        ) : (
-          messages.map(msg => {
-            const isMyMsg = user && user.uid === msg.authorUid;
-            const canDelete = isMyMsg || isOwnProfile || isAdmin;
+      {/* Filter Tabs Toggle */}
+      <div style={{ display: 'flex', gap: '8px', background: 'rgba(120, 120, 128, 0.08)', padding: '4px', borderRadius: '14px' }}>
+        <button
+          type="button"
+          onClick={() => { setChatFilter('todos'); setSelectedAuthorUid(null); }}
+          style={{
+            flex: 1,
+            padding: '7px 10px',
+            borderRadius: '10px',
+            border: 'none',
+            background: chatFilter === 'todos' ? 'var(--card-bg)' : 'transparent',
+            color: chatFilter === 'todos' ? 'var(--accent-color)' : 'var(--text-secondary)',
+            fontWeight: 800,
+            fontSize: '0.78rem',
+            cursor: 'pointer',
+            boxShadow: chatFilter === 'todos' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          💬 Todos ({messages.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setChatFilter('por_usuario')}
+          style={{
+            flex: 1,
+            padding: '7px 10px',
+            borderRadius: '10px',
+            border: 'none',
+            background: chatFilter === 'por_usuario' ? 'var(--card-bg)' : 'transparent',
+            color: chatFilter === 'por_usuario' ? 'var(--accent-color)' : 'var(--text-secondary)',
+            fontWeight: 800,
+            fontSize: '0.78rem',
+            cursor: 'pointer',
+            boxShadow: chatFilter === 'por_usuario' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          👥 Por Usuario ({groupedAuthors.length})
+        </button>
+      </div>
 
-            return (
+      {/* Content View: Grouped User List or Messages Feed */}
+      {chatFilter === 'por_usuario' && !selectedAuthorUid ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '380px', overflowY: 'auto', paddingRight: '4px' }}>
+          {groupedAuthors.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+              No hay conversaciones organizadas por usuario aún.
+            </div>
+          ) : (
+            groupedAuthors.map(group => (
               <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
+                key={group.authorUid}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => setSelectedAuthorUid(group.authorUid)}
                 style={{
                   display: 'flex',
-                  gap: '10px',
-                  alignItems: 'flex-start',
-                  padding: '12px 14px',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 14px',
                   borderRadius: '16px',
-                  background: isMyMsg ? 'rgba(0, 122, 255, 0.08)' : 'rgba(120, 120, 128, 0.05)',
-                  border: isMyMsg ? '1px solid rgba(0, 122, 255, 0.2)' : '1px solid var(--card-border)'
+                  background: 'rgba(120, 120, 128, 0.05)',
+                  border: '1px solid var(--card-border)',
+                  cursor: 'pointer'
                 }}
               >
-                <Link to={`/usuario/${msg.authorUid}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
-                  <LiveUserAvatar uid={msg.authorUid} fallbackName={msg.authorName} fallbackPhoto={msg.authorPhoto} size={32} />
-                </Link>
-
+                <LiveUserAvatar uid={group.authorUid} fallbackName={group.authorName} fallbackPhoto={group.authorPhoto} size={36} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <Link to={`/usuario/${msg.authorUid}`} style={{ color: 'var(--text-main)', fontWeight: 800, fontSize: '0.84rem', textDecoration: 'none' }}>
-                      <LiveUserName uid={msg.authorUid} fallbackName={msg.authorName} />
-                    </Link>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                        {formatDate(msg.createdAt)}
-                      </span>
-                      {canDelete && (
-                        <button
-                          onClick={() => handleDeleteMessage(msg.id)}
-                          title="Eliminar mensaje"
-                          style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 0 }}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                      <LiveUserName uid={group.authorUid} fallbackName={group.authorName} />
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--accent-color)', fontWeight: 800, background: 'rgba(0,122,255,0.1)', padding: '2px 8px', borderRadius: '10px' }}>
+                      {group.count} msg{group.count > 1 ? 's' : ''}
+                    </span>
                   </div>
-
-                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-main)', lineHeight: 1.45, wordBreak: 'break-word' }}>
-                    {msg.text}
+                  <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {group.lastMsg.text}
                   </p>
                 </div>
               </motion.div>
-            );
-          })
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      ) : (
+        <>
+          {chatFilter === 'por_usuario' && selectedAuthorUid && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,122,255,0.06)', padding: '6px 12px', borderRadius: '12px' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>
+                Conversación filtrada por usuario
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedAuthorUid(null)}
+                style={{ background: 'none', border: 'none', color: 'var(--accent-color)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                ← Volver a lista
+              </button>
+            </div>
+          )}
+
+          {/* Messages Feed Container */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            maxHeight: '380px',
+            overflowY: 'auto',
+            paddingRight: '4px'
+          }}>
+            {filteredMessages.length === 0 ? (
+              <div style={{ padding: '30px 16px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                <MessageSquare size={32} style={{ opacity: 0.3, marginBottom: '8px' }} />
+                <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                  {isOwnProfile ? 'Aún no tienes mensajes en este filtro' : `Sé el primero en enviar un mensaje a ${profileName}`}
+                </p>
+                <span style={{ fontSize: '0.8rem' }}>
+                  Escribe un saludo, consulta de estudios o recomendación académica.
+                </span>
+              </div>
+            ) : (
+              filteredMessages.map(msg => {
+                const isMyMsg = user && user.uid === msg.authorUid;
+                const canDelete = isMyMsg || isOwnProfile || isAdmin;
+
+                return (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{
+                      display: 'flex',
+                      gap: '10px',
+                      alignItems: 'flex-start',
+                      padding: '12px 14px',
+                      borderRadius: '16px',
+                      background: isMyMsg ? 'rgba(0, 122, 255, 0.08)' : 'rgba(120, 120, 128, 0.05)',
+                      border: isMyMsg ? '1px solid rgba(0, 122, 255, 0.2)' : '1px solid var(--card-border)'
+                    }}
+                  >
+                    <Link to={`/usuario/${msg.authorUid}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
+                      <LiveUserAvatar uid={msg.authorUid} fallbackName={msg.authorName} fallbackPhoto={msg.authorPhoto} size={32} />
+                    </Link>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <Link to={`/usuario/${msg.authorUid}`} style={{ color: 'var(--text-main)', fontWeight: 800, fontSize: '0.84rem', textDecoration: 'none' }}>
+                          <LiveUserName uid={msg.authorUid} fallbackName={msg.authorName} />
+                        </Link>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                            {formatDate(msg.createdAt)}
+                          </span>
+                          {canDelete && (
+                            <button
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              title="Eliminar mensaje"
+                              style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 0 }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-main)', lineHeight: 1.45, wordBreak: 'break-word' }}>
+                        {msg.text}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })
+            )}
+          </div>
+        </>
+      )}
 
       {/* Input Form */}
       {user ? (
