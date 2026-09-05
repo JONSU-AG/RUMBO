@@ -195,10 +195,12 @@ export const UserDirectChat = ({
     return list.filter(c => c.partnerName?.toLowerCase().includes(filter));
   }, [inboxMessages, user?.uid, searchFilter]);
 
-  // Scroll to bottom when messages update
+  const chatScrollContainerRef = useRef(null);
+
+  // Scroll inner chat container to bottom when messages update WITHOUT pulling the whole window/page
   useEffect(() => {
-    if (chatBottomRef.current) {
-      chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (chatScrollContainerRef.current) {
+      chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
     }
   }, [activeMessages.length]);
 
@@ -714,15 +716,18 @@ export const UserDirectChat = ({
       </div>
 
       {/* Messages Scroll Feed (WhatsApp Bubbles) */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        background: 'rgba(120, 120, 128, 0.02)'
-      }}>
+      <div
+        ref={chatScrollContainerRef}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          background: 'rgba(120, 120, 128, 0.02)'
+        }}
+      >
         {activeMessages.length === 0 ? (
           <div style={{ margin: 'auto', textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
             <div style={{
@@ -790,6 +795,9 @@ export const UserDirectChat = ({
                         <img
                           src={msg.imageUrl}
                           alt="Adjunto"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
                           style={{
                             maxWidth: '100%',
                             maxHeight: '220px',
@@ -828,7 +836,6 @@ export const UserDirectChat = ({
             );
           })
         )}
-        <div ref={chatBottomRef} />
       </div>
 
       {/* Selected Image Preview Chip */}
