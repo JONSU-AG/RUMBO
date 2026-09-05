@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, BookOpen, Cpu, Library, User, Palette, UploadCloud, Shield, Bell, Sparkles, MoreHorizontal, ChevronUp, MessageSquare } from 'lucide-react';
+import { Home, BookOpen, Cpu, Library, User, Palette, UploadCloud, Shield, Bell, Sparkles, MoreHorizontal, ChevronUp, MessageSquare, Download } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeSelectorModal } from './ThemeSelectorModal';
 import { UploadModal } from './UploadModal';
@@ -18,7 +18,43 @@ export const LiquidNavbar = () => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isStandalone, setIsStandalone] = useState(false);
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    setIsStandalone(Boolean(isStandaloneMode));
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallPWA = async () => {
+    setIsMenuOpen(false);
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsStandalone(true);
+      }
+      setDeferredPrompt(null);
+    } else if (isStandalone) {
+      alert('✅ Ya estás disfrutando de RUMBO como aplicación instalada.');
+    } else {
+      alert(
+        '📱 Para instalar RUMBO de forma universal en tu celular o PC:\n\n' +
+        '1. En tu navegador (Chrome / Edge / Safari), toca el menú de los 3 puntos superiores.\n' +
+        '2. Selecciona "Agregar a la pantalla principal" o "Instalar aplicación".\n' +
+        '3. ¡Listo! Se creará un acceso directo nativo e independiente.'
+      );
+    }
+  };
 
   useEffect(() => {
     if (!user?.uid) {
@@ -498,6 +534,29 @@ export const LiquidNavbar = () => {
                     >
                       <Palette size={16} style={{ color: '#F59E0B' }} />
                       <span>Cambiar Tema</span>
+                    </button>
+
+                    {/* Instalar App (PWA) Universal */}
+                    <button
+                      onClick={handleInstallPWA}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '14px',
+                        border: 'none',
+                        background: 'rgba(16, 185, 129, 0.12)',
+                        color: '#10B981',
+                        fontSize: '0.84rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        width: '100%',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <Download size={16} />
+                      <span>{isStandalone ? 'App Instalada' : 'Instalar App (PWA)'}</span>
                     </button>
 
                     {/* Admin (si es admin) */}
