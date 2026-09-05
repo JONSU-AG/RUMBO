@@ -1,4 +1,4 @@
-name: Build Android APK (PWABuilder / Bubblewrap)
+name: Build Android APK (PWABuilder / Capacitor)
 
 on:
   push:
@@ -19,32 +19,34 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Web App
-        run: npm run build
-
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Bubblewrap & Build Android Project
+      - name: Install Dependencies & Capacitor
         run: |
-          npm install -g @bubblewrap/cli
-          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="./android-project" --skipPrompt || true
-          if [ -d "./android-project" ]; then
-            cd android-project
-            npx @bubblewrap/cli build || true
-          fi
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      - name: Upload Web Build Artifacts
+      - name: Build Web Dist
+        run: npm run build
+
+      - name: Capacitor Init & Add Android
+        run: |
+          npx cap init RUMBO com.rumbo.app --web-dir dist
+          npx cap add android
+          npx cap sync android
+
+      - name: Build APK with Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload RUMBO APK
         uses: actions/upload-artifact@v4
         with:
-          name: rumbo-web-dist
-          path: dist/
+          name: RUMBO-APK-Installer
+          path: android/app/build/outputs/apk/debug/app-debug.apk
