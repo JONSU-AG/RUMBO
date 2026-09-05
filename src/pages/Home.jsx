@@ -909,7 +909,7 @@ export const Home = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder={user?.displayName || "Ej: Ronaldo Aguilar / Grupo de Estudio"}
+                  placeholder={user?.displayName || "Ej: Juan Pérez / Grupo de Estudio"}
                   value={matAuthor}
                   onChange={(e) => setMatAuthor(e.target.value)}
                   style={{
