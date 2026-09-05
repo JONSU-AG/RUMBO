@@ -803,6 +803,7 @@ export const Admin = () => {
         scrollbarWidth: 'none'
       }}>
         {[
+          { id: 'briceno', label: `🎓 Gestor Briceño 2027` },
           { id: 'reportes', label: `🚩 Bandeja de Reportes (${pendingReportsCount})` },
           { id: 'pendientes', label: `⏳ En Revisión (${pendientesList.length})` },
           { id: 'reportados', label: `🚩 Materiales Reportados (${reportadosList.length})` },
@@ -2100,6 +2101,57 @@ export const Admin = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ──────────────── TAB: GESTOR BRICEÑO 2027 ──────────────── */}
+      {activeTab === 'briceno' && (
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', border: '1.5px solid #34C759', background: 'var(--card-bg)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  🎓 Gestor de Semanas e Hilos — Briceño 2027
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  Las semanas se guardan como documentos en la colección <code>briceno_2027_semanas</code>.
+                </p>
+              </div>
+              <a
+                href="https://console.firebase.google.com/project/rumbo-jonsu/firestore/databases/-default-/data/~2Fbriceno_2027_semanas"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '12px',
+                  background: 'rgba(52, 199, 89, 0.15)',
+                  color: '#34C759',
+                  fontWeight: 800,
+                  fontSize: '0.82rem',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <ExternalLink size={14} /> Ir a Firebase Console ↗
+              </a>
+            </div>
+
+            <div style={{
+              padding: '14px',
+              borderRadius: '16px',
+              background: 'rgba(52, 199, 89, 0.08)',
+              border: '1px solid rgba(52, 199, 89, 0.2)',
+              fontSize: '0.85rem',
+              color: 'var(--text-main)',
+              lineHeight: 1.5
+            }}>
+              💡 <strong>Estructura para crear semanas en Firebase:</strong><br />
+              Colección: <code>briceno_2027_semanas</code> | ID del Documento: <code>semana_1</code>, <code>semana_2</code>, etc.<br />
+              Campos: <code>num</code> (número), <code>nombre</code> (string), <code>status</code> (string), <code>data</code> (array de materias y videos).
+            </div>
           </div>
         </div>
       )}
