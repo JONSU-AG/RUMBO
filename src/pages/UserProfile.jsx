@@ -1735,7 +1735,7 @@ export const UserProfile = () => {
         </div>
 
         {/* ──────────────── CONTENEDOR Y TABS DEL PERFIL ──────────────── */}
-        <div style={{ maxWidth: '880px', margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ maxWidth: '880px', margin: '0 auto', padding: '0 12px', width: '100%', boxSizing: 'border-box' }}>
           {/* Tab Switcher */}
           <div style={{
             display: 'flex',

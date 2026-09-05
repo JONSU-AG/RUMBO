@@ -655,7 +655,10 @@ export const UserDirectChat = ({
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
-      height: '520px',
+      height: '560px',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box',
       border: '1.5px solid rgba(16, 185, 129, 0.3)',
       background: 'var(--card-bg)',
       boxShadow: '0 12px 35px rgba(0,0,0,0.08)'
