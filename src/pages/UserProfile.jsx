@@ -1087,30 +1087,6 @@ export const UserProfile = () => {
                   {copiedProfile ? '¡Copiado!' : 'Compartir Perfil'}
                 </button>
 
-                {profileUser.whatsappChannel && (
-                  <a
-                    href={profileUser.whatsappChannel}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Canal WhatsApp"
-                    style={{
-                      padding: '9px 12px',
-                      borderRadius: '16px',
-                      background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                      color: '#FFFFFF',
-                      textDecoration: 'none',
-                      fontWeight: 700,
-                      fontSize: '0.82rem',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)'
-                    }}
-                  >
-                    <WhatsAppIconSVG size={16} />
-                  </a>
-                )}
-
                 <button
                   onClick={() => setReportData({
                     isOpen: true,
@@ -1124,24 +1100,26 @@ export const UserProfile = () => {
                       photoURL: profileUser.photoURL || ''
                     }
                   })}
+                  title="Reportar perfil"
                   style={{
-                    padding: '9px 15px',
+                    padding: '9px 12px',
                     borderRadius: '16px',
-                    border: '1px solid rgba(255, 59, 48, 0.4)',
-                    background: 'rgba(239, 68, 68, 0.4)',
+                    border: '1px solid rgba(255, 59, 48, 0.3)',
+                    background: 'rgba(0, 0, 0, 0.4)',
                     backdropFilter: 'blur(16px)',
                     WebkitBackdropFilter: 'blur(16px)',
-                    color: '#FFFFFF',
+                    color: 'rgba(255, 255, 255, 0.8)',
                     fontWeight: 700,
                     fontSize: '0.82rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    justifyContent: 'center',
+                    gap: '4px',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.25)'
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
                   }}
                 >
-                  <Flag size={14} /> Reportar Perfil
+                  <Flag size={14} />
                 </button>
               </>
             )}
