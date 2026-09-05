@@ -251,26 +251,26 @@ body {
   --pill-active-text: #FFFFFF;
 }
 
-/* Beige Oscuro Carmesí & Vino Theme Overrides */
+/* Beige Carmesí & Vino Theme Overrides (Fondo Beige Crema + Elementos Vino & Carmesí) */
 [data-theme="beige-carmesi"] {
-  --bg-main: #2b1f1a;
-  --text-primary: #fdf8f5;
-  --text-main: #fdf8f5;
-  --text-secondary: #e6d3c8;
-  --text-muted: rgba(230, 211, 200, 0.75);
-  --card-bg: rgba(61, 41, 34, 0.88);
-  --glass-bg: rgba(61, 41, 34, 0.88);
-  --card-border: rgba(159, 18, 57, 0.4);
-  --glass-border: rgba(159, 18, 57, 0.4);
-  --navbar-bg: rgba(43, 31, 26, 0.94);
-  --accent-color: #9f1239;
-  --accent: #9f1239;
+  --bg-main: #E8DFD8;
+  --text-primary: #2B0F17;
+  --text-main: #2B0F17;
+  --text-secondary: #59313E;
+  --text-muted: rgba(89, 49, 62, 0.75);
+  --card-bg: rgba(248, 243, 238, 0.92);
+  --glass-bg: rgba(248, 243, 238, 0.92);
+  --card-border: rgba(159, 18, 57, 0.3);
+  --glass-border: rgba(159, 18, 57, 0.3);
+  --navbar-bg: rgba(238, 230, 222, 0.94);
+  --accent-color: #9F1239;
+  --accent: #9F1239;
   --accent-rgb: 159, 18, 57;
-  --accent-gradient: linear-gradient(135deg, #9f1239 0%, #881337 50%, #e11d48 100%);
-  --accent-gradient-warm: linear-gradient(135deg, #be123c 0%, #f43f5e 100%);
+  --accent-gradient: linear-gradient(135deg, #9F1239 0%, #701A28 50%, #E11D48 100%);
+  --accent-gradient-warm: linear-gradient(135deg, #9F1239 0%, #BE123C 100%);
   --accent-gradient-green: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  --accent-gradient-purple: linear-gradient(135deg, #9f1239 0%, #7e22ce 100%);
-  --pill-active-bg: #9f1239;
+  --accent-gradient-purple: linear-gradient(135deg, #881337 0%, #9F1239 100%);
+  --pill-active-bg: #9F1239;
   --pill-active-text: #FFFFFF;
 }
 

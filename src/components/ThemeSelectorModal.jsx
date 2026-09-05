@@ -77,12 +77,12 @@ const THEMES = [
   {
     id: 'beige-carmesi',
     name: 'Beige Carmesí 🍷',
-    shortDesc: 'Beige oscuro y vino',
+    shortDesc: 'Beige crema y vino',
     icon: Flame,
-    previewBg: '#2b1f1a',
-    previewCard: '#3d2922',
-    previewAccent: '#9f1239',
-    badgeColor: '#f43f5e'
+    previewBg: '#E8DFD8',
+    previewCard: '#F8F3EE',
+    previewAccent: '#9F1239',
+    badgeColor: '#9F1239'
   }
 ];
 
