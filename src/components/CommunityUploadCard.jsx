@@ -402,9 +402,21 @@ export const CommunityUploadCard = ({
         <h4 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)' }}>
           {item.title}
         </h4>
-        {item.author && item.author !== authorName && (
-          <div style={{ fontSize: '0.82rem', color: 'var(--accent-color)', fontWeight: 700, marginBottom: '6px' }}>
-            ✍️ Autor Original / Crédito: <strong>{item.author}</strong>
+        {item.author && item.author.trim() !== '' && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '3px 10px',
+            borderRadius: '10px',
+            background: 'rgba(0, 122, 255, 0.08)',
+            border: '1px solid rgba(0, 122, 255, 0.18)',
+            fontSize: '0.82rem',
+            color: 'var(--accent-color)',
+            fontWeight: 800,
+            marginBottom: '6px'
+          }}>
+            <span>✍️ Autor: {item.author}</span>
           </div>
         )}
         {(item.desc || item.description) && (
