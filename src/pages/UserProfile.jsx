@@ -1763,9 +1763,9 @@ export const UserProfile = () => {
           {/* Tab Switcher */}
           <div style={{
             display: 'flex',
-            gap: '10px',
+            gap: '8px',
             justifyContent: 'center',
-            marginBottom: '24px',
+            marginBottom: '20px',
             flexWrap: 'wrap'
           }}>
             <motion.button
@@ -1773,22 +1773,22 @@ export const UserProfile = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveTab('muro')}
               style={{
-                padding: '12px 22px',
-                borderRadius: '16px',
-                fontWeight: 800,
-                fontSize: '0.92rem',
+                padding: '8px 14px',
+                borderRadius: '12px',
+                fontWeight: 700,
+                fontSize: '0.82rem',
                 border: activeTab === 'muro' ? 'none' : '1px solid var(--card-border)',
                 background: activeTab === 'muro' ? 'linear-gradient(135deg, #007AFF 0%, #00C6FF 100%)' : 'var(--card-bg)',
                 color: activeTab === 'muro' ? '#FFFFFF' : 'var(--text-main)',
                 cursor: 'pointer',
-                boxShadow: activeTab === 'muro' ? '0 6px 20px rgba(0, 122, 255, 0.35)' : 'none',
+                boxShadow: activeTab === 'muro' ? '0 4px 12px rgba(0, 122, 255, 0.3)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 transition: 'all 0.2s ease'
               }}
             >
-              <BookOpen size={17} /> Muro Social & Aportes ({userUploads.length})
+              <BookOpen size={15} /> Muro & Aportes ({userUploads.length})
             </motion.button>
 
             <motion.button
@@ -1796,22 +1796,22 @@ export const UserProfile = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveTab('chat')}
               style={{
-                padding: '12px 22px',
-                borderRadius: '16px',
-                fontWeight: 800,
-                fontSize: '0.92rem',
+                padding: '8px 14px',
+                borderRadius: '12px',
+                fontWeight: 700,
+                fontSize: '0.82rem',
                 border: activeTab === 'chat' ? 'none' : '1px solid var(--card-border)',
                 background: activeTab === 'chat' ? 'linear-gradient(135deg, #A855F7 0%, #6366F1 100%)' : 'var(--card-bg)',
                 color: activeTab === 'chat' ? '#FFFFFF' : 'var(--text-main)',
                 cursor: 'pointer',
-                boxShadow: activeTab === 'chat' ? '0 6px 20px rgba(168, 85, 247, 0.35)' : 'none',
+                boxShadow: activeTab === 'chat' ? '0 4px 12px rgba(168, 85, 247, 0.3)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 transition: 'all 0.2s ease'
               }}
             >
-              <MessageSquare size={17} /> Mensajes Directos
+              <MessageSquare size={15} /> Mensajes Directos
             </motion.button>
 
             <motion.button
@@ -1819,22 +1819,22 @@ export const UserProfile = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveTab('guardados')}
               style={{
-                padding: '12px 22px',
-                borderRadius: '16px',
-                fontWeight: 800,
-                fontSize: '0.92rem',
+                padding: '8px 14px',
+                borderRadius: '12px',
+                fontWeight: 700,
+                fontSize: '0.82rem',
                 border: activeTab === 'guardados' ? 'none' : '1px solid var(--card-border)',
                 background: activeTab === 'guardados' ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' : 'var(--card-bg)',
                 color: activeTab === 'guardados' ? '#FFFFFF' : 'var(--text-main)',
                 cursor: 'pointer',
-                boxShadow: activeTab === 'guardados' ? '0 6px 20px rgba(245, 158, 11, 0.35)' : 'none',
+                boxShadow: activeTab === 'guardados' ? '0 4px 12px rgba(245, 158, 11, 0.3)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 transition: 'all 0.2s ease'
               }}
             >
-              <Bookmark size={17} /> Materiales Guardados ({savedMaterials.length})
+              <Bookmark size={15} /> Guardados ({savedMaterials.length})
             </motion.button>
           </div>
 
