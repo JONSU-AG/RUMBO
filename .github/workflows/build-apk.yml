@@ -31,15 +31,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build Android APK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Bubblewrap & Generate Key & Build APK
         run: |
           npm install -g @bubblewrap/cli
           mkdir -p android-build
           cd android-build
-          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="." || true
-
-      - name: Upload Web Build Artifact
+          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="." --skipPrompt || true
+          
+      - name: Upload APK & Web Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rumbo-web-dist
-          path: dist/
+          name: rumbo-app-release
+          path: |
+            dist/
+            android-build/*.apk
+            android-build/*.aab
