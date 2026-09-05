@@ -106,10 +106,10 @@ export const LiquidNavbar = () => {
   return (
     <>
       {/* Mobile Header (Fixed Top Bar with Labels for New Users) */}
-      <header className="mobile-header">
-        <Logo showText={true} />
+      <header className="mobile-header" style={{ padding: '8px 12px', gap: '8px' }}>
+        <Logo showText={true} size={30} />
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
 
           {/* Bell Notification Button on Mobile */}
           {user && (
@@ -117,22 +117,22 @@ export const LiquidNavbar = () => {
               onClick={() => setIsNotifOpen(true)}
               title="Notificaciones y Avisos"
               style={{
-                padding: '6px 10px',
-                borderRadius: '16px',
+                padding: '6px 8px',
+                borderRadius: '12px',
                 border: 'none',
                 background: 'rgba(0, 122, 255, 0.12)',
                 color: 'var(--accent-color)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px',
-                fontSize: '0.74rem',
+                gap: '3px',
+                fontSize: '0.72rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 position: 'relative'
               }}
             >
-              <Bell size={14} />
-              <span>Avisos</span>
+              <Bell size={13} />
+              <span className="hide-on-xs">Avisos</span>
               {unreadCount > 0 && (
                 <span style={{
                   position: 'absolute',
@@ -140,10 +140,10 @@ export const LiquidNavbar = () => {
                   right: '-3px',
                   background: '#EF4444',
                   color: '#FFFFFF',
-                  fontSize: '0.6rem',
+                  fontSize: '0.58rem',
                   fontWeight: 800,
-                  width: '15px',
-                  height: '15px',
+                  width: '14px',
+                  height: '14px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
@@ -161,21 +161,21 @@ export const LiquidNavbar = () => {
             onClick={() => setIsUploadOpen(true)}
             title="Aportar Material Educativo"
             style={{
-              padding: '6px 10px',
-              borderRadius: '16px',
+              padding: '6px 8px',
+              borderRadius: '12px',
               border: 'none',
               background: 'rgba(0, 122, 255, 0.12)',
               color: 'var(--accent-color)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
-              fontSize: '0.74rem',
+              gap: '3px',
+              fontSize: '0.72rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <UploadCloud size={14} />
-            <span>Subir</span>
+            <UploadCloud size={13} />
+            <span className="hide-on-xs">Subir</span>
           </button>
 
           {/* Theme Palette Button */}
@@ -183,21 +183,21 @@ export const LiquidNavbar = () => {
             onClick={() => setIsThemeOpen(true)}
             title="Cambiar Tema Visual"
             style={{
-              padding: '6px 10px',
-              borderRadius: '16px',
+              padding: '6px 8px',
+              borderRadius: '12px',
               border: 'none',
               background: 'rgba(120, 120, 128, 0.12)',
               color: 'var(--text-main)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
-              fontSize: '0.74rem',
+              gap: '3px',
+              fontSize: '0.72rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <Palette size={14} />
-            <span>Tema</span>
+            <Palette size={13} />
+            <span className="hide-on-xs">Tema</span>
           </button>
         </div>
       </header>

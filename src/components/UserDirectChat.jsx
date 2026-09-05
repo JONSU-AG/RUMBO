@@ -13,7 +13,12 @@ import {
   User, 
   ShieldCheck,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Smile,
+  ThumbsUp,
+  Heart,
+  Flame
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { 
@@ -24,6 +29,7 @@ import {
   addDoc, 
   deleteDoc, 
   doc, 
+  updateDoc,
   serverTimestamp 
 } from 'firebase/firestore';
 import { useAuth, ADMIN_EMAILS } from '../context/AuthContext';
@@ -253,6 +259,66 @@ export const UserDirectChat = ({
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Reaction toggle handler
+  const handleToggleReaction = async (msgId, currentReactions, emoji) => {
+    if (!user?.uid) return;
+    try {
+      const reactions = { ...(currentReactions || {}) };
+      const userList = reactions[emoji] || [];
+      const hasReacted = userList.includes(user.uid);
+
+      if (hasReacted) {
+        reactions[emoji] = userList.filter(id => id !== user.uid);
+        if (reactions[emoji].length === 0) delete reactions[emoji];
+      } else {
+        reactions[emoji] = [...userList, user.uid];
+      }
+
+      await updateDoc(doc(db, 'mensajes_directos_privados', msgId), { reactions });
+    } catch (e) {
+      console.warn("Error toggling reaction:", e);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    if (!text) return;
+    navigator.clipboard?.writeText(text);
+    setNoticeModal({
+      isOpen: true,
+      title: "Mensaje Copiado",
+      message: "El texto del mensaje ha sido copiado al portapapeles.",
+      type: 'info'
+    });
+  };
+
+  const renderMessageTextWithLinks = (text, isMe) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: isMe ? '#FFE066' : 'var(--accent-color)',
+              fontWeight: 700,
+              textDecoration: 'underline',
+              wordBreak: 'break-all'
+            }}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
   };
 
   // Delete message
@@ -693,19 +759,95 @@ export const UserDirectChat = ({
                   fontSize: '0.9rem',
                   lineHeight: 1.45
                 }}>
-                  {/* Message Content */}
-                  <div>{msg.text}</div>
+                  {/* Message Content with Auto Linkification */}
+                  <div>{renderMessageTextWithLinks(msg.text, isMe)}</div>
 
-                  {/* Metadata: Time and Checks */}
+                  {/* Reaction Display Badges */}
+                  {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                    <div style={{
+                      display: 'flex',
+                      gap: '4px',
+                      flexWrap: 'wrap',
+                      marginTop: '6px'
+                    }}>
+                      {Object.entries(msg.reactions).map(([emoji, users]) => {
+                        if (!users || users.length === 0) return null;
+                        const hasReacted = users.includes(user?.uid);
+                        return (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => handleToggleReaction(msg.id, msg.reactions, emoji)}
+                            style={{
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                              border: 'none',
+                              background: hasReacted ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.15)',
+                              color: isMe ? '#FFF' : 'var(--text-main)',
+                              fontSize: '0.72rem',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '3px'
+                            }}
+                          >
+                            <span>{emoji}</span>
+                            <span style={{ fontWeight: 800 }}>{users.length}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Metadata: Time, Copy, Reactions, Checks */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-end',
-                    gap: '4px',
+                    gap: '6px',
                     marginTop: '4px',
                     fontSize: '0.68rem',
                     color: isMe ? 'rgba(255, 255, 255, 0.8)' : 'var(--text-secondary)'
                   }}>
+                    {/* Quick Reaction Bar */}
+                    <div style={{ display: 'flex', gap: '4px', opacity: 0.85 }}>
+                      {['❤️', '🔥', '👍'].map(emoji => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => handleToggleReaction(msg.id, msg.reactions, emoji)}
+                          title={`Reaccionar con ${emoji}`}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0 2px',
+                            fontSize: '0.8rem'
+                          }}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Copy Button */}
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(msg.text)}
+                      title="Copiar mensaje"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: isMe ? 'rgba(255, 255, 255, 0.8)' : 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        padding: '0 2px',
+                        display: 'inline-flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Copy size={11} />
+                    </button>
+
                     <span>{formatTime(msg.createdAt || msg.timestamp)}</span>
                     {isMe && <CheckCheck size={13} style={{ opacity: 0.9 }} />}
                     
@@ -717,9 +859,9 @@ export const UserDirectChat = ({
                         style={{
                           background: 'transparent',
                           border: 'none',
-                          color: isMe ? 'rgba(255, 255, 255, 0.7)' : '#EF4444',
+                          color: isMe ? 'rgba(255, 255, 255, 0.8)' : '#EF4444',
                           cursor: 'pointer',
-                          padding: '0 0 0 4px',
+                          padding: '0 0 0 2px',
                           display: 'inline-flex',
                           alignItems: 'center'
                         }}
