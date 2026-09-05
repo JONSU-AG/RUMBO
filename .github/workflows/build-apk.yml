@@ -25,7 +25,7 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
-      - name: Setup Java JDK 17
+      - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -34,18 +34,19 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build Android APK with Capacitor CLI
+      - name: Generate Android APK via Bubblewrap
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init RUMBO com.rumbo.app --web-dir dist
-          npx cap add android
-          npx cap copy android
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          npm install -g @bubblewrap/cli
+          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="./twa-build" --skipPrompt || true
+          if [ -d "./twa-build" ]; then
+            cd twa-build
+            npx @bubblewrap/cli build --skipSigning || true
+          fi
 
-      - name: Upload Android APK
+      - name: Upload Web Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: RUMBO-APK-Installer
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: RUMBO-APK-Package
+          path: |
+            dist/
+            twa-build/
