@@ -58,6 +58,7 @@ import {
 } from 'firebase/firestore';
 import { useAuth, ADMIN_EMAILS, isAuthorOfFirebase } from '../context/AuthContext';
 import { UploadModal } from '../components/UploadModal';
+import { UserDirectChat } from '../components/UserDirectChat';
 import { SuccessModal } from '../components/SuccessModal';
 import { ReactionsBar } from '../components/ReactionsBar';
 import { ProfileComments } from '../components/ProfileComments';
@@ -1999,12 +2000,24 @@ export const UserProfile = () => {
               )}
             </div>
           ) : (
-            <ProfileComments
-              profileUid={targetUid}
-              profileName={profileUser.displayName || 'este usuario'}
-              userUploads={userUploads}
-              onReport={(id, title, type) => setReportData({ isOpen: true, targetId: id, targetTitle: title, targetType: type })}
-            />
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '24px',
+              alignItems: 'start'
+            }}>
+              <ProfileComments
+                profileUid={targetUid}
+                profileName={profileUser.displayName || 'este usuario'}
+                userUploads={userUploads}
+                onReport={(id, title, type) => setReportData({ isOpen: true, targetId: id, targetTitle: title, targetType: type })}
+              />
+              <UserDirectChat
+                profileUid={targetUid}
+                profileName={profileUser.displayName || 'este usuario'}
+                isOwnProfile={isOwnProfile}
+              />
+            </div>
           )}
         </div>
       </div>

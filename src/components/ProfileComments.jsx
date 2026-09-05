@@ -695,7 +695,7 @@ const PostItemCard = ({
               type="submit"
               disabled={!newSubComment.trim() || isSubmitting}
               style={{
-                padding: '8px 14px',
+                padding: '8px 12px',
                 borderRadius: '12px',
                 border: 'none',
                 background: newSubComment.trim() ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.2)',
@@ -705,11 +705,13 @@ const PostItemCard = ({
                 cursor: newSubComment.trim() ? 'pointer' : 'not-allowed',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px'
+                justifyContent: 'center',
+                gap: '4px',
+                flexShrink: 0
               }}
             >
-              <Send size={12} />
-              <span>Comentar</span>
+              <Send size={14} />
+              <span className="hide-on-mobile">Comentar</span>
             </button>
           </form>
         ) : (
