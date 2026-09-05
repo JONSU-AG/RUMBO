@@ -28,7 +28,9 @@ import {
   Bell,
   Send,
   ShieldAlert,
-  Check
+  Check,
+  Copy,
+  Code
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { uploadFileReliable, getDirectImageUrl } from '../lib/storageHelper';
@@ -2180,25 +2182,455 @@ export const Admin = () => {
                   Sube, edita y elimina semanas en tiempo real. Colección Firestore: <code>briceno_2027_semanas</code>.
                 </p>
               </div>
-              <a
-                href="https://console.firebase.google.com/project/rumbo-jonsu/firestore/databases/-default-/data/~2Fbriceno_2027_semanas"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  padding: '8px 14px',
-                  borderRadius: '12px',
-                  background: 'rgba(52, 199, 89, 0.15)',
-                  color: '#34C759',
-                  fontWeight: 800,
-                  fontSize: '0.82rem',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <ExternalLink size={14} /> Enlace Directo Firebase Console ↗
-              </a>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const scriptCode = `(async () => {
+  "use strict";
+
+  // ============================================================
+  // 🚀 EXTRACTOR BRICEÑO 2027
+  // SALIDA: recursos.txt
+  // ============================================================
+
+  const CATEGORIAS = [
+    "CIENCIAS ONLINE MAÑANA",
+    "SEMINARIOS DE CIENCIAS"
+  ];
+
+  const RESULTADO = [];
+  const ESPERA_CATEGORIA = 1800;
+  const ESPERA_CURSO = 1200;
+  const ESPERA_SEMANA = 1000;
+  const ESPERA_VIDEO = 800;
+
+  const esperar = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  function normalizar(texto) {
+    return (texto || "").replace(/\\s+/g, " ").trim();
+  }
+
+  function obtenerNumeroSemana(texto) {
+    const t = normalizar(texto);
+    let match = t.match(/\\bSEMANA\\s*0*(\\d{1,3})\\b/i);
+    if (match) return Number(match[1]);
+    match = t.match(/\\bS0*(\\d{1,3})\\b/i);
+    if (match) return Number(match[1]);
+    return null;
+  }
+
+  function obtenerNombreSemana(texto, numero) {
+    const limpio = normalizar(texto);
+    if (limpio) return limpio;
+    return \`SEMANA \${String(numero).padStart(2, "0")}\`;
+  }
+
+  function convertirYoutube(url) {
+    if (!url) return null;
+    const patrones = [
+      /youtube\\.com\\/embed\\/([A-Za-z0-9_-]+)/i,
+      /youtu\\.be\\/([A-Za-z0-9_-]+)/i,
+      /youtube\\.com\\/watch\\?v=([A-Za-z0-9_-]+)/i,
+      /youtube\\.com\\/watch[^"' ]*[?&]v=([A-Za-z0-9_-]+)/i,
+      /youtube-nocookie\\.com\\/embed\\/([A-Za-z0-9_-]+)/i
+    ];
+    for (const patron of patrones) {
+      const match = String(url).match(patron);
+      if (match) return \`https://youtu.be/\${match[1]}\`;
+    }
+    return null;
+  }
+
+  function youtubesActuales() {
+    const urls = new Set();
+    document.querySelectorAll("iframe[src], a[href], video[src], source[src]").forEach(elemento => {
+      const url = convertirYoutube(elemento.src || elemento.href);
+      if (url) urls.add(url);
+    });
+    return urls;
+  }
+
+  function buscarCategoria(nombre) {
+    const elementos = [...document.querySelectorAll("button, a, [role='tab'], [role='button']")];
+    const objetivo = normalizar(nombre).toUpperCase();
+    return elementos.find(elemento => {
+      const texto = normalizar(elemento.innerText || elemento.textContent).toUpperCase();
+      return texto === objetivo;
+    });
+  }
+
+  async function cambiarCategoria(nombre) {
+    console.log(\`\\n================================\\n📂 CATEGORÍA: \${nombre}\\n================================\`);
+    const boton = buscarCategoria(nombre);
+    if (!boton) {
+      console.warn(\`❌ No encontré la categoría: \${nombre}\`);
+      return false;
+    }
+    try { boton.click(); } catch (error) { return false; }
+    await esperar(ESPERA_CATEGORIA);
+    return true;
+  }
+
+  function buscarSelectorCursos() {
+    const directo = document.querySelector("#gm-curso-select-51");
+    if (directo) return directo;
+    const selects = [...document.querySelectorAll("select")];
+    const candidatos = selects.filter(select => {
+      const opciones = [...select.options].filter(option => option.value && normalizar(option.text));
+      return opciones.length > 0;
+    });
+    if (!candidatos.length) return null;
+    return candidatos.sort((a, b) => b.options.length - a.options.length)[0];
+  }
+
+  function obtenerCursos() {
+    const select = buscarSelectorCursos();
+    if (!select) return [];
+    return [...select.options]
+      .filter(option => option.value && normalizar(option.text))
+      .map(option => ({ value: option.value, nombre: normalizar(option.text) }))
+      .filter((curso, index, array) => index === array.findIndex(x => x.value === curso.value));
+  }
+
+  function obtenerBotonesSemanas() {
+    const elementos = [...document.querySelectorAll("button, a, [role='tab'], [role='button']")];
+    const encontrados = [];
+    for (const elemento of elementos) {
+      const texto = normalizar(elemento.innerText || elemento.textContent);
+      const numero = obtenerNumeroSemana(texto);
+      if (numero === null) continue;
+      if (encontrados.some(x => x.numero === numero)) continue;
+      encontrados.push({ numero, nombre: obtenerNombreSemana(texto, numero), elemento });
+    }
+    encontrados.sort((a, b) => a.numero - b.numero);
+    return encontrados;
+  }
+
+  async function cambiarSemana(numero) {
+    const botones = obtenerBotonesSemanas();
+    const boton = botones.find(x => x.numero === numero);
+    if (!boton) {
+      console.warn(\`❌ No encontré el botón de SEMANA \${numero}\`);
+      return null;
+    }
+    console.log(\`📅 Abriendo: \${boton.nombre}\`);
+    const antes = document.querySelector("tbody")?.innerText || "";
+    try { boton.elemento.click(); } catch (error) { return null; }
+    for (let intento = 0; intento < 30; intento++) {
+      await esperar(500);
+      const despues = document.querySelector("tbody")?.innerText || "";
+      if (despues && despues !== antes) {
+        await esperar(ESPERA_SEMANA);
+        return { numero, nombre: boton.nombre };
+      }
+    }
+    await esperar(1500);
+    return { numero, nombre: boton.nombre };
+  }
+
+  function detectarBloque(fila) {
+    let elemento = fila;
+    for (let nivel = 0; nivel < 8 && elemento; nivel++) {
+      const texto = normalizar(elemento.innerText);
+      const match = texto.match(/\\bS\\d{1,3}\\b/i);
+      if (match) return match[0].toUpperCase();
+      elemento = elemento.parentElement;
+    }
+    return "SIN_BLOQUE";
+  }
+
+  function esTextoBoton(texto) {
+    const valor = normalizar(texto).toLowerCase();
+    const prohibidos = ["ver video", "ver", "video", "abrir", "abrir video", "ver recurso", "recurso", "acción", "acciones", "close", "cerrar", "play", "reproducir", "ir", "ver más", "más"];
+    return prohibidos.includes(valor);
+  }
+
+  function obtenerNombreRealVideo(fila, boton, id) {
+    const candidatos = [];
+    function agregar(valor, prioridad = 0) {
+      valor = normalizar(valor);
+      if (!valor || valor.length < 3 || esTextoBoton(valor) || /^\\d+$/.test(valor) || valor === String(id)) return;
+      candidatos.push({ texto: valor, prioridad });
+    }
+
+    fila.querySelectorAll("[title]").forEach(elemento => {
+      if (elemento === boton || elemento.contains(boton)) return;
+      agregar(elemento.getAttribute("title"), 100);
+    });
+
+    fila.querySelectorAll("[aria-label]").forEach(elemento => {
+      if (elemento === boton || elemento.contains(boton)) return;
+      agregar(elemento.getAttribute("aria-label"), 95);
+    });
+
+    const celdas = [...fila.querySelectorAll("td, th")];
+    for (let i = 0; i < celdas.length; i++) {
+      const celda = celdas[i];
+      if (celda === boton || celda.contains(boton)) continue;
+      const texto = normalizar(celda.innerText || celda.textContent);
+      if (!texto || /^(acciones?|acción|opciones?|ver|video)$/i.test(texto)) continue;
+      if (texto.length >= 3 && !esTextoBoton(texto)) agregar(texto, 90 - i);
+    }
+
+    const elementos = [...fila.querySelectorAll("span, p, div, strong, label, a")];
+    for (const elemento of elementos) {
+      if (elemento === boton || elemento.contains(boton)) continue;
+      const texto = normalizar(elemento.innerText || elemento.textContent);
+      if (!texto) continue;
+      if (texto.length > 2 && texto.length < 250 && !esTextoBoton(texto)) agregar(texto, 50);
+    }
+
+    const clon = fila.cloneNode(true);
+    clon.querySelectorAll("[wire\\\\:click*='verRecursoVideo']").forEach(elemento => elemento.remove());
+    const textoSinBoton = normalizar(clon.innerText || clon.textContent).replace(/\\bver\\s*video\\b/gi, "").replace(/\\bvideo\\b/gi, "").replace(/\\s+/g, " ").trim();
+    agregar(textoSinBoton, 30);
+
+    candidatos.sort((a, b) => b.prioridad - a.prioridad || (a.texto.length - b.texto.length));
+    const vistos = new Set();
+    for (const candidato of candidatos) {
+      const clave = candidato.texto.toLowerCase();
+      if (vistos.has(clave)) continue;
+      vistos.add(clave);
+      if (/^(video|ver video|ver|abrir|acción|acciones)$/i.test(candidato.texto)) continue;
+      return candidato.texto;
+    }
+    return \`Video \${id}\`;
+  }
+
+  function obtenerVideos() {
+    const videos = [];
+    const filas = [...document.querySelectorAll("tr")];
+    for (const fila of filas) {
+      const textoFila = normalizar(fila.innerText);
+      if (!textoFila || !/\\bvideo\\b/i.test(textoFila)) continue;
+      const boton = fila.querySelector('[wire\\\\:click*="verRecursoVideo"]');
+      if (!boton) continue;
+      const accion = boton.getAttribute("wire:click");
+      if (!accion) continue;
+      const match = accion.match(/verRecursoVideo\\s*\\(\\s*['"]?(\\d+)['"]?\\s*\\)/);
+      if (!match) continue;
+      const id = match[1];
+      const titulo = obtenerNombreRealVideo(fila, boton, id);
+      const bloqueEncontrado = textoFila.match(/\\bS\\d{1,3}\\b/i);
+      const bloque = bloqueEncontrado ? bloqueEncontrado[0].toUpperCase() : detectarBloque(fila);
+      videos.push({ id, titulo, bloque, elemento: boton });
+    }
+    const unicos = [];
+    const ids = new Set();
+    for (const video of videos) {
+      if (ids.has(video.id)) continue;
+      ids.add(video.id);
+      unicos.push(video);
+    }
+    return unicos;
+  }
+
+  function cerrarVideo() {
+    const selectores = ["[data-bs-dismiss='modal']", ".modal .btn-close", ".modal button.close", "[data-dismiss='modal']"];
+    for (const selector of selectores) {
+      const boton = document.querySelector(selector);
+      if (boton) {
+        try { boton.click(); } catch (e) {}
+        return;
+      }
+    }
+    try {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", keyCode: 27, which: 27, bubbles: true }));
+    } catch (e) {}
+  }
+
+  function guardarVideo(categoria, curso, video, url) {
+    let cursoResultado = RESULTADO.find(x => x.categoria === categoria && x.nombre === curso);
+    if (!cursoResultado) {
+      cursoResultado = { nombre: curso, categoria: categoria, videos: [] };
+      RESULTADO.push(cursoResultado);
+    }
+    const existe = cursoResultado.videos.some(x => x.url === url);
+    if (existe) return false;
+    cursoResultado.videos.push({ nombre: video.titulo, url });
+    return true;
+  }
+
+  async function procesarVideo(video, categoria, curso, semana) {
+    console.log(\`▶ \${categoria} | \${curso} | SEMANA \${semana.numero} | \${video.titulo}\`);
+    const boton = [...document.querySelectorAll("[wire\\\\:click]")].find(elemento => elemento.getAttribute("wire:click") === \`verRecursoVideo(\${video.id})\`);
+    if (!boton) return;
+    const antes = youtubesActuales();
+    try { boton.click(); } catch (error) { return; }
+    let enlace = null;
+    for (let intento = 0; intento < 24; intento++) {
+      await esperar(500);
+      const despues = youtubesActuales();
+      for (const url of despues) {
+        if (!antes.has(url)) { enlace = url; break; }
+      }
+      if (enlace) break;
+    }
+    if (!enlace) {
+      const actuales = youtubesActuales();
+      for (const url of actuales) { enlace = url; break; }
+    }
+    if (!enlace) {
+      cerrarVideo();
+      await esperar(700);
+      return;
+    }
+    guardarVideo(categoria, curso, video, enlace);
+    cerrarVideo();
+    await esperar(ESPERA_VIDEO);
+  }
+
+  async function cambiarCurso(curso) {
+    const select = buscarSelectorCursos();
+    if (!select) return false;
+    const antes = document.querySelector("tbody")?.innerText || "";
+    select.value = curso.value;
+    select.dispatchEvent(new Event("input", { bubbles: true }));
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    for (let intento = 0; intento < 30; intento++) {
+      await esperar(500);
+      const despues = document.querySelector("tbody")?.innerText || "";
+      if (despues && despues !== antes) {
+        await esperar(ESPERA_CURSO);
+        return true;
+      }
+    }
+    await esperar(1500);
+    return true;
+  }
+
+  async function procesarCurso(curso, categoria, numero, total, semanaSolicitada) {
+    console.log(\`\\n--------------------------------\\n📚 \${numero}/\${total} — \${curso.nombre}\\n--------------------------------\`);
+    await cambiarCurso(curso);
+    await esperar(1200);
+    const botonesSemanas = obtenerBotonesSemanas();
+
+    if (botonesSemanas.length === 0) {
+      const semanaSinBoton = categoria === "SEMINARIOS DE CIENCIAS" ? 1 : 0;
+      if (semanaSolicitada !== null && semanaSinBoton !== semanaSolicitada) return;
+      const semana = { numero: semanaSinBoton, nombre: \`SEMANA \${String(semanaSinBoton).padStart(2, "0")}\` };
+      const videos = obtenerVideos();
+      for (const video of videos) {
+        await procesarVideo(video, categoria, curso.nombre, semana);
+        await esperar(700);
+      }
+      return;
+    }
+
+    if (semanaSolicitada === null) {
+      for (const botonSemana of botonesSemanas) {
+        const semana = await cambiarSemana(botonSemana.numero);
+        if (!semana) continue;
+        await esperar(1000);
+        const videos = obtenerVideos();
+        for (const video of videos) {
+          await procesarVideo(video, categoria, curso.nombre, semana);
+          await esperar(700);
+        }
+      }
+      return;
+    }
+
+    const encontrada = botonesSemanas.find(x => x.numero === semanaSolicitada);
+    if (!encontrada) return;
+    const semana = await cambiarSemana(semanaSolicitada);
+    if (!semana) return;
+    await esperar(1000);
+    const videos = obtenerVideos();
+    for (const video of videos) {
+      await procesarVideo(video, categoria, curso.nombre, semana);
+      await esperar(700);
+    }
+  }
+
+  async function procesarCategoria(categoria, semanaSolicitada) {
+    const correcta = await cambiarCategoria(categoria);
+    if (!correcta) return;
+    await esperar(1500);
+    const cursos = obtenerCursos();
+    if (!cursos.length) return;
+    for (let i = 0; i < cursos.length; i++) {
+      await procesarCurso(cursos[i], categoria, i + 1, cursos.length, semanaSolicitada);
+      await esperar(1000);
+    }
+  }
+
+  function generarTXT() {
+    return JSON.stringify(RESULTADO, null, 2);
+  }
+
+  function descargarArchivo(contenido) {
+    const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = "recursos.txt";
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function ejecutar(semanaSolicitada) {
+    console.clear();
+    RESULTADO.length = 0;
+    console.log("================================\\n🚀 EXTRACTOR BRICEÑO 2027\\n================================");
+    for (const categoria of CATEGORIAS) {
+      await procesarCategoria(categoria, semanaSolicitada);
+      await esperar(1500);
+    }
+    const contenido = generarTXT();
+    descargarArchivo(contenido);
+  }
+
+  const SEMANA = 2;
+  await ejecutar(SEMANA);
+})();`;
+
+                    navigator.clipboard.writeText(scriptCode);
+                    showNotice("¡Script Copiado!", "El código del Extractor Briceño 2027 ha sido copiado a tu portapapeles. Solo abre F12 en tu aula virtual Briceño, ve a la Consola, pega el código y presiona Enter.");
+                  }}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '12px',
+                    border: '1.5px solid var(--accent-color)',
+                    background: 'rgba(0, 122, 255, 0.12)',
+                    color: 'var(--accent-color)',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 8px rgba(0, 122, 255, 0.15)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  title="Copiar Script Extractor Briceño 2027 para ejecutarlo en la consola de la web"
+                >
+                  <Code size={15} /> Copiar Extractor de Videos ⚡
+                </button>
+
+                <a
+                  href="https://console.firebase.google.com/project/rumbo-jonsu/firestore/databases/-default-/data/~2Fbriceno_2027_semanas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '12px',
+                    background: 'rgba(52, 199, 89, 0.15)',
+                    color: '#34C759',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <ExternalLink size={14} /> Firebase Console ↗
+                </a>
+              </div>
             </div>
 
             {/* Quick JSON Uploader Form */}
