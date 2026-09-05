@@ -263,6 +263,8 @@ export const UserProfile = () => {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [selectedFrame, setSelectedFrame] = useState('none');
   const [academicStatus, setAcademicStatus] = useState('postulante'); // 'postulante' | 'estudiante_unsa' | 'cachimbo' | 'egresado'
+  const [showAcademicBadge, setShowAcademicBadge] = useState(true);
+  const [showRoleBadges, setShowRoleBadges] = useState(true);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [coverPositionY, setCoverPositionY] = useState(50);
@@ -443,6 +445,8 @@ export const UserProfile = () => {
           setAvatarUrl(data.photoURL || '');
           setSelectedFrame(data.avatarFrame || 'none');
           setAcademicStatus(academicStatus);
+          setShowAcademicBadge(data.showAcademicBadge !== undefined ? Boolean(data.showAcademicBadge) : true);
+          setShowRoleBadges(data.showRoleBadges !== undefined ? Boolean(data.showRoleBadges) : true);
           setSelectedGradient(data.coverGradient || BANNER_PRESETS[0].style);
           setCustomCoverUrl(data.coverUrl || '');
           setCoverType(data.coverUrl ? 'custom' : 'preset');
@@ -580,6 +584,8 @@ export const UserProfile = () => {
         coverFitMode: coverFitMode || 'cover',
         avatarFrame: selectedFrame,
         academicStatus: academicStatus,
+        showAcademicBadge: showAcademicBadge,
+        showRoleBadges: showRoleBadges,
         wallpaperUrl: '',
         ...(isUserAdmin ? {
           creatorCustomFrame: {
@@ -1235,124 +1241,132 @@ export const UserProfile = () => {
                   </h1>
 
                 {/* Academic Status Badge (UNSA / Postulante / Cachimbo / Egresado) */}
-                {profileUser.academicStatus === 'estudiante_unsa' && (
-                  <span style={{
-                    padding: '5px 14px',
-                    borderRadius: '12px',
-                    background: 'linear-gradient(135deg, rgba(190, 18, 60, 0.18), rgba(245, 158, 11, 0.18))',
-                    border: '1.5px solid #BE123C',
-                    color: '#BE123C',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    🏛️ Estudiante UNSA • Comparte Material
-                  </span>
+                {(profileUser.showAcademicBadge !== false && showAcademicBadge) && (
+                  <>
+                    {profileUser.academicStatus === 'estudiante_unsa' && (
+                      <span style={{
+                        padding: '5px 14px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(190, 18, 60, 0.18), rgba(245, 158, 11, 0.18))',
+                        border: '1.5px solid #BE123C',
+                        color: '#BE123C',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        🏛️ Estudiante UNSA • Comparte Material
+                      </span>
+                    )}
+
+                    {profileUser.academicStatus === 'cachimbo' && (
+                      <span style={{
+                        padding: '5px 14px',
+                        borderRadius: '12px',
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        border: '1.5px solid #10B981',
+                        color: '#059669',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        🎓 Cachimbo UNSA
+                      </span>
+                    )}
+
+                    {profileUser.academicStatus === 'postulante' && (
+                      <span style={{
+                        padding: '5px 14px',
+                        borderRadius: '12px',
+                        background: 'rgba(255, 85, 0, 0.14)',
+                        border: '1.5px solid #FF5500',
+                        color: '#FF5500',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        🔥 Postulante Preuniversitario
+                      </span>
+                    )}
+
+                    {profileUser.academicStatus === 'egresado' && (
+                      <span style={{
+                        padding: '5px 14px',
+                        borderRadius: '12px',
+                        background: 'rgba(100, 116, 139, 0.15)',
+                        border: '1.5px solid #64748B',
+                        color: 'var(--text-main)',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        💼 Egresado / Profesional
+                      </span>
+                    )}
+                  </>
                 )}
 
-                {profileUser.academicStatus === 'cachimbo' && (
-                  <span style={{
-                    padding: '5px 14px',
-                    borderRadius: '12px',
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    border: '1.5px solid #10B981',
-                    color: '#059669',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    🎓 Cachimbo UNSA
-                  </span>
-                )}
+                {/* Role Badges (Administrador, Aliado, Creador) */}
+                {(profileUser.showRoleBadges !== false && showRoleBadges) && (
+                  <>
+                    {isUserAdmin && (
+                      <span style={{
+                        padding: '5px 14px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25))',
+                        border: '1.5px solid #A855F7',
+                        color: '#A855F7',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        👑 ADMINISTRADOR
+                      </span>
+                    )}
 
-                {profileUser.academicStatus === 'postulante' && (
-                  <span style={{
-                    padding: '5px 14px',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 85, 0, 0.14)',
-                    border: '1.5px solid #FF5500',
-                    color: '#FF5500',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    🔥 Postulante Preuniversitario
-                  </span>
-                )}
+                    {profileUser.isAlly && (
+                      <span style={{
+                        padding: '5px 14px',
+                        borderRadius: '12px',
+                        background: 'rgba(52, 168, 83, 0.15)',
+                        border: '1.5px solid #34A853',
+                        color: '#34A853',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        🌟 ALIADO OFICIAL
+                      </span>
+                    )}
 
-                {profileUser.academicStatus === 'egresado' && (
-                  <span style={{
-                    padding: '5px 14px',
-                    borderRadius: '12px',
-                    background: 'rgba(100, 116, 139, 0.15)',
-                    border: '1.5px solid #64748B',
-                    color: 'var(--text-main)',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    💼 Egresado / Profesional
-                  </span>
-                )}
-
-                {/* Role Badges */}
-                {isUserAdmin && (
-                  <span style={{
-                    padding: '5px 14px',
-                    borderRadius: '12px',
-                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25))',
-                    border: '1.5px solid #A855F7',
-                    color: '#A855F7',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    👑 ADMINISTRADOR
-                  </span>
-                )}
-
-                {profileUser.isAlly && (
-                  <span style={{
-                    padding: '5px 14px',
-                    borderRadius: '12px',
-                    background: 'rgba(52, 168, 83, 0.15)',
-                    border: '1.5px solid #34A853',
-                    color: '#34A853',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    🌟 ALIADO OFICIAL
-                  </span>
-                )}
-
-                {(profileUser.hasWarning || profileUser.banned) && (
-                  <span style={{
-                    padding: '5px 14px',
-                    borderRadius: '12px',
-                    background: 'rgba(245, 158, 11, 0.15)',
-                    border: '1.5px solid #F59E0B',
-                    color: '#D97706',
-                    fontWeight: 800,
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    ⚠️ AVISO DE MODERACIÓN
-                  </span>
+                    {(profileUser.hasWarning || profileUser.banned) && (
+                      <span style={{
+                        padding: '5px 14px',
+                        borderRadius: '12px',
+                        background: 'rgba(245, 158, 11, 0.15)',
+                        border: '1.5px solid #F59E0B',
+                        color: '#D97706',
+                        fontWeight: 800,
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        ⚠️ AVISO DE MODERACIÓN
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -3172,6 +3186,99 @@ export const UserProfile = () => {
                   lineHeight: 1.4
                 }}
               />
+            </div>
+          </div>
+
+          {/* 4. INSIGNIAS & RANGOS (OPCIÓN MOSTRAR/OCULTAR) */}
+          <div style={{
+            background: 'var(--card-bg)',
+            border: '1.5px solid var(--card-border)',
+            borderRadius: '20px',
+            padding: '18px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px'
+          }}>
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              🏷️ 4. Insignias, Rangos & Estado
+            </h3>
+
+            {/* Academic Status Selector */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                Selecciona tu Estado Académico Principal:
+              </label>
+              <select
+                value={academicStatus}
+                onChange={(e) => setAcademicStatus(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  border: '1.5px solid var(--card-border)',
+                  background: 'rgba(120,120,128,0.06)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.88rem',
+                  fontWeight: 700,
+                  outline: 'none'
+                }}
+              >
+                <option value="postulante">🔥 Postulante Preuniversitario</option>
+                <option value="estudiante_unsa">🏛️ Estudiante UNSA • Comparte Material</option>
+                <option value="cachimbo">🎓 Cachimbo UNSA</option>
+                <option value="egresado">💼 Egresado / Profesional</option>
+              </select>
+            </div>
+
+            {/* Toggles to Show / Hide Badges */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                Visibilidad de Insignias en Perfil:
+              </span>
+
+              {/* Toggle Academic Badge */}
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                borderRadius: '14px',
+                background: 'rgba(120,120,128,0.06)',
+                border: '1px solid var(--card-border)',
+                cursor: 'pointer'
+              }}>
+                <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  🏛️ Mostrar Insignia de Estado Académico (UNSA, Postulante, etc.)
+                </span>
+                <input
+                  type="checkbox"
+                  checked={showAcademicBadge}
+                  onChange={(e) => setShowAcademicBadge(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: 'var(--accent-color)', cursor: 'pointer' }}
+                />
+              </label>
+
+              {/* Toggle Role Badges */}
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                borderRadius: '14px',
+                background: 'rgba(120,120,128,0.06)',
+                border: '1px solid var(--card-border)',
+                cursor: 'pointer'
+              }}>
+                <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  👑 Mostrar Insignias Especiales (Administrador, Aliado, Creador)
+                </span>
+                <input
+                  type="checkbox"
+                  checked={showRoleBadges}
+                  onChange={(e) => setShowRoleBadges(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: 'var(--accent-color)', cursor: 'pointer' }}
+                />
+              </label>
             </div>
           </div>
 
