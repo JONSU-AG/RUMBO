@@ -34,18 +34,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Bubblewrap & Generate Key & Build APK
+      - name: Install Bubblewrap & Build Android Project
         run: |
           npm install -g @bubblewrap/cli
-          mkdir -p android-build
-          cd android-build
-          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="." --skipPrompt || true
-          
-      - name: Upload APK & Web Build Artifacts
+          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="./android-project" --skipPrompt || true
+          if [ -d "./android-project" ]; then
+            cd android-project
+            npx @bubblewrap/cli build || true
+          fi
+
+      - name: Upload Web Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rumbo-app-release
-          path: |
-            dist/
-            android-build/*.apk
-            android-build/*.aab
+          name: rumbo-web-dist
+          path: dist/
