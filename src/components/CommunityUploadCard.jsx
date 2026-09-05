@@ -427,7 +427,7 @@ export const CommunityUploadCard = ({
       </div>
 
       {/* ─── MEDIA PREVIEW DIRECTO (ESTILO PERFIL / FACEBOOK) ─── */}
-      {item.url && (
+      {item.url && isPreviewOpen && (
         <div style={{ marginTop: '6px' }}>
           {isImage ? (
             <div
@@ -466,26 +466,22 @@ export const CommunityUploadCard = ({
               />
             </div>
           ) : (
-            <div>
-              {isPreviewOpen && (
-                <div style={{
-                  borderRadius: '20px',
-                  overflow: 'hidden',
-                  border: '2px solid rgba(0, 122, 255, 0.4)',
-                  height: isFolder ? '440px' : '520px',
-                  maxWidth: '480px',
-                  margin: '4px auto 8px auto',
-                  background: '#FFFFFF',
-                  boxShadow: '0 8px 28px rgba(0,0,0,0.15)'
-                }}>
-                  <iframe
-                    src={previewUrl}
-                    title={item.title}
-                    style={{ width: '100%', height: '100%', border: 'none', background: '#FFFFFF' }}
-                    allow="autoplay"
-                  />
-                </div>
-              )}
+            <div style={{
+              borderRadius: '20px',
+              overflow: 'hidden',
+              border: '2px solid rgba(0, 122, 255, 0.4)',
+              height: isFolder ? '440px' : '520px',
+              maxWidth: '480px',
+              margin: '4px auto 8px auto',
+              background: '#FFFFFF',
+              boxShadow: '0 8px 28px rgba(0,0,0,0.15)'
+            }}>
+              <iframe
+                src={previewUrl}
+                title={item.title}
+                style={{ width: '100%', height: '100%', border: 'none', background: '#FFFFFF' }}
+                allow="autoplay"
+              />
             </div>
           )}
         </div>
@@ -513,11 +509,10 @@ export const CommunityUploadCard = ({
           <ExternalLink size={14} /> Abrir Recurso
         </a>
 
-        {!isImage && (
-          <button
-            onClick={() => setIsPreviewOpen(prev => !prev)}
-            style={{
-              padding: '8px 14px',
+        <button
+          onClick={() => setIsPreviewOpen(prev => !prev)}
+          style={{
+            padding: '8px 14px',
               borderRadius: '12px',
               border: '1px solid var(--card-border)',
               background: isPreviewOpen ? 'rgba(0, 122, 255, 0.12)' : 'transparent',
@@ -532,7 +527,6 @@ export const CommunityUploadCard = ({
           >
             <Eye size={14} /> {isPreviewOpen ? 'Ocultar Vista Previa' : 'Vista Previa'}
           </button>
-        )}
 
         <button
           onClick={handleShare}
