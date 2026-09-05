@@ -69,6 +69,26 @@ export const Home = () => {
   // Material Form State (del index anterior, enriquecido y fiel)
   const [matTitle, setMatTitle] = useState('');
   const [matCategory, setMatCategory] = useState('tomos'); // 'tomos' | 'practicas' | 'examenes' | 'resumenes'
+  const [isHomeCategoryOpen, setIsHomeCategoryOpen] = useState(false);
+  const homeCategoryRef = React.useRef(null);
+
+  const CATEGORIES_HOME = [
+    { id: 'tomos', label: 'Tomos y Libros', icon: BookOpen },
+    { id: 'practicas', label: 'Prácticas y Bancos', icon: FileText },
+    { id: 'examenes', label: 'Exámenes Pasados', icon: CheckCircle2 },
+    { id: 'resumenes', label: 'Resúmenes y Apuntes', icon: Sparkles },
+    { id: 'variado', label: 'Variado / Otros', icon: Layers }
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (homeCategoryRef.current && !homeCategoryRef.current.contains(e.target)) {
+        setIsHomeCategoryOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const [matAuthor, setMatAuthor] = useState('');
   const [matSourceMode, setMatSourceMode] = useState('link'); // 'link' | 'file'
   const [matUrl, setMatUrl] = useState('');
@@ -863,33 +883,123 @@ export const Home = () => {
                 />
               </div>
 
-              {/* 2. Categoría */}
-              <div>
+              {/* 2. Categoría - Custom Animated Dropdown Menu */}
+              <div style={{ position: 'relative' }} ref={homeCategoryRef}>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '6px' }}>
                   Categoría
                 </label>
-                <select
-                  value={matCategory}
-                  onChange={(e) => setMatCategory(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    borderRadius: '14px',
-                    border: '1.5px solid var(--card-border)',
-                    background: 'rgba(120, 120, 128, 0.08)',
-                    color: 'var(--text-main)',
-                    fontSize: '0.92rem',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <option value="tomos" style={{ background: '#1c1c1e', color: '#fff' }}>📚 Tomos y Libros</option>
-                  <option value="practicas" style={{ background: '#1c1c1e', color: '#fff' }}>📗 Prácticas y Bancos</option>
-                  <option value="examenes" style={{ background: '#1c1c1e', color: '#fff' }}>📝 Exámenes Pasados</option>
-                  <option value="resumenes" style={{ background: '#1c1c1e', color: '#fff' }}>📑 Resúmenes y Apuntes</option>
-                  <option value="variado" style={{ background: '#1c1c1e', color: '#fff' }}>✨ Variado / Otros</option>
-                </select>
+
+                {(() => {
+                  const currentCat = CATEGORIES_HOME.find(c => c.id === matCategory) || CATEGORIES_HOME[0];
+                  const Icon = currentCat.icon;
+
+                  return (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setIsHomeCategoryOpen(!isHomeCategoryOpen)}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          borderRadius: '14px',
+                          border: isHomeCategoryOpen ? '1.5px solid var(--accent-color)' : '1.5px solid var(--card-border)',
+                          background: 'rgba(120, 120, 128, 0.08)',
+                          color: 'var(--text-main)',
+                          fontSize: '0.92rem',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          cursor: 'pointer',
+                          boxSizing: 'border-box',
+                          boxShadow: isHomeCategoryOpen ? '0 0 0 3px rgba(0, 122, 255, 0.25)' : 'none',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                          <Icon size={16} style={{ color: 'var(--accent-color)', flexShrink: 0 }} />
+                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {currentCat.label}
+                          </span>
+                        </div>
+                        <motion.div
+                          animate={{ rotate: isHomeCategoryOpen ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                          style={{ display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', flexShrink: 0 }}
+                        >
+                          <ChevronRight size={16} style={{ transform: 'rotate(90deg)' }} />
+                        </motion.div>
+                      </button>
+
+                      {/* Dropdown Options Box */}
+                      <AnimatePresence>
+                        {isHomeCategoryOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 6, scale: 1 }}
+                            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                            style={{
+                              position: 'absolute',
+                              top: '100%',
+                              left: 0,
+                              right: 0,
+                              zIndex: 100,
+                              background: 'var(--card-bg)',
+                              border: '1.5px solid var(--card-border)',
+                              borderRadius: '16px',
+                              padding: '6px',
+                              boxShadow: '0 16px 36px rgba(0,0,0,0.45)',
+                              backdropFilter: 'blur(20px)',
+                              WebkitBackdropFilter: 'blur(20px)',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '3px'
+                            }}
+                          >
+                            {CATEGORIES_HOME.map((cat) => {
+                              const CatIcon = cat.icon;
+                              const isSelected = matCategory === cat.id;
+
+                              return (
+                                <button
+                                  key={cat.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setMatCategory(cat.id);
+                                    setIsHomeCategoryOpen(false);
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px 12px',
+                                    borderRadius: '10px',
+                                    border: 'none',
+                                    background: isSelected ? 'rgba(0, 122, 255, 0.15)' : 'transparent',
+                                    color: isSelected ? 'var(--accent-color)' : 'var(--text-main)',
+                                    fontSize: '0.86rem',
+                                    fontWeight: isSelected ? 800 : 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    cursor: 'pointer',
+                                    textAlign: 'left',
+                                    transition: 'all 0.15s ease'
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <CatIcon size={16} style={{ color: isSelected ? 'var(--accent-color)' : 'var(--text-secondary)' }} />
+                                    <span>{cat.label}</span>
+                                  </div>
+                                  {isSelected && <Check size={14} style={{ color: 'var(--accent-color)' }} />}
+                                </button>
+                              );
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* 3. Nombre del Autor o Créditos */}
