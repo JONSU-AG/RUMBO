@@ -4,8 +4,8 @@ export const Logo = ({ className = '', showText = true }) => {
   const [imageFailed, setImageFailed] = useState(false);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '1.2rem', color: 'var(--text-primary)' }} className={className}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '900', fontSize: '1rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }} className={className}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: '#fff', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
         {!imageFailed ? (
           <img
             src="./assets/LOGOR.png"

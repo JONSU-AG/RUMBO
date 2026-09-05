@@ -106,8 +106,8 @@ export const LiquidNavbar = () => {
   return (
     <>
       {/* Mobile Header (Fixed Top Bar with Labels for New Users) */}
-      <header className="mobile-header" style={{ padding: '8px 10px', gap: '6px' }}>
-        <Logo showText={true} size={28} />
+      <header className="mobile-header" style={{ padding: '6px 8px', gap: '4px', justifyContent: 'space-between' }}>
+        <Logo showText={true} size={24} />
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
 
@@ -117,21 +117,21 @@ export const LiquidNavbar = () => {
               to="/chats"
               title="Mis Mensajes Privados"
               style={{
-                padding: '5px 7px',
-                borderRadius: '12px',
+                padding: '4px 6px',
+                borderRadius: '10px',
                 border: 'none',
                 background: 'rgba(16, 185, 129, 0.14)',
                 color: '#059669',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '3px',
-                fontSize: '0.7rem',
+                gap: '2px',
+                fontSize: '0.65rem',
                 fontWeight: 800,
                 textDecoration: 'none',
                 cursor: 'pointer'
               }}
             >
-              <MessageSquare size={13} />
+              <MessageSquare size={12} />
               <span className="hide-on-xs">Chats</span>
             </NavLink>
           )}
@@ -142,21 +142,21 @@ export const LiquidNavbar = () => {
               onClick={() => setIsNotifOpen(true)}
               title="Notificaciones y Avisos"
               style={{
-                padding: '5px 7px',
-                borderRadius: '12px',
+                padding: '4px 6px',
+                borderRadius: '10px',
                 border: 'none',
                 background: 'rgba(0, 122, 255, 0.12)',
                 color: 'var(--accent-color)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '3px',
-                fontSize: '0.7rem',
+                gap: '2px',
+                fontSize: '0.65rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 position: 'relative'
               }}
             >
-              <Bell size={13} />
+              <Bell size={12} />
               <span className="hide-on-xs">Avisos</span>
               {unreadCount > 0 && (
                 <span style={{
@@ -165,10 +165,10 @@ export const LiquidNavbar = () => {
                   right: '-3px',
                   background: '#EF4444',
                   color: '#FFFFFF',
-                  fontSize: '0.58rem',
+                  fontSize: '0.55rem',
                   fontWeight: 800,
-                  width: '14px',
-                  height: '14px',
+                  width: '13px',
+                  height: '13px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
@@ -186,20 +186,20 @@ export const LiquidNavbar = () => {
             onClick={() => setIsUploadOpen(true)}
             title="Aportar Material Educativo"
             style={{
-              padding: '5px 7px',
-              borderRadius: '12px',
+              padding: '4px 6px',
+              borderRadius: '10px',
               border: 'none',
               background: 'rgba(0, 122, 255, 0.12)',
               color: 'var(--accent-color)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '3px',
-              fontSize: '0.7rem',
+              gap: '2px',
+              fontSize: '0.65rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <UploadCloud size={13} />
+            <UploadCloud size={12} />
             <span className="hide-on-xs">Subir</span>
           </button>
 
@@ -208,20 +208,20 @@ export const LiquidNavbar = () => {
             onClick={() => setIsThemeOpen(true)}
             title="Cambiar Tema Visual"
             style={{
-              padding: '5px 7px',
-              borderRadius: '12px',
+              padding: '4px 6px',
+              borderRadius: '10px',
               border: 'none',
               background: 'rgba(120, 120, 128, 0.12)',
               color: 'var(--text-main)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '3px',
-              fontSize: '0.7rem',
+              gap: '2px',
+              fontSize: '0.65rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <Palette size={13} />
+            <Palette size={12} />
             <span className="hide-on-xs">Tema</span>
           </button>
         </div>
