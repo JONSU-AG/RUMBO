@@ -6,13 +6,13 @@ import { getAnalytics } from 'firebase/analytics';
 
 // RUMBO · Configuración Firebase — Proyecto: rumbo-jonsu
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBam3fNnAZ9hwRhpDKcPR_JMo7yHskDcy8",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "rumbo-jonsu.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "rumbo-jonsu",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "rumbo-jonsu.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "432336496806",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:432336496806:web:12dea10b50433371abac67",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-XV6Y32GBJ9"
 };
 
 const app = initializeApp(firebaseConfig);
