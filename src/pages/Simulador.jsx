@@ -249,6 +249,8 @@ export const Simulador = () => {
   const [examAuthorFilter, setExamAuthorFilter] = useState('todos');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [userExamAnswers, setUserExamAnswers] = useState({}); // { [qIndex]: optionIndex }
+  const [examResultsModal, setExamResultsModal] = useState({ isOpen: false, score: 0, total: 0, details: [] });
   const [isExamCreateOpen, setIsExamCreateOpen] = useState(false);
   const [editingExamId, setEditingExamId] = useState(null);
   const [newExamQuestion, setNewExamQuestion] = useState({
@@ -1121,7 +1123,10 @@ export const Simulador = () => {
                                 key={i}
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
-                                onClick={() => setSelectedOption(i)}
+                                onClick={() => {
+                                  setSelectedOption(i);
+                                  setUserExamAnswers(prev => ({ ...prev, [currentQuestion]: i }));
+                                }}
                                 style={{
                                   padding: '16px 20px',
                                   borderRadius: '18px',
@@ -1160,14 +1165,80 @@ export const Simulador = () => {
                           })}
                         </div>
 
-                        <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'flex-end' }}>
+                        <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Calculate score and build detailed summary
+                              const allAnswers = { ...userExamAnswers, [currentQuestion]: selectedOption };
+                              let correctCount = 0;
+                              const details = filteredExamQuestions.map((q, idx) => {
+                                const userChoice = allAnswers[idx];
+                                const isCorrect = userChoice === q.answer;
+                                if (isCorrect) correctCount++;
+                                return {
+                                  question: q.q,
+                                  options: q.options || [],
+                                  userChoice,
+                                  correctChoice: q.answer,
+                                  isCorrect,
+                                  authorName: q.authorName || 'Comunidad RUMBO'
+                                };
+                              });
+
+                              setExamResultsModal({
+                                isOpen: true,
+                                score: correctCount,
+                                total: filteredExamQuestions.length,
+                                details
+                              });
+                            }}
+                            style={{
+                              padding: '12px 20px',
+                              borderRadius: '16px',
+                              border: '1.5px solid rgba(236, 72, 153, 0.4)',
+                              background: 'rgba(236, 72, 153, 0.12)',
+                              color: '#EC4899',
+                              fontWeight: 800,
+                              fontSize: '0.88rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            📋 Ver Respuestas
+                          </button>
+
                           <button 
                             onClick={() => {
-                              if (currentQuestion < communityExamQuestions.length - 1) {
+                              const updatedAnswers = { ...userExamAnswers, [currentQuestion]: selectedOption };
+                              if (currentQuestion < filteredExamQuestions.length - 1) {
                                 setCurrentQuestion(q => q + 1);
-                                setSelectedOption(null);
+                                setSelectedOption(updatedAnswers[currentQuestion + 1] !== undefined ? updatedAnswers[currentQuestion + 1] : null);
                               } else {
-                                alert("¡Examen Terminado! Tu respuesta ha sido verificada.");
+                                // Finalize exam and open popup modal automatically
+                                let correctCount = 0;
+                                const details = filteredExamQuestions.map((q, idx) => {
+                                  const userChoice = updatedAnswers[idx];
+                                  const isCorrect = userChoice === q.answer;
+                                  if (isCorrect) correctCount++;
+                                  return {
+                                    question: q.q,
+                                    options: q.options || [],
+                                    userChoice,
+                                    correctChoice: q.answer,
+                                    isCorrect,
+                                    authorName: q.authorName || 'Comunidad RUMBO'
+                                  };
+                                });
+
+                                setExamResultsModal({
+                                  isOpen: true,
+                                  score: correctCount,
+                                  total: filteredExamQuestions.length,
+                                  details
+                                });
                               }
                             }}
                             disabled={selectedOption === null}
@@ -1184,7 +1255,7 @@ export const Simulador = () => {
                               transition: 'all 0.25s ease'
                             }}
                           >
-                            {currentQuestion < communityExamQuestions.length - 1 ? 'Siguiente Pregunta ➔' : 'Finalizar Examen 🏁'}
+                            {currentQuestion < filteredExamQuestions.length - 1 ? 'Siguiente Pregunta ➔' : 'Finalizar Examen & Ver Resultados 🏁'}
                           </button>
                         </div>
                       </>
@@ -1666,6 +1737,170 @@ export const Simulador = () => {
         targetTitle={reportData.targetTitle}
         targetType={reportData.targetType}
       />
+
+      {/* 🏁 POPUP DE RESULTADOS Y RESPUESTAS DEL EXAMEN RÁPIDO */}
+      <AnimatePresence>
+        {examResultsModal.isOpen && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="ios-glass-card"
+              style={{
+                width: '100%',
+                maxWidth: '620px',
+                maxHeight: '85vh',
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: '28px',
+                padding: '26px',
+                background: 'var(--card-bg)',
+                border: '1.5px solid rgba(236, 72, 153, 0.4)',
+                boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
+                boxSizing: 'border-box'
+              }}
+            >
+              {/* Modal Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--card-border)', paddingBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '14px', background: 'linear-gradient(135deg, #EC4899, #F43F5E)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800 }}>
+                    🏁
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                      Resultados del Examen Rápido
+                    </h3>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Verificación de claves y explicaciones
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setExamResultsModal({ ...examResultsModal, isOpen: false })}
+                  style={{ background: 'rgba(120,120,128,0.1)', border: 'none', color: 'var(--text-secondary)', padding: '8px', borderRadius: '50%', cursor: 'pointer' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Score Header Card */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.14) 0%, rgba(244, 63, 94, 0.08) 100%)',
+                border: '1.5px solid rgba(236, 72, 153, 0.3)',
+                borderRadius: '20px',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '18px'
+              }}>
+                <div>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#EC4899', display: 'block', marginBottom: '2px' }}>
+                    PUNTAJE OBTENIDO
+                  </span>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                    {examResultsModal.score} <span style={{ fontSize: '1rem', color: 'var(--text-secondary)', fontWeight: 700 }}>/ {examResultsModal.total} correctas</span>
+                  </div>
+                </div>
+                <div style={{
+                  padding: '8px 16px',
+                  borderRadius: '14px',
+                  background: examResultsModal.score === examResultsModal.total ? '#10B981' : (examResultsModal.score > 0 ? '#F59E0B' : '#EF4444'),
+                  color: '#FFFFFF',
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
+                }}>
+                  {Math.round((examResultsModal.score / Math.max(1, examResultsModal.total)) * 100)}% Eficiencia
+                </div>
+              </div>
+
+              {/* Scrollable Questions & Answers List */}
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', paddingRight: '4px' }}>
+                {examResultsModal.details.map((item, qIdx) => {
+                  const userOptText = item.userChoice !== undefined && item.options[item.userChoice] !== undefined ? item.options[item.userChoice] : 'Sin responder';
+                  const correctOptText = item.options[item.correctChoice] || 'N.A.';
+
+                  return (
+                    <div
+                      key={qIdx}
+                      style={{
+                        padding: '16px 18px',
+                        borderRadius: '18px',
+                        background: item.isCorrect ? 'rgba(16, 185, 129, 0.06)' : 'rgba(239, 68, 68, 0.06)',
+                        border: item.isCorrect ? '1.5px solid rgba(16, 185, 129, 0.3)' : '1.5px solid rgba(239, 68, 68, 0.3)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', marginBottom: '8px' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-main)', lineHeight: 1.4 }}>
+                          {qIdx + 1}. {item.question}
+                        </span>
+                        <span style={{
+                          padding: '4px 10px',
+                          borderRadius: '10px',
+                          fontSize: '0.75rem',
+                          fontWeight: 800,
+                          background: item.isCorrect ? 'rgba(16, 185, 129, 0.18)' : 'rgba(239, 68, 68, 0.18)',
+                          color: item.isCorrect ? '#059669' : '#DC2626',
+                          flexShrink: 0
+                        }}>
+                          {item.isCorrect ? '✓ CORRECTA' : '✗ INCORRECTA'}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.84rem', marginTop: '10px' }}>
+                        <div style={{ color: item.isCorrect ? '#059669' : '#DC2626', fontWeight: 700 }}>
+                          Tu Respuesta: <span style={{ fontWeight: 800 }}>{userOptText}</span>
+                        </div>
+                        {!item.isCorrect && (
+                          <div style={{ color: '#059669', fontWeight: 700 }}>
+                            Respuesta Correcta: <span style={{ fontWeight: 800 }}>{correctOptText}</span>
+                          </div>
+                        )}
+                        <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                          ✍️ Pregunta aportada por: {item.authorName}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Modal Footer */}
+              <div style={{ marginTop: '18px', paddingTop: '14px', borderTop: '1px solid var(--card-border)', display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setExamResultsModal({ ...examResultsModal, isOpen: false })}
+                  style={{
+                    padding: '12px 24px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 16px rgba(244, 63, 94, 0.35)'
+                  }}
+                >
+                  Entendido / Cerrar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
