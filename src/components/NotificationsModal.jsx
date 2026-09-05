@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, Check, MessageSquare, Heart, Sparkles, Trash2, ExternalLink, Megaphone, Info } from 'lucide-react';
+import { Bell, X, Check, MessageSquare, Heart, Sparkles, Trash2, ExternalLink, Megaphone, Info, Eye } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { 
   collection, 
@@ -427,9 +427,10 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                     maxWidth: '460px',
                     borderRadius: '28px',
                     padding: '24px',
-                    background: 'var(--card-bg)',
+                    background: 'var(--card-bg, #ffffff)',
+                    color: 'var(--text-main, #1c1c1e)',
                     border: '1.5px solid #A855F7',
-                    boxShadow: '0 25px 60px rgba(168, 85, 247, 0.3)',
+                    boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '16px'
