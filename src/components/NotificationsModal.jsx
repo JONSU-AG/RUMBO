@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, Check, MessageSquare, Heart, Sparkles, Trash2, ExternalLink, Megaphone, Info, Eye } from 'lucide-react';
+import { Bell, X, Check, MessageSquare, Heart, Sparkles, Trash2, ExternalLink, Megaphone, Info, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { 
   collection, 
@@ -21,6 +21,11 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [activeNotifTab, setActiveNotifTab] = useState('avisos'); // Default tab: 'avisos' (Avisos de la comunidad / Creadores)
   const [selectedNoticePopup, setSelectedNoticePopup] = useState(null);
+  const [expandedGroups, setExpandedGroups] = useState({});
+
+  const toggleGroupExpand = (groupKey) => {
+    setExpandedGroups(prev => ({ ...prev, [groupKey]: !prev[groupKey] }));
+  };
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -280,9 +285,36 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
               const avisosList = notifications.filter(isAvisos);
               const notifList = notifications.filter(n => !isAvisos(n));
 
-              const displayedList = activeNotifTab === 'avisos' ? avisosList : notifList;
+              const rawDisplayedList = activeNotifTab === 'avisos' ? avisosList : notifList;
               const avisosUnread = avisosList.filter(n => !n.read).length;
               const notifUnread = notifList.filter(n => !n.read).length;
+
+              // Group notifications Android-style if >= 3 from same sender/context
+              const groupedFeed = [];
+              if (activeNotifTab === 'avisos') {
+                rawDisplayedList.forEach(item => groupedFeed.push({ isGroup: false, item }));
+              } else {
+                const groups = {};
+                rawDisplayedList.forEach(n => {
+                  const key = n.senderUid ? `${n.type || 'gen'}_${n.senderUid}` : n.id;
+                  if (!groups[key]) groups[key] = [];
+                  groups[key].push(n);
+                });
+
+                Object.values(groups).forEach(items => {
+                  if (items.length >= 3) {
+                    groupedFeed.push({
+                      isGroup: true,
+                      groupKey: items[0].id,
+                      items: items,
+                      mainItem: items[0],
+                      unreadCount: items.filter(i => !i.read).length
+                    });
+                  } else {
+                    items.forEach(item => groupedFeed.push({ isGroup: false, item }));
+                  }
+                });
+              }
 
               return (
                 <>
@@ -356,7 +388,7 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
 
                   {/* Notifications Feed */}
                   <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
-                    {displayedList.length === 0 ? (
+                    {groupedFeed.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: '40px 10px' }}>
                         <Sparkles size={36} style={{ color: 'var(--accent-color)', marginBottom: '10px' }} />
                         <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
@@ -369,167 +401,299 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                         </p>
                       </div>
                     ) : (
-                      displayedList.map(n => {
+                      groupedFeed.map(entry => {
+                        if (entry.isGroup) {
+                          const main = entry.mainItem;
+                          const isExpanded = expandedGroups[entry.groupKey];
+
+                          return (
+                            <div
+                              key={entry.groupKey}
+                              style={{
+                                borderRadius: '18px',
+                                background: 'rgba(120, 120, 128, 0.06)',
+                                border: '1.5px solid var(--accent-color)',
+                                overflow: 'hidden'
+                              }}
+                            >
+                              {/* Group Header (Android Accordion style) */}
+                              <div
+                                onClick={() => toggleGroupExpand(entry.groupKey)}
+                                style={{
+                                  padding: '12px 14px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  cursor: 'pointer',
+                                  background: 'rgba(0, 122, 255, 0.1)',
+                                  userSelect: 'none'
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  {main.senderPhoto ? (
+                                    <img
+                                      src={main.senderPhoto}
+                                      alt={main.senderName}
+                                      style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
+                                    />
+                                  ) : (
+                                    <div style={{
+                                      width: '36px',
+                                      height: '36px',
+                                      borderRadius: '50%',
+                                      background: 'linear-gradient(135deg, var(--accent-color), #A855F7)',
+                                      color: '#fff',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontWeight: 800
+                                    }}>
+                                      {(main.senderName || 'U')[0].toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <span style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-main)' }}>
+                                      {main.senderName || 'Estudiante RUMBO'}
+                                    </span>
+                                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--accent-color)', fontWeight: 700 }}>
+                                      {entry.items.length} notificaciones agrupadas
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  {entry.unreadCount > 0 && (
+                                    <span style={{ padding: '2px 8px', borderRadius: '10px', background: '#EF4444', color: '#FFF', fontSize: '0.68rem', fontWeight: 800 }}>
+                                      {entry.unreadCount} nuevas
+                                    </span>
+                                  )}
+                                  <button
+                                    type="button"
+                                    style={{ border: 'none', background: 'transparent', color: 'var(--text-main)', cursor: 'pointer' }}
+                                  >
+                                    {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Accordion Expanded Sub-items */}
+                              {isExpanded ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '10px' }}>
+                                  {entry.items.map(subItem => (
+                                    <div
+                                      key={subItem.id}
+                                      onClick={() => handleNotificationClick(subItem)}
+                                      style={{
+                                        padding: '10px 12px',
+                                        borderRadius: '12px',
+                                        background: subItem.read ? 'rgba(120, 120, 128, 0.04)' : 'rgba(0, 122, 255, 0.12)',
+                                        border: '1px solid var(--card-border)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      <div style={{ flex: 1, minWidth: 0, paddingRight: '8px' }}>
+                                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-main)', fontWeight: subItem.read ? 400 : 700 }}>
+                                          {subItem.message}
+                                        </p>
+                                        <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
+                                          {formatDate(subItem.createdAt)}
+                                        </span>
+                                      </div>
+
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          deleteNotification(subItem.id);
+                                        }}
+                                        style={{ border: 'none', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                                      >
+                                        <Trash2 size={13} />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div
+                                  onClick={() => handleNotificationClick(main)}
+                                  style={{ padding: '10px 14px', fontSize: '0.82rem', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                >
+                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    Último: {main.message}
+                                  </span>
+                                  <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 800, flexShrink: 0 }}>
+                                    Ver todo ➔
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        const n = entry.item;
                         const isBroadcast = isAvisos(n);
 
-                  return (
-                    <div
-                      key={n.id}
-                      onClick={() => handleNotificationClick(n)}
-                      style={{
-                        padding: '14px',
-                        borderRadius: '18px',
-                        background: n.read 
-                          ? 'rgba(120, 120, 128, 0.04)' 
-                          : isBroadcast 
-                            ? 'rgba(168, 85, 247, 0.12)' 
-                            : 'rgba(0, 122, 255, 0.08)',
-                        border: n.read 
-                          ? '1px solid var(--card-border)' 
-                          : isBroadcast 
-                            ? '1.5px solid #A855F7' 
-                            : '1.5px solid var(--accent-color)',
-                        display: 'flex',
-                        gap: '12px',
-                        alignItems: 'flex-start',
-                        transition: 'all 0.2s ease',
-                        cursor: 'pointer',
-                        position: 'relative'
-                      }}
-                    >
-                      {/* Avatar / Icon */}
-                      {isBroadcast ? (
-                        <div style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #A855F7, #6366F1)',
-                          color: '#FFF',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                          boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)'
-                        }}>
-                          <Megaphone size={20} />
-                        </div>
-                      ) : n.senderPhoto ? (
-                        <img
-                          src={n.senderPhoto}
-                          alt={n.senderName}
-                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-                        />
-                      ) : (
-                        <div style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, var(--accent-color), #A855F7)',
-                          color: '#fff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '0.9rem',
-                          flexShrink: 0
-                        }}>
-                          {(n.senderName || 'U')[0].toUpperCase()}
-                        </div>
-                      )}
+                        return (
+                          <div
+                            key={n.id}
+                            onClick={() => handleNotificationClick(n)}
+                            style={{
+                              padding: '14px',
+                              borderRadius: '18px',
+                              background: n.read 
+                                ? 'rgba(120, 120, 128, 0.04)' 
+                                : isBroadcast 
+                                  ? 'rgba(168, 85, 247, 0.12)' 
+                                  : 'rgba(0, 122, 255, 0.08)',
+                              border: n.read 
+                                ? '1px solid var(--card-border)' 
+                                : isBroadcast 
+                                  ? '1.5px solid #A855F7' 
+                                  : '1.5px solid var(--accent-color)',
+                              display: 'flex',
+                              gap: '12px',
+                              alignItems: 'flex-start',
+                              transition: 'all 0.2s ease',
+                              cursor: 'pointer',
+                              position: 'relative'
+                            }}
+                          >
+                            {/* Avatar / Icon */}
+                            {isBroadcast ? (
+                              <div style={{
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, #A855F7, #6366F1)',
+                                color: '#FFF',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)'
+                              }}>
+                                <Megaphone size={20} />
+                              </div>
+                            ) : n.senderPhoto ? (
+                              <img
+                                src={n.senderPhoto}
+                                alt={n.senderName}
+                                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                              />
+                            ) : (
+                              <div style={{
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, var(--accent-color), #A855F7)',
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 800,
+                                fontSize: '0.9rem',
+                                flexShrink: 0
+                              }}>
+                                {(n.senderName || 'U')[0].toUpperCase()}
+                              </div>
+                            )}
 
-                      {/* Content */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        {isBroadcast ? (
-                          <>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                              <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px', background: 'rgba(168, 85, 247, 0.2)', color: '#A855F7' }}>
-                                📢 AVISO COMUNITARIO
-                              </span>
+                            {/* Content */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              {isBroadcast ? (
+                                <>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px', background: 'rgba(168, 85, 247, 0.2)', color: '#A855F7' }}>
+                                      📢 AVISO COMUNITARIO
+                                    </span>
+                                  </div>
+                                  <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)', margin: '2px 0' }}>
+                                    {n.title || 'Aviso Oficial RUMBO'}
+                                  </div>
+                                  <div style={{
+                                    fontSize: '0.84rem',
+                                    color: 'var(--text-main)',
+                                    lineHeight: 1.45,
+                                    whiteSpace: (n.message && n.message.length <= 140) ? 'pre-wrap' : 'normal',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    display: (n.message && n.message.length > 140) ? '-webkit-box' : 'block',
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: 'vertical'
+                                  }}>
+                                    {n.message}
+                                  </div>
+                                </>
+                              ) : (
+                                <div style={{ fontSize: '0.88rem', color: 'var(--text-main)', lineHeight: 1.4 }}>
+                                  <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
+                                    {n.senderName || 'Estudiante RUMBO'}
+                                  </span>{' '}
+                                  {n.message}
+                                </div>
+                              )}
+
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                                <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                                  {formatDate(n.createdAt)}
+                                </span>
+
+                                {isBroadcast ? (
+                                  (n.message && n.message.length > 140) ? (
+                                    <span style={{ fontSize: '0.76rem', fontWeight: 700, color: '#A855F7', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                      <Eye size={13} /> Ver más
+                                    </span>
+                                  ) : null
+                                ) : (
+                                  <span style={{ 
+                                    fontSize: '0.76rem', 
+                                    fontWeight: 700, 
+                                    color: (n.type === 'chat' || n.type === 'mensaje') ? '#059669' : 'var(--accent-color)', 
+                                    display: 'inline-flex', 
+                                    alignItems: 'center', 
+                                    gap: '4px' 
+                                  }}>
+                                    {(n.type === 'chat' || n.type === 'mensaje' || n.type === 'direct_message') 
+                                      ? <>Ver Mensaje Privado 💬</>
+                                      : (n.postId || n.type === 'comment' || n.type === 'reaction' || n.type === 'wall_post')
+                                        ? <>Ir a la Publicación 📄</>
+                                        : (n.type === 'material' || n.materialId)
+                                          ? <>Ver Material 📚</>
+                                          : <>Ver en Perfil <ExternalLink size={12} /></>
+                                    }
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)', margin: '2px 0' }}>
-                              {n.title || 'Aviso Oficial RUMBO'}
-                            </div>
-                            <div style={{
-                              fontSize: '0.84rem',
-                              color: 'var(--text-main)',
-                              lineHeight: 1.45,
-                              whiteSpace: (n.message && n.message.length <= 140) ? 'pre-wrap' : 'normal',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              display: (n.message && n.message.length > 140) ? '-webkit-box' : 'block',
-                              WebkitLineClamp: 3,
-                              WebkitBoxOrient: 'vertical'
-                            }}>
-                              {n.message}
-                            </div>
-                          </>
-                        ) : (
-                          <div style={{ fontSize: '0.88rem', color: 'var(--text-main)', lineHeight: 1.4 }}>
-                            <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
-                              {n.senderName || 'Estudiante RUMBO'}
-                            </span>{' '}
-                            {n.message}
+
+                            {/* Delete button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteNotification(n.id);
+                              }}
+                              title="Eliminar notificación"
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--text-secondary)',
+                                cursor: 'pointer',
+                                padding: '4px'
+                              }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
-                        )}
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                            {formatDate(n.createdAt)}
-                          </span>
-
-                          {isBroadcast ? (
-                            (n.message && n.message.length > 140) ? (
-                              <span style={{ fontSize: '0.76rem', fontWeight: 700, color: '#A855F7', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                <Eye size={13} /> Ver más
-                              </span>
-                            ) : null
-                          ) : (
-                            <span style={{ 
-                              fontSize: '0.76rem', 
-                              fontWeight: 700, 
-                              color: (n.type === 'chat' || n.type === 'mensaje') ? '#059669' : 'var(--accent-color)', 
-                              display: 'inline-flex', 
-                              alignItems: 'center', 
-                              gap: '4px' 
-                            }}>
-                              {(n.type === 'chat' || n.type === 'mensaje' || n.type === 'direct_message') 
-                                ? <>Ver Mensaje Privado 💬</>
-                                : (n.postId || n.type === 'comment' || n.type === 'reaction' || n.type === 'wall_post')
-                                  ? <>Ir a la Publicación 📄</>
-                                  : (n.type === 'material' || n.materialId)
-                                    ? <>Ver Material 📚</>
-                                    : <>Ver en Perfil <ExternalLink size={12} /></>
-                              }
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Delete button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteNotification(n.id);
-                        }}
-                        title="Eliminar notificación"
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: 'var(--text-secondary)',
-                          cursor: 'pointer',
-                          padding: '4px'
-                        }}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </>
-        );
-      })()}
+                        );
+                      })
+                    )}
+                  </div>
+                </>
+              );
+            })()}
           </motion.div>
 
           {/* 📢 POPUP MODAL PARA LECTURA DE AVISOS DE LA COMUNIDAD */}
