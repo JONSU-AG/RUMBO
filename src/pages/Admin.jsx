@@ -1460,25 +1460,27 @@ export const Admin = () => {
 
                       {/* Action buttons */}
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            padding: '8px 14px',
-                            borderRadius: '10px',
-                            background: 'rgba(0, 122, 255, 0.1)',
-                            color: 'var(--accent-color)',
-                            textDecoration: 'none',
-                            fontSize: '0.85rem',
-                            fontWeight: 700,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                          }}
-                        >
-                          <ExternalLink size={15} /> Abrir Enlace
-                        </a>
+                        {item.url && (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              padding: '8px 14px',
+                              borderRadius: '10px',
+                              background: 'rgba(0, 122, 255, 0.1)',
+                              color: 'var(--accent-color)',
+                              textDecoration: 'none',
+                              fontSize: '0.85rem',
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <ExternalLink size={15} /> Abrir Enlace
+                          </a>
+                        )}
 
                         <button
                           onClick={() => startEdit(item)}
