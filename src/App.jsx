@@ -33,6 +33,41 @@ const PageLoader = () => (
   </div>
 );
 
+import { useLocation } from 'react-router-dom';
+
+// Maintains individual scroll position for each route independently
+const scrollPositions = new Map();
+
+function ScrollPositionRestorer() {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    // 1. Save scroll position of current page before leaving
+    const handleScroll = () => {
+      scrollPositions.set(location.pathname, window.scrollY);
+    };
+
+    // Save scroll on scroll event and before unload
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // 2. Restore saved scroll position for target page (or top if first visit)
+    const savedY = scrollPositions.get(location.pathname);
+    if (savedY !== undefined) {
+      window.scrollTo({ top: savedY, behavior: 'instant' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    return () => {
+      // Save current scroll position on cleanup (route departure)
+      scrollPositions.set(location.pathname, window.scrollY);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.pathname]);
+
+  return null;
+}
+
 export function App() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
@@ -46,6 +81,7 @@ export function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
+          <ScrollPositionRestorer />
           <div style={{ minHeight: '100vh', position: 'relative' }}>
             <Suspense fallback={<PageLoader />}>
               <Routes>
