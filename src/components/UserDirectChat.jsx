@@ -64,6 +64,7 @@ export const UserDirectChat = ({
   const [imageUploading, setImageUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
+  const [activeActionMsg, setActiveActionMsg] = useState(null); // Message selected for long-press/click options modal
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
   const [noticeModal, setNoticeModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
   
@@ -747,121 +748,80 @@ export const UserDirectChat = ({
         ) : (
           activeMessages.map(msg => {
             const isMe = user && msg.senderUid === user.uid;
-            const canDelete = isMe || isAdmin;
 
             return (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                initial={{ opacity: 0, y: 4, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 style={{
                   alignSelf: isMe ? 'flex-end' : 'flex-start',
-                  maxWidth: '82%',
+                  maxWidth: '75%',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: isMe ? 'flex-end' : 'flex-start'
                 }}
               >
-                <div style={{
-                  padding: '10px 14px',
-                  borderRadius: isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                  background: isMe 
-                    ? 'linear-gradient(135deg, #059669 0%, #10B981 100%)' 
-                    : 'var(--card-bg)',
-                  color: isMe ? '#FFFFFF' : 'var(--text-main)',
-                  border: isMe ? 'none' : '1px solid var(--card-border)',
-                  boxShadow: isMe 
-                    ? '0 4px 14px rgba(16, 185, 129, 0.3)' 
-                    : '0 2px 8px rgba(0,0,0,0.04)',
-                  position: 'relative',
-                  wordBreak: 'break-word',
-                  fontSize: '0.9rem',
-                  lineHeight: 1.45
-                }}>
+                <div
+                  onClick={() => setActiveActionMsg(msg)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: isMe ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
+                    background: isMe 
+                      ? 'linear-gradient(135deg, #059669 0%, #10B981 100%)' 
+                      : 'var(--card-bg)',
+                    color: isMe ? '#FFFFFF' : 'var(--text-main)',
+                    border: isMe ? 'none' : '1px solid var(--card-border)',
+                    boxShadow: isMe 
+                      ? '0 3px 10px rgba(16, 185, 129, 0.25)' 
+                      : '0 2px 6px rgba(0,0,0,0.04)',
+                    position: 'relative',
+                    wordBreak: 'break-word',
+                    fontSize: '0.88rem',
+                    lineHeight: 1.35,
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                >
                   {/* Message Image Attachment */}
                   {msg.imageUrl && (
-                    <div style={{ marginBottom: msg.text ? '8px' : '0', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)' }}>
-                      <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
+                    <div style={{ marginBottom: msg.text ? '6px' : '0', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
                         <img
                           src={msg.imageUrl}
                           alt="Adjunto"
                           style={{
                             maxWidth: '100%',
-                            maxHeight: '260px',
+                            maxHeight: '220px',
                             objectFit: 'cover',
                             display: 'block',
-                            borderRadius: '10px'
+                            borderRadius: '8px'
                           }}
                         />
                       </a>
                     </div>
                   )}
 
-                  {/* Message Text */}
-                  {msg.text && (
-                    <div style={{ fontSize: '0.92rem', fontWeight: 500, lineHeight: 1.45 }}>
-                      {renderMessageTextWithLinks(msg.text, isMe)}
-                    </div>
-                  )}
-
-                  {/* Clean Footer Metadata: Timestamp, Copy & Delete Actions */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    gap: '6px',
-                    marginTop: '4px',
-                    fontSize: '0.66rem',
-                    color: isMe ? 'rgba(255, 255, 255, 0.85)' : 'var(--text-secondary)'
-                  }}>
-                    {/* Subtle Copy Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(msg.text);
-                      }}
-                      title="Copiar mensaje"
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: isMe ? 'rgba(255, 255, 255, 0.85)' : 'var(--text-secondary)',
-                        cursor: 'pointer',
-                        padding: '1px 2px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        opacity: 0.75
-                      }}
-                    >
-                      <Copy size={11} />
-                    </button>
-
-                    {/* Subtle Delete Button */}
-                    {canDelete && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteMessage(msg);
-                        }}
-                        title="Eliminar mensaje"
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: isMe ? 'rgba(255, 255, 255, 0.85)' : '#EF4444',
-                          cursor: 'pointer',
-                          padding: '1px 2px',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          opacity: 0.75
-                        }}
-                      >
-                        <Trash2 size={11} />
-                      </button>
+                  {/* Message Text & Timestamp in WhatsApp slim inline layout */}
+                  <div style={{ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '8px', justifyContent: 'space-between' }}>
+                    {msg.text && (
+                      <span style={{ fontSize: '0.88rem', fontWeight: 500 }}>
+                        {renderMessageTextWithLinks(msg.text, isMe)}
+                      </span>
                     )}
 
-                    <span>{formatTime(msg.createdAt || msg.timestamp)}</span>
-                    {isMe && <CheckCheck size={13} style={{ opacity: 0.9 }} />}
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      fontSize: '0.62rem',
+                      color: isMe ? 'rgba(255, 255, 255, 0.85)' : 'var(--text-secondary)',
+                      marginLeft: 'auto',
+                      paddingTop: '2px'
+                    }}>
+                      <span>{formatTime(msg.createdAt || msg.timestamp)}</span>
+                      {isMe && <CheckCheck size={12} style={{ opacity: 0.9 }} />}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -991,6 +951,139 @@ export const UserDirectChat = ({
           {imageUploading || submitting ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
         </motion.button>
       </form>
+
+      {/* WhatsApp Style Message Action Popover Modal */}
+      <AnimatePresence>
+        {activeActionMsg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveActionMsg(null)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%',
+                maxWidth: '320px',
+                borderRadius: '20px',
+                background: 'var(--card-bg)',
+                border: '1.5px solid var(--card-border)',
+                padding: '18px',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}
+            >
+              {/* Message Snippet Preview */}
+              <div style={{
+                padding: '10px 14px',
+                borderRadius: '14px',
+                background: 'rgba(120, 120, 128, 0.08)',
+                fontSize: '0.84rem',
+                color: 'var(--text-main)',
+                borderLeft: '4px solid #10B981',
+                maxHeight: '80px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                {activeActionMsg.text || '📷 Imagen adjunta'}
+              </div>
+
+              {/* Action Buttons List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    copyToClipboard(activeActionMsg.text);
+                    setActiveActionMsg(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: 'rgba(120, 120, 128, 0.08)',
+                    color: 'var(--text-main)',
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}
+                >
+                  <Copy size={16} /> Copiar texto del mensaje
+                </button>
+
+                {(user && (activeActionMsg.senderUid === user.uid || isAdmin)) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const msgToDelete = activeActionMsg;
+                      setActiveActionMsg(null);
+                      handleDeleteMessage(msgToDelete);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      borderRadius: '14px',
+                      border: 'none',
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      color: '#EF4444',
+                      fontSize: '0.9rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px'
+                    }}
+                  >
+                    <Trash2 size={16} /> Eliminar mensaje
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setActiveActionMsg(null)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '14px',
+                    border: '1px solid var(--card-border)',
+                    background: 'transparent',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    marginTop: '4px'
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
