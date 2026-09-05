@@ -1668,7 +1668,7 @@ export const UserProfile = () => {
             {/* Modern Glass KPI Metrics Cards (Ultra-Compact on Mobile) */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
               gap: '8px',
               paddingTop: '16px',
               borderTop: '1px solid var(--card-border)'
@@ -1741,73 +1741,41 @@ export const UserProfile = () => {
                 </div>
               </div>
 
-              {/* Card 3: Rango de Comunidad */}
-              <div style={{
-                background: isUserAdmin ? 'rgba(168, 85, 247, 0.08)' : (profileUser.isAlly ? 'rgba(52, 168, 83, 0.06)' : 'rgba(120, 120, 128, 0.06)'),
-                border: isUserAdmin ? '1.5px solid rgba(168, 85, 247, 0.25)' : (profileUser.isAlly ? '1.5px solid rgba(52, 168, 83, 0.25)' : '1.5px solid var(--card-border)'),
-                borderRadius: '16px',
-                padding: '8px 10px',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '2px'
-              }}>
+              {/* Card 3 (Opcional): Meta Universitaria */}
+              {showUniversidad && profileUser.universidad && (
                 <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '8px',
-                  background: isUserAdmin ? 'rgba(168, 85, 247, 0.18)' : (profileUser.isAlly ? 'rgba(52, 168, 83, 0.15)' : 'rgba(120, 120, 128, 0.1)'),
-                  color: isUserAdmin ? '#A855F7' : (profileUser.isAlly ? '#34A853' : 'var(--text-main)'),
+                  background: 'rgba(168, 85, 247, 0.05)',
+                  border: '1.5px solid rgba(168, 85, 247, 0.18)',
+                  borderRadius: '16px',
+                  padding: '8px 10px',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  gap: '2px'
                 }}>
-                  <Shield size={15} />
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '8px',
+                    background: 'rgba(168, 85, 247, 0.14)',
+                    color: '#A855F7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <GraduationCap size={15} />
+                  </div>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#A855F7', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                    {profileUser.universidad}
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
+                    Meta
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.92rem', fontWeight: 800, color: isUserAdmin ? '#A855F7' : (profileUser.isAlly ? '#34A853' : 'var(--text-main)'), lineHeight: 1.1, whiteSpace: 'nowrap' }}>
-                  {isUserAdmin ? 'Creador RUMBO' : (profileUser.isAlly ? 'Aliado Oficial' : 'Estudiante')}
-                </div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
-                  Rango
-                </div>
-              </div>
-
-              {/* Card 4: Meta Universitaria */}
-              <div style={{
-                background: 'rgba(168, 85, 247, 0.05)',
-                border: '1.5px solid rgba(168, 85, 247, 0.18)',
-                borderRadius: '16px',
-                padding: '8px 10px',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '2px'
-              }}>
-                <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '8px',
-                  background: 'rgba(168, 85, 247, 0.14)',
-                  color: '#A855F7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <GraduationCap size={15} />
-                </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#A855F7', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-                  {profileUser.universidad ? profileUser.universidad.split(' ')[0] : 'UNSA'}
-                </div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
-                  Meta
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
