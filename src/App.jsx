@@ -17,6 +17,7 @@ import { Simulador } from './pages/Simulador';
 import { Auth } from './pages/Auth';
 import { Admin } from './pages/Admin';
 import { UserProfile } from './pages/UserProfile';
+import { Chats } from './pages/Chats';
 
 const PageLoader = () => (
   <div style={{
@@ -92,6 +93,7 @@ export function App() {
                 <Route path="/simulador" element={<Simulador />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/chats" element={<Chats />} />
                 <Route path="/usuario/:uid" element={<UserProfile />} />
                 <Route path="/perfil" element={<UserProfile />} />
               </Routes>

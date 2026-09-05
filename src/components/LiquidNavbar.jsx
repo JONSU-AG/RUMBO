@@ -106,26 +106,26 @@ export const LiquidNavbar = () => {
   return (
     <>
       {/* Mobile Header (Fixed Top Bar with Labels for New Users) */}
-      <header className="mobile-header" style={{ padding: '8px 12px', gap: '8px' }}>
-        <Logo showText={true} size={30} />
+      <header className="mobile-header" style={{ padding: '8px 10px', gap: '6px' }}>
+        <Logo showText={true} size={28} />
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
 
-          {/* Direct Chats Access Button on Mobile */}
+          {/* Dedicated Standalone Chats Route Button */}
           {user && (
             <NavLink
-              to="/perfil?tab=chat"
+              to="/chats"
               title="Mis Mensajes Privados"
               style={{
-                padding: '6px 8px',
+                padding: '5px 7px',
                 borderRadius: '12px',
                 border: 'none',
-                background: 'rgba(16, 185, 129, 0.12)',
+                background: 'rgba(16, 185, 129, 0.14)',
                 color: '#059669',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '3px',
-                fontSize: '0.72rem',
+                fontSize: '0.7rem',
                 fontWeight: 800,
                 textDecoration: 'none',
                 cursor: 'pointer'
@@ -142,7 +142,7 @@ export const LiquidNavbar = () => {
               onClick={() => setIsNotifOpen(true)}
               title="Notificaciones y Avisos"
               style={{
-                padding: '6px 8px',
+                padding: '5px 7px',
                 borderRadius: '12px',
                 border: 'none',
                 background: 'rgba(0, 122, 255, 0.12)',
@@ -150,7 +150,7 @@ export const LiquidNavbar = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '3px',
-                fontSize: '0.72rem',
+                fontSize: '0.7rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 position: 'relative'
@@ -186,7 +186,7 @@ export const LiquidNavbar = () => {
             onClick={() => setIsUploadOpen(true)}
             title="Aportar Material Educativo"
             style={{
-              padding: '6px 8px',
+              padding: '5px 7px',
               borderRadius: '12px',
               border: 'none',
               background: 'rgba(0, 122, 255, 0.12)',
@@ -194,7 +194,7 @@ export const LiquidNavbar = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '3px',
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
@@ -208,7 +208,7 @@ export const LiquidNavbar = () => {
             onClick={() => setIsThemeOpen(true)}
             title="Cambiar Tema Visual"
             style={{
-              padding: '6px 8px',
+              padding: '5px 7px',
               borderRadius: '12px',
               border: 'none',
               background: 'rgba(120, 120, 128, 0.12)',
@@ -216,7 +216,7 @@ export const LiquidNavbar = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '3px',
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
