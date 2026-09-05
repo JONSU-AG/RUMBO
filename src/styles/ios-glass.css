@@ -357,8 +357,8 @@ body {
 /* Liquid Navbar Wrapper */
 .liquid-navbar-wrapper {
   position: fixed;
-  bottom: 20px;
-  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  bottom: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
   margin-left: auto;
