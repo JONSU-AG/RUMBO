@@ -165,7 +165,13 @@
   --accent-gradient-purple: linear-gradient(135deg, #A855F7 0%, #4285F4 100%);
 }
 
-/* Base Body Styles */
+/* Base HTML & Body Styles */
+html {
+  background-color: var(--bg-main);
+  transition: background-color 0.3s ease;
+  min-height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
