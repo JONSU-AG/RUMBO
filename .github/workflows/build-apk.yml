@@ -1,4 +1,4 @@
-name: Build Android APK (PWABuilder / Capacitor)
+name: Build Android APK (Capacitor + Gradle)
 
 on:
   push:
@@ -25,10 +25,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Dependencies & Capacitor
-        run: |
-          npm install
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Install Capacitor Packages
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Build Web Dist
         run: npm run build
@@ -36,17 +37,17 @@ jobs:
       - name: Capacitor Init & Add Android
         run: |
           npx cap init RUMBO com.rumbo.app --web-dir dist
-          npx cap add android
+          npx cap add android || true
           npx cap sync android
 
       - name: Build APK with Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload RUMBO APK
         uses: actions/upload-artifact@v4
         with:
           name: RUMBO-APK-Installer
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/*.apk
