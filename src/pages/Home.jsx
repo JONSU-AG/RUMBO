@@ -568,91 +568,82 @@ export const Home = () => {
                 Plataforma creada para acompañar tu preparación académica preuniversitaria. Organizada y centralizada en un solo lugar.
               </p>
 
-              {/* Recuadro Centrado de Términos y Condiciones / Aviso Legal */}
+              {/* Tarjeta Unificada de Términos y Aviso Legal */}
               <div style={{
                 width: '100%',
-                maxWidth: '680px',
-                background: 'rgba(120, 120, 128, 0.06)',
-                border: '1px solid var(--card-border)',
+                maxWidth: '620px',
+                background: 'var(--card-bg)',
+                border: '1.5px solid var(--card-border)',
                 borderRadius: '20px',
                 padding: '16px 20px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '10px',
-                boxSizing: 'border-box'
+                gap: '12px',
+                boxSizing: 'border-box',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)',
+                backdropFilter: 'blur(12px)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                  <Shield size={18} style={{ color: '#007AFF', flexShrink: 0 }} />
-                  <span>
-                    RUMBO organiza y recopila recursos académicos de libre acceso en un solo lugar.
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                  <Check size={18} style={{ color: '#34C759', flexShrink: 0 }} />
-                  <span>
-                    Los materiales pertenecen a sus respectivos autores. <strong style={{ color: '#FF3B30' }}>Prohibido lucrar o comercializar.</strong>
-                  </span>
-                </div>
-              </div>
-
-              {/* Botones / Pastillas de Términos y Libre Uso Centrados */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', width: '100%' }}>
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 18px',
-                  borderRadius: '16px',
-                  background: 'rgba(255, 59, 48, 0.08)',
-                  border: '1.5px solid rgba(255, 59, 48, 0.25)',
-                  boxShadow: '0 4px 12px rgba(255, 59, 48, 0.06)'
-                }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', textAlign: 'left' }}>
                   <div style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '10px',
-                    background: 'rgba(255, 59, 48, 0.12)',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '12px',
+                    background: 'rgba(0, 122, 255, 0.1)',
+                    color: '#007AFF',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#FF3B30',
-                    flexShrink: 0
+                    flexShrink: 0,
+                    marginTop: '2px'
                   }}>
-                    <Lock size={15} />
+                    <Shield size={18} />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                      Uso Libre y Gratuito
-                    </span>
-                    <strong style={{ fontSize: '0.84rem', color: '#FF3B30', fontWeight: 800 }}>
-                      Estrictamente Prohibido Lucrar
-                    </strong>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ margin: '0 0 2px 0', fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                      Plataforma de Libre Acceso Académico
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                      RUMBO recopila recursos académicos de acceso abierto. Los materiales pertenecen a sus respectivos autores.
+                    </p>
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('rumbo_open_terms'))}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '11px 18px',
-                    borderRadius: '16px',
-                    border: '1.5px solid var(--card-border)',
-                    background: 'rgba(120, 120, 128, 0.1)',
-                    color: 'var(--text-main)',
-                    fontSize: '0.84rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    backdropFilter: 'blur(10px)'
-                  }}
-                >
-                  <FileText size={16} color="var(--accent-color)" />
-                  <span>Ver Términos & Privacidad</span>
-                </button>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                  paddingTop: '10px',
+                  borderTop: '1px solid var(--card-border)',
+                  flexWrap: 'wrap'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#FF3B30', fontWeight: 800 }}>
+                    <Lock size={14} />
+                    <span>Estrictamente Prohibido Lucrar o Comercializar</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent('rumbo_open_terms'))}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 14px',
+                      borderRadius: '12px',
+                      border: '1px solid var(--card-border)',
+                      background: 'rgba(120, 120, 128, 0.08)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <FileText size={14} color="var(--accent-color)" />
+                    <span>Términos & Privacidad</span>
+                  </button>
+                </div>
               </div>
 
             </div>
