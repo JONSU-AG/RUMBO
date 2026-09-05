@@ -19,6 +19,7 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [activeNotifTab, setActiveNotifTab] = useState('avisos'); // Default tab: 'avisos' (Avisos de la comunidad / Creadores)
   const [selectedNoticePopup, setSelectedNoticePopup] = useState(null);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
         [...userDocs, ...allDocs].forEach(d => docMap.set(d.id, d));
         const combined = Array.from(docMap.values());
 
+        // Sort by most recent first
         combined.sort((a, b) => {
           const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
           const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
@@ -274,21 +276,103 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Notifications Feed */}
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
-              {notifications.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 10px' }}>
-                  <Sparkles size={36} style={{ color: 'var(--accent-color)', marginBottom: '10px' }} />
-                  <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
-                    No tienes notificaciones por el momento
-                  </p>
-                  <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                    Aquí te avisaremos cuando otros estudiantes comenten o interactúen en tu perfil, o cuando haya avisos oficiales de la comunidad.
-                  </p>
-                </div>
-              ) : (
-                notifications.map(n => {
-                  const isBroadcast = n.type === 'admin_broadcast' || n.type === 'comunidad' || n.recipientUid === 'all';
+            {/* Tab Switcher: Avisos (Default) vs Notificaciones */}
+            {(() => {
+              const isAvisos = (n) => n.type === 'admin_broadcast' || n.type === 'comunidad' || n.type === 'aviso' || n.recipientUid === 'all';
+              const avisosList = notifications.filter(isAvisos);
+              const notifList = notifications.filter(n => !isAvisos(n));
+
+              const displayedList = activeNotifTab === 'avisos' ? avisosList : notifList;
+              const avisosUnread = avisosList.filter(n => !n.read).length;
+              const notifUnread = notifList.filter(n => !n.read).length;
+
+              return (
+                <>
+                  <div style={{
+                    display: 'flex',
+                    gap: '8px',
+                    marginBottom: '16px',
+                    borderBottom: '1px solid var(--card-border)',
+                    paddingBottom: '12px'
+                  }}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveNotifTab('avisos')}
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        background: activeNotifTab === 'avisos' ? 'linear-gradient(135deg, #A855F7, #6366F1)' : 'rgba(120, 120, 128, 0.08)',
+                        color: activeNotifTab === 'avisos' ? '#FFFFFF' : 'var(--text-main)',
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: activeNotifTab === 'avisos' ? '0 4px 14px rgba(168, 85, 247, 0.35)' : 'none',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <Megaphone size={15} />
+                      <span>Avisos ({avisosList.length})</span>
+                      {avisosUnread > 0 && (
+                        <span style={{ padding: '2px 6px', borderRadius: '8px', background: '#EF4444', color: '#FFF', fontSize: '0.65rem', fontWeight: 900 }}>
+                          {avisosUnread}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveNotifTab('normal')}
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        background: activeNotifTab === 'normal' ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.08)',
+                        color: activeNotifTab === 'normal' ? '#FFFFFF' : 'var(--text-main)',
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: activeNotifTab === 'normal' ? '0 4px 14px rgba(0, 122, 255, 0.35)' : 'none',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <Bell size={15} />
+                      <span>Notificaciones ({notifList.length})</span>
+                      {notifUnread > 0 && (
+                        <span style={{ padding: '2px 6px', borderRadius: '8px', background: '#EF4444', color: '#FFF', fontSize: '0.65rem', fontWeight: 900 }}>
+                          {notifUnread}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Notifications Feed */}
+                  <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
+                    {displayedList.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '40px 10px' }}>
+                        <Sparkles size={36} style={{ color: 'var(--accent-color)', marginBottom: '10px' }} />
+                        <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                          {activeNotifTab === 'avisos' ? 'No hay avisos oficiales por el momento' : 'No tienes notificaciones personales'}
+                        </p>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                          {activeNotifTab === 'avisos'
+                            ? 'Aquí verás los comunicados, avisos de la comunidad y novedades importantes.'
+                            : 'Aquí verás las interacciones, respuestas y reacciones de otros estudiantes.'}
+                        </p>
+                      </div>
+                    ) : (
+                      displayedList.map(n => {
+                        const isBroadcast = isAvisos(n);
 
                   return (
                     <div
@@ -445,6 +529,9 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                 })
               )}
             </div>
+          </>
+        );
+      })()}
           </motion.div>
 
           {/* 📢 POPUP MODAL PARA LECTURA DE AVISOS DE LA COMUNIDAD */}

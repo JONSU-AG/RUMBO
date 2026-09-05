@@ -18,7 +18,10 @@ import {
   Smile,
   ThumbsUp,
   Heart,
-  Flame
+  Flame,
+  Image as ImageIcon,
+  Loader2,
+  X
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { 
@@ -36,6 +39,7 @@ import { useAuth, ADMIN_EMAILS } from '../context/AuthContext';
 import { LiveUserAvatar, LiveUserName } from './LiveUserAvatar';
 import { ConfirmModal, NoticeModal } from './ConfirmModal';
 import { Link } from 'react-router-dom';
+import { uploadFileReliable } from '../lib/storageHelper';
 
 export const UserDirectChat = ({ 
   profileUid, 
@@ -56,12 +60,15 @@ export const UserDirectChat = ({
   const [activeMessages, setActiveMessages] = useState([]);
   
   const [newMessage, setNewMessage] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
   const [noticeModal, setNoticeModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
   
   const chatBottomRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Sync initialChatWithUid when prop changes
   useEffect(() => {
@@ -197,13 +204,19 @@ export const UserDirectChat = ({
   // Send a private 1-on-1 message (WhatsApp style)
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || submitting || !currentPartnerUid) return;
+    if ((!newMessage.trim() && !selectedImage) || !user || submitting || !currentPartnerUid) return;
 
     setSubmitting(true);
     const text = newMessage.trim();
     const now = Date.now();
 
     try {
+      let imageUrl = null;
+      if (selectedImage) {
+        setImageUploading(true);
+        imageUrl = await uploadFileReliable(selectedImage, () => {}, 'chat_images');
+      }
+
       const participants = [user.uid, currentPartnerUid].sort();
       const conversationId = participants.join('_');
 
@@ -221,6 +234,7 @@ export const UserDirectChat = ({
         recipientName: targetPartnerName,
         recipientPhoto: targetPartnerPhoto,
         text: text,
+        imageUrl: imageUrl,
         createdAt: serverTimestamp(),
         timestamp: now,
         read: false
@@ -237,7 +251,9 @@ export const UserDirectChat = ({
             type: 'chat',
             conversationId: conversationId,
             targetPath: `/usuario/${currentPartnerUid}?tab=chat&with=${user.uid}`,
-            message: `te envió un mensaje privado: "${text.slice(0, 45)}"`,
+            message: imageUrl 
+              ? (text ? `📷 Te envió una foto con mensaje: "${text.slice(0, 30)}"` : '📷 Te envió una imagen') 
+              : `te envió un mensaje privado: "${text.slice(0, 45)}"`,
             read: false,
             createdAt: serverTimestamp(),
             timestamp: now
@@ -248,6 +264,8 @@ export const UserDirectChat = ({
       }
 
       setNewMessage('');
+      setSelectedImage(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
       console.error("Error sending private message:", err);
       setNoticeModal({ 
@@ -258,6 +276,7 @@ export const UserDirectChat = ({
       });
     } finally {
       setSubmitting(false);
+      setImageUploading(false);
     }
   };
 
@@ -759,8 +778,27 @@ export const UserDirectChat = ({
                   fontSize: '0.9rem',
                   lineHeight: 1.45
                 }}>
-                  {/* Message Content with Auto Linkification */}
-                  <div>{renderMessageTextWithLinks(msg.text, isMe)}</div>
+                  {/* Message Image Attachment */}
+                  {msg.imageUrl && (
+                    <div style={{ marginBottom: msg.text ? '8px' : '0', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={msg.imageUrl}
+                          alt="Adjunto"
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '260px',
+                            objectFit: 'cover',
+                            display: 'block',
+                            borderRadius: '10px'
+                          }}
+                        />
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Message Text */}
+                  {msg.text && <div>{renderMessageTextWithLinks(msg.text, isMe)}</div>}
 
                   {/* Reaction Display Badges */}
                   {msg.reactions && Object.keys(msg.reactions).length > 0 && (
@@ -878,6 +916,38 @@ export const UserDirectChat = ({
         <div ref={chatBottomRef} />
       </div>
 
+      {/* Selected Image Preview Chip */}
+      {selectedImage && (
+        <div style={{
+          padding: '6px 12px',
+          background: 'rgba(16, 185, 129, 0.12)',
+          borderTop: '1px solid var(--card-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '0.8rem',
+          color: '#10B981',
+          fontWeight: 700
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+            <ImageIcon size={14} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {selectedImage.name}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedImage(null);
+              if (fileInputRef.current) fileInputRef.current.value = '';
+            }}
+            style={{ border: 'none', background: 'transparent', color: '#EF4444', cursor: 'pointer' }}
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       {/* WhatsApp Chat Input Bar */}
       <form onSubmit={handleSendMessage} style={{
         padding: '10px 14px',
@@ -887,11 +957,45 @@ export const UserDirectChat = ({
         alignItems: 'center',
         gap: '8px'
       }}>
+        {/* Hidden File Input for Image Attachment */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) setSelectedImage(file);
+          }}
+        />
+
+        {/* Attachment Button */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          title="Adjuntar Imagen"
+          style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            border: 'none',
+            background: selectedImage ? 'rgba(16, 185, 129, 0.18)' : 'rgba(120, 120, 128, 0.12)',
+            color: selectedImage ? '#10B981' : 'var(--text-secondary)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}
+        >
+          <ImageIcon size={18} />
+        </button>
+
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder={`Escribe un mensaje privado para ${displayPartnerName}...`}
+          placeholder={`Escribe un mensaje para ${displayPartnerName}...`}
           style={{
             flex: 1,
             padding: '11px 16px',
@@ -909,27 +1013,27 @@ export const UserDirectChat = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           type="submit"
-          disabled={!newMessage.trim() || submitting}
+          disabled={(!newMessage.trim() && !selectedImage) || submitting || imageUploading}
           style={{
             width: '42px',
             height: '42px',
             borderRadius: '50%',
             border: 'none',
-            background: newMessage.trim() && !submitting 
+            background: (newMessage.trim() || selectedImage) && !submitting && !imageUploading
               ? 'linear-gradient(135deg, #059669 0%, #10B981 100%)' 
               : 'rgba(120, 120, 128, 0.2)',
             color: '#FFFFFF',
-            cursor: newMessage.trim() && !submitting ? 'pointer' : 'not-allowed',
+            cursor: (newMessage.trim() || selectedImage) && !submitting && !imageUploading ? 'pointer' : 'not-allowed',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: newMessage.trim() ? '0 4px 14px rgba(16, 185, 129, 0.4)' : 'none',
+            boxShadow: (newMessage.trim() || selectedImage) ? '0 4px 14px rgba(16, 185, 129, 0.4)' : 'none',
             transition: 'all 0.2s ease'
           }}
           title="Enviar mensaje privado"
         >
-          <Send size={16} />
+          {imageUploading || submitting ? <Loader2 size={16} className="spin" /> : <Send size={16} />}
         </motion.button>
       </form>
 
