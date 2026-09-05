@@ -82,7 +82,7 @@ export const CommunityUploadCard = ({
   setNoticeModal,
   setLightboxImage
 }) => {
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(true);
   const [showComments, setShowComments] = useState(false);
   const [subComments, setSubComments] = useState([]);
   const [showAllComments, setShowAllComments] = useState(false);
@@ -449,10 +449,10 @@ export const CommunityUploadCard = ({
                   borderRadius: '20px',
                   overflow: 'hidden',
                   border: '2px solid rgba(0, 122, 255, 0.4)',
-                  height: isFolder ? '440px' : '500px',
+                  height: isFolder ? '440px' : '520px',
+                  maxWidth: '480px',
+                  margin: '4px auto 8px auto',
                   background: '#FFFFFF',
-                  marginTop: '4px',
-                  marginBottom: '8px',
                   boxShadow: '0 8px 28px rgba(0,0,0,0.15)'
                 }}>
                   <iframe

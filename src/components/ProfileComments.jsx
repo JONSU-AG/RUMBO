@@ -456,8 +456,17 @@ const PostItemCard = ({
             </div>
           ) : (
             <div>
-              {expandedPreviews[item.id] ? (
-                <div style={{ borderRadius: '20px', overflow: 'hidden', border: '2px solid rgba(0, 122, 255, 0.4)', height: '500px', background: '#FFFFFF', marginBottom: '8px', boxShadow: '0 8px 28px rgba(0,0,0,0.15)' }}>
+              {expandedPreviews[item.id] !== false && (
+                <div style={{
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  border: '2px solid rgba(0, 122, 255, 0.4)',
+                  height: '520px',
+                  maxWidth: '480px',
+                  margin: '4px auto 8px auto',
+                  background: '#FFFFFF',
+                  boxShadow: '0 8px 28px rgba(0,0,0,0.15)'
+                }}>
                   <iframe
                     src={getDrivePreviewUrl(item.url) || item.url}
                     title={item.title}
@@ -465,7 +474,7 @@ const PostItemCard = ({
                     allow="autoplay"
                   />
                 </div>
-              ) : null}
+              )}
             </div>
           )}
         </div>
@@ -496,12 +505,12 @@ const PostItemCard = ({
 
           {getDrivePreviewUrl(item.url) && !isImageUrl(item.url) && (
             <button
-              onClick={() => setExpandedPreviews(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+              onClick={() => setExpandedPreviews(prev => ({ ...prev, [item.id]: prev[item.id] === false ? true : false }))}
               style={{
                 padding: '8px 14px',
                 borderRadius: '12px',
                 border: '1px solid var(--card-border)',
-                background: expandedPreviews[item.id] ? 'rgba(0, 122, 255, 0.12)' : 'transparent',
+                background: expandedPreviews[item.id] !== false ? 'rgba(0, 122, 255, 0.12)' : 'transparent',
                 color: 'var(--accent-color)',
                 cursor: 'pointer',
                 display: 'flex',
@@ -511,7 +520,7 @@ const PostItemCard = ({
                 fontWeight: 700
               }}
             >
-              <Eye size={14} /> {expandedPreviews[item.id] ? 'Ocultar Vista Previa' : 'Vista Previa Grande'}
+              <Eye size={14} /> {expandedPreviews[item.id] !== false ? 'Ocultar Vista Previa' : 'Vista Previa'}
             </button>
           )}
 
