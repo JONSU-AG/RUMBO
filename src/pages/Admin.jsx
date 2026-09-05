@@ -43,6 +43,7 @@ import {
   updateDoc, 
   deleteDoc, 
   addDoc,
+  setDoc,
   query, 
   orderBy,
   where,
@@ -76,11 +77,24 @@ export const Admin = () => {
   const [anuncioMessage, setAnuncioMessage] = useState('');
   const [isSubmittingAnuncio, setIsSubmittingAnuncio] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ title: '', author: '', url: '', desc: '' });
-  const [loading, setLoading] = useState(true);
-  const [claimKey, setClaimKey] = useState('');
-  const [claimMsg, setClaimMsg] = useState(null);
+  const [bricenoWeeks, setBricenoWeeks] = useState([]);
+  const [bricenoWeekNum, setBricenoWeekNum] = useState(0);
+  const [bricenoJsonInput, setBricenoJsonInput] = useState('');
+  const [editingBricenoWeekId, setEditingBricenoWeekId] = useState(null);
+
+  // Subscribe to briceno_2027_semanas collection
+  useEffect(() => {
+    const q = query(collection(db, 'briceno_2027_semanas'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      docs.sort((a, b) => (a.num !== undefined ? a.num : 99) - (b.num !== undefined ? b.num : 99));
+      setBricenoWeeks(docs);
+    }, (err) => {
+      console.warn("Firestore error in Admin briceno_2027_semanas:", err);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Modal for adding/editing Carrusel Ally Cards
   const [allyModal, setAllyModal] = useState({
@@ -791,49 +805,56 @@ export const Admin = () => {
         </p>
       </header>
 
-      {/* Tabs con Scroll Horizontal Suave en Celulares */}
+      {/* Tabs en Grid de 4 Columnas Adaptable a Celulares y Android */}
       <div style={{
-        display: 'flex',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(calc(50% - 6px), 1fr))',
         gap: '8px',
-        justifyContent: 'flex-start',
-        overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        paddingBottom: '8px',
-        marginBottom: '20px',
-        scrollbarWidth: 'none'
+        marginBottom: '20px'
       }}>
-        {[
-          { id: 'briceno', label: `🎓 Gestor Briceño 2027` },
-          { id: 'reportes', label: `🚩 Bandeja de Reportes (${pendingReportsCount})` },
-          { id: 'pendientes', label: `⏳ En Revisión (${pendientesList.length})` },
-          { id: 'reportados', label: `🚩 Materiales Reportados (${reportadosList.length})` },
-          { id: 'triples', label: `🚨 Reportes Triples (3+) (${triplesList.length})` },
-          { id: 'aprobados', label: `✅ Activos (${aprobadosList.length})` },
-          { id: 'carrusel', label: `🎯 Carrusel de Aliados (${1 + (solicitudesAliados?.length || 0)})` },
-          { id: 'usuarios', label: `👥 Aliados y Usuarios (${usersList.length})` },
-          { id: 'anuncios', label: `📢 Avisos Comunidad (${sentBroadcasts.length})` }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '10px 16px',
-              borderRadius: '14px',
-              border: '1.5px solid var(--card-border)',
-              background: activeTab === tab.id ? 'var(--accent-color)' : 'var(--card-bg)',
-              color: activeTab === tab.id ? '#FFFFFF' : 'var(--text-main)',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              cursor: 'pointer',
-              boxShadow: activeTab === tab.id ? '0 6px 16px rgba(0,122,255,0.25)' : 'none',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        <style>{`
+          @media (min-width: 640px) {
+            .admin-tab-grid {
+              grid-template-columns: repeat(4, 1fr) !important;
+            }
+          }
+        `}</style>
+        <div className="admin-tab-grid" style={{ display: 'contents' }}>
+          {[
+            { id: 'briceno', label: `🎓 Gestor Briceño` },
+            { id: 'reportes', label: `🚩 Reportes (${pendingReportsCount})` },
+            { id: 'pendientes', label: `⏳ En Revisión (${pendientesList.length})` },
+            { id: 'reportados', label: `🚩 Reportados (${reportadosList.length})` },
+            { id: 'triples', label: `🚨 Triples 3+ (${triplesList.length})` },
+            { id: 'aprobados', label: `✅ Activos (${aprobadosList.length})` },
+            { id: 'carrusel', label: `🎯 Carrusel (${1 + (solicitudesAliados?.length || 0)})` },
+            { id: 'usuarios', label: `👥 Usuarios (${usersList.length})` },
+            { id: 'anuncios', label: `📢 Avisos (${sentBroadcasts.length})` }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '10px 8px',
+                borderRadius: '14px',
+                border: '1.5px solid var(--card-border)',
+                background: activeTab === tab.id ? 'var(--accent-color)' : 'var(--card-bg)',
+                color: activeTab === tab.id ? '#FFFFFF' : 'var(--text-main)',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                textAlign: 'center',
+                cursor: 'pointer',
+                boxShadow: activeTab === tab.id ? '0 4px 12px rgba(0,122,255,0.25)' : 'none',
+                transition: 'all 0.2s ease',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Universal Search Input */}
@@ -2108,14 +2129,15 @@ export const Admin = () => {
       {/* ──────────────── TAB: GESTOR BRICEÑO 2027 ──────────────── */}
       {activeTab === 'briceno' && (
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Uploader / Adder Form Card */}
           <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', border: '1.5px solid #34C759', background: 'var(--card-bg)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  🎓 Gestor de Semanas e Hilos — Briceño 2027
+                  🎓 Gestor de Semanas Briceño 2027
                 </h3>
                 <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  Las semanas se guardan como documentos en la colección <code>briceno_2027_semanas</code>.
+                  Sube, edita y elimina semanas en tiempo real. Colección Firestore: <code>briceno_2027_semanas</code>.
                 </p>
               </div>
               <a
@@ -2135,23 +2157,286 @@ export const Admin = () => {
                   gap: '6px'
                 }}
               >
-                <ExternalLink size={14} /> Ir a Firebase Console ↗
+                <ExternalLink size={14} /> Enlace Directo Firebase Console ↗
               </a>
             </div>
 
-            <div style={{
-              padding: '14px',
-              borderRadius: '16px',
-              background: 'rgba(52, 199, 89, 0.08)',
-              border: '1px solid rgba(52, 199, 89, 0.2)',
-              fontSize: '0.85rem',
-              color: 'var(--text-main)',
-              lineHeight: 1.5
-            }}>
-              💡 <strong>Estructura para crear semanas en Firebase:</strong><br />
-              Colección: <code>briceno_2027_semanas</code> | ID del Documento: <code>semana_1</code>, <code>semana_2</code>, etc.<br />
-              Campos: <code>num</code> (número), <code>nombre</code> (string), <code>status</code> (string), <code>data</code> (array de materias y videos).
-            </div>
+            {/* Quick JSON Uploader Form */}
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                let parsed = null;
+                const rawInput = bricenoJsonInput.trim();
+                
+                if (rawInput.startsWith('{') || rawInput.startsWith('[')) {
+                  parsed = JSON.parse(rawInput);
+                }
+
+                const weekNum = parseInt(bricenoWeekNum);
+                const docId = `semana_${weekNum}`;
+                
+                let dataArray = [];
+                let weekName = `Semana ${weekNum}`;
+                let weekStatus = 'Disponible';
+
+                if (Array.isArray(parsed)) {
+                  dataArray = parsed;
+                } else if (parsed && typeof parsed === 'object') {
+                  dataArray = parsed.data || parsed.temas || parsed.cursos || [];
+                  if (parsed.nombre) weekName = parsed.nombre;
+                  if (parsed.status) weekStatus = parsed.status;
+                }
+
+                const payload = {
+                  id: docId,
+                  num: weekNum,
+                  nombre: weekName,
+                  status: weekStatus,
+                  data: dataArray,
+                  updatedAt: new Date()
+                };
+
+                await setDoc(doc(db, 'briceno_2027_semanas', docId), payload, { merge: true });
+                showNotice("Semana Guardada", `¡La ${weekName} (id: ${docId}) ha sido guardada en Firebase exitosamente!`);
+                setBricenoJsonInput('');
+                setEditingBricenoWeekId(null);
+              } catch (err) {
+                showNotice("Error de Sintaxis", "Verifica el formato del texto ingresado: " + err.message);
+              }
+            }} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ flex: '1 1 140px' }}>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    Número de Semana (Indica el orden):
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={bricenoWeekNum}
+                    onChange={(e) => setBricenoWeekNum(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '12px',
+                      border: '1.5px solid var(--card-border)',
+                      background: 'rgba(120, 120, 128, 0.05)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.92rem',
+                      fontWeight: 800,
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', alignSelf: 'flex-end', paddingBottom: '10px' }}>
+                  Id automático en Firebase: <strong style={{ color: 'var(--accent-color)' }}>semana_{bricenoWeekNum}</strong>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                  Pega tu Array o JSON de la Semana:
+                </label>
+                <textarea
+                  rows={7}
+                  value={bricenoJsonInput}
+                  onChange={(e) => setBricenoJsonInput(e.target.value)}
+                  placeholder={`Pega aquí el array o JSON con los cursos y temas de la semana:\n[\n  {\n    "nombre": "Álgebra",\n    "categoria": "MATEMÁTICAS",\n    "videos": [\n      { "nombre": "Clase 1: Ecuaciones", "url": "https://drive.google.com/..." }\n    ]\n  }\n]`}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '14px',
+                    border: '1.5px solid var(--card-border)',
+                    background: 'rgba(120, 120, 128, 0.05)',
+                    color: 'var(--text-main)',
+                    fontFamily: 'monospace',
+                    fontSize: '0.82rem',
+                    outline: 'none',
+                    resize: 'vertical',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #34C759 0%, #059669 100%)',
+                    color: '#FFF',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(52, 199, 89, 0.35)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <Save size={16} /> Guardar / Subir Semana a Firebase
+                </button>
+
+                {editingBricenoWeekId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingBricenoWeekId(null);
+                      setBricenoWeekNum(0);
+                      setBricenoJsonInput('');
+                    }}
+                    style={{
+                      padding: '12px 18px',
+                      borderRadius: '14px',
+                      border: '1px solid var(--card-border)',
+                      background: 'transparent',
+                      color: 'var(--text-secondary)',
+                      fontWeight: 700,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancelar Edición
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          {/* List of Current Weeks in Firebase */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h4 style={{ margin: '8px 0 4px', fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              📚 Semanas Publicadas en Firebase ({bricenoWeeks.length})
+            </h4>
+
+            {bricenoWeeks.length === 0 ? (
+              <div className="glass-card" style={{ padding: '30px', textAlign: 'center', borderRadius: '20px', color: 'var(--text-secondary)' }}>
+                No hay semanas registradas aún en <code>briceno_2027_semanas</code>.
+              </div>
+            ) : (
+              bricenoWeeks.map(week => (
+                <div
+                  key={week.id}
+                  className="glass-card"
+                  style={{
+                    padding: '20px 24px',
+                    borderRadius: '20px',
+                    border: editingBricenoWeekId === week.id ? '2px solid #34C759' : '1px solid var(--card-border)',
+                    background: editingBricenoWeekId === week.id ? 'rgba(52, 199, 89, 0.06)' : 'var(--card-bg)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                      <span style={{
+                        padding: '4px 12px',
+                        borderRadius: '10px',
+                        background: 'rgba(52, 199, 89, 0.18)',
+                        color: '#059669',
+                        fontSize: '0.8rem',
+                        fontWeight: 800
+                      }}>
+                        {week.nombre || `Semana ${week.num}`} (ID: {week.id})
+                      </span>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '10px',
+                        background: 'rgba(0,122,255,0.1)',
+                        color: 'var(--accent-color)',
+                        fontSize: '0.78rem',
+                        fontWeight: 700
+                      }}>
+                        {Array.isArray(week.data) ? `${week.data.length} Cursos / Materias` : 'Con contenido'}
+                      </span>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <button
+                        onClick={() => {
+                          setEditingBricenoWeekId(week.id);
+                          setBricenoWeekNum(week.num !== undefined ? week.num : 0);
+                          setBricenoJsonInput(JSON.stringify(week.data || week, null, 2));
+                          window.scrollTo({ top: 300, behavior: 'smooth' });
+                        }}
+                        style={{
+                          padding: '8px 14px',
+                          borderRadius: '12px',
+                          border: 'none',
+                          background: 'rgba(245, 158, 11, 0.15)',
+                          color: '#D97706',
+                          fontWeight: 700,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Edit3 size={15} /> Editar JSON
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setConfirmModal({
+                            isOpen: true,
+                            title: `¿Eliminar ${week.nombre || week.id}?`,
+                            message: `¿Seguro que deseas eliminar el documento "${week.id}" de Firebase? Los cambios se verán al instante en la app.`,
+                            confirmText: 'Eliminar de Firebase',
+                            onConfirm: async () => {
+                              try {
+                                await deleteDoc(doc(db, 'briceno_2027_semanas', week.id));
+                                showNotice("Semana Eliminada", `Documento ${week.id} eliminado correctamente.`);
+                              } catch (e) {
+                                showNotice("Error", e.message);
+                              }
+                            }
+                          });
+                        }}
+                        style={{
+                          padding: '8px 14px',
+                          borderRadius: '12px',
+                          border: 'none',
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          color: '#EF4444',
+                          fontWeight: 700,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Trash2 size={15} /> Eliminar
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Sample Preview of courses */}
+                  {Array.isArray(week.data) && week.data.length > 0 && (
+                    <div style={{
+                      padding: '10px 14px',
+                      borderRadius: '12px',
+                      background: 'rgba(120,120,128,0.06)',
+                      fontSize: '0.82rem',
+                      color: 'var(--text-secondary)',
+                      display: 'flex',
+                      gap: '8px',
+                      flexWrap: 'wrap'
+                    }}>
+                      <strong>Cursos incluidos:</strong> {week.data.map(c => c.nombre || c.titulo || 'Materia').join(' • ')}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
