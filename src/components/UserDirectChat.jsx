@@ -39,7 +39,7 @@ import { useAuth, ADMIN_EMAILS } from '../context/AuthContext';
 import { LiveUserAvatar, LiveUserName } from './LiveUserAvatar';
 import { ConfirmModal, NoticeModal } from './ConfirmModal';
 import { Link } from 'react-router-dom';
-import { uploadFileReliable } from '../lib/storageHelper';
+import { uploadFileReliable, getDirectImageUrl, getDriveThumbnailUrl } from '../lib/storageHelper';
 
 export const UserDirectChat = ({ 
   profileUid, 
@@ -791,16 +791,21 @@ export const UserDirectChat = ({
                   {/* Message Image Attachment */}
                   {msg.imageUrl && (
                     <div style={{ marginBottom: msg.text ? '6px' : '0', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)' }}>
-                      <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                      <a href={getDirectImageUrl(msg.imageUrl)} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
                         <img
-                          src={msg.imageUrl}
+                          src={getDirectImageUrl(msg.imageUrl)}
                           alt="Adjunto"
                           onError={(e) => {
-                            e.target.style.display = 'none';
+                            const driveThumb = getDriveThumbnailUrl(msg.imageUrl, 'w800');
+                            if (e.target.src !== driveThumb) {
+                              e.target.src = driveThumb;
+                            } else {
+                              e.target.style.display = 'none';
+                            }
                           }}
                           style={{
                             maxWidth: '100%',
-                            maxHeight: '220px',
+                            maxHeight: '260px',
                             objectFit: 'cover',
                             display: 'block',
                             borderRadius: '8px'
