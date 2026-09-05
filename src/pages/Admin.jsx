@@ -71,7 +71,7 @@ export const Admin = () => {
       whatsappChannel: '',
       tiktokUrl: '',
       phone: '',
-      avatar: '/assets/LOGOR.png',
+      avatar: './assets/LOGOR.png',
       uid: ''
     }
   });
@@ -136,7 +136,7 @@ export const Admin = () => {
         whatsappChannel: '',
         tiktokUrl: '',
         phone: '',
-        avatar: '/assets/LOGOR.png',
+        avatar: './assets/LOGOR.png',
         uid: ''
       }
     });
@@ -156,7 +156,7 @@ export const Admin = () => {
         whatsappChannel: ally.whatsappChannel || '',
         tiktokUrl: ally.tiktokUrl || '',
         phone: ally.phone || '',
-        avatar: ally.avatar || ally.photoURL || '/assets/LOGOR.png',
+        avatar: ally.avatar || ally.photoURL || './assets/LOGOR.png',
         uid: ally.uid || ally.id || ''
       }
     });
@@ -1068,7 +1068,7 @@ export const Admin = () => {
                   <LiveUserAvatar
                     uid={(user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) ? user.uid : 'josnu-admin'}
                     fallbackName="JOSNU"
-                    fallbackPhoto="/assets/LOGOR.png"
+                    fallbackPhoto="./assets/LOGOR.png"
                     fallbackFrame="fuego_creador"
                     size={48}
                   />
@@ -1499,7 +1499,7 @@ export const Admin = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <input
                     type="text"
-                    placeholder="/assets/LOGOR.png o pega una URL https://..."
+                    placeholder="./assets/LOGOR.png o pega una URL https://..."
                     value={allyModal.form.avatar}
                     onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, avatar: e.target.value } })}
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}

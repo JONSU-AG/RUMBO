@@ -596,7 +596,7 @@ export const AcademyDetail = () => {
                   className="glass-card"
                   style={{ marginTop: '16px', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}
                 >
-                  <img src="/assets/horario-kelsen.png" alt="Horario Kelsen" style={{ width: '100%', display: 'block', borderRadius: '8px' }} />
+                  <img src="./assets/horario-kelsen.png" alt="Horario Kelsen" style={{ width: '100%', display: 'block', borderRadius: '8px' }} />
                 </motion.div>
               )}
             </AnimatePresence>

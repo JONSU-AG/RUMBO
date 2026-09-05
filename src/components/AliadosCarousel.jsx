@@ -51,7 +51,7 @@ const DEFAULT_ALLIES = [
     whatsappChannel: 'https://www.whatsapp.com/channel/0029VbDFAEu7YScyVZBNul0X',
     tiktokUrl: 'https://www.tiktok.com/@futurocachimbounsa?_r=1&_t=ZS-99SjSQle78P',
     phone: '930875585',
-    avatar: '/assets/LOGOR.png',
+    avatar: './assets/LOGOR.png',
     reactionsCount: 99,
     priority: 1
   }
@@ -125,7 +125,7 @@ export const AliadosCarousel = ({ onOpenAliadoForm }) => {
                 whatsappChannel: data.whatsappChannel || data.whatsappGroup || '',
                 tiktokUrl: data.tiktokUrl || data.socialLink || '',
                 phone: data.phone || '',
-                avatar: data.avatar || data.photoURL || '/assets/LOGOR.png',
+                avatar: data.avatar || data.photoURL || './assets/LOGOR.png',
                 uid: data.uid || (isCreatorCard ? josnuUid : null),
                 reactionsCount: data.reactionsCount || 90,
                 priority: isCreatorCard ? 1 : 3

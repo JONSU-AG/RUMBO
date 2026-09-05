@@ -481,7 +481,7 @@ export const Home = () => {
               }}
             >
               <img 
-                src="/assets/LOGOR.png" 
+                src="./assets/LOGOR.png" 
                 alt="RUMBO Mascota" 
                 style={{ 
                   width: '100%', 
@@ -1224,7 +1224,7 @@ export const Home = () => {
                     <LiveUserAvatar
                       uid={user?.uid || 'preview-user'}
                       fallbackName={allyName || user?.displayName || 'Aliado RUMBO'}
-                      fallbackPhoto={user?.photoURL || '/assets/LOGOR.png'}
+                      fallbackPhoto={user?.photoURL || './assets/LOGOR.png'}
                       size={52}
                     />
 
