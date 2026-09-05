@@ -426,25 +426,31 @@ const PostItemCard = ({
         <div style={{ marginTop: '6px' }}>
           {isImageUrl(item.url) ? (
             <div
-              onClick={() => setLightboxImage(item.url)}
+              onClick={() => setLightboxImage(getDirectImageUrl(item.url))}
               style={{
                 borderRadius: '20px',
                 overflow: 'hidden',
                 cursor: 'pointer',
                 border: '1px solid var(--card-border)',
                 position: 'relative',
-                background: 'rgba(0,0,0,0.04)'
+                background: 'rgba(0,0,0,0.04)',
+                maxWidth: '480px',
+                margin: '0 auto'
               }}
             >
               <img
                 src={getDirectImageUrl(item.url)}
                 onError={(e) => handleImageError(e, item.url)}
-                alt={item.title}
+                alt={item.title || 'Imagen compartida'}
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
                 style={{
                   width: '100%',
-                  maxHeight: '440px',
-                  objectFit: 'cover',
-                  display: 'block'
+                  maxHeight: '520px',
+                  objectFit: 'contain',
+                  display: 'block',
+                  margin: '0 auto',
+                  transition: 'transform 0.3s ease'
                 }}
               />
             </div>

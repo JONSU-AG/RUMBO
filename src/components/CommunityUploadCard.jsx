@@ -421,7 +421,9 @@ export const CommunityUploadCard = ({
                 cursor: 'pointer',
                 border: '1px solid var(--card-border)',
                 position: 'relative',
-                background: 'rgba(0,0,0,0.04)'
+                background: 'rgba(0,0,0,0.04)',
+                maxWidth: '480px',
+                margin: '0 auto'
               }}
             >
               <img
@@ -432,9 +434,10 @@ export const CommunityUploadCard = ({
                 crossOrigin="anonymous"
                 style={{
                   width: '100%',
-                  maxHeight: '440px',
-                  objectFit: 'cover',
+                  maxHeight: '520px',
+                  objectFit: 'contain',
                   display: 'block',
+                  margin: '0 auto',
                   transition: 'transform 0.3s ease'
                 }}
               />
