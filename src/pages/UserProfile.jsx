@@ -1607,8 +1607,8 @@ export const UserProfile = () => {
 
               {/* Card 3: Rango de Comunidad */}
               <div style={{
-                background: profileUser.isAlly ? 'rgba(52, 168, 83, 0.06)' : 'rgba(120, 120, 128, 0.06)',
-                border: profileUser.isAlly ? '1.5px solid rgba(52, 168, 83, 0.25)' : '1.5px solid var(--card-border)',
+                background: isUserAdmin ? 'rgba(168, 85, 247, 0.08)' : (profileUser.isAlly ? 'rgba(52, 168, 83, 0.06)' : 'rgba(120, 120, 128, 0.06)'),
+                border: isUserAdmin ? '1.5px solid rgba(168, 85, 247, 0.25)' : (profileUser.isAlly ? '1.5px solid rgba(52, 168, 83, 0.25)' : '1.5px solid var(--card-border)'),
                 borderRadius: '16px',
                 padding: '8px 10px',
                 textAlign: 'center',
@@ -1623,16 +1623,16 @@ export const UserProfile = () => {
                   width: '28px',
                   height: '28px',
                   borderRadius: '8px',
-                  background: profileUser.isAlly ? 'rgba(52, 168, 83, 0.15)' : 'rgba(120, 120, 128, 0.1)',
-                  color: profileUser.isAlly ? '#34A853' : 'var(--text-main)',
+                  background: isUserAdmin ? 'rgba(168, 85, 247, 0.18)' : (profileUser.isAlly ? 'rgba(52, 168, 83, 0.15)' : 'rgba(120, 120, 128, 0.1)'),
+                  color: isUserAdmin ? '#A855F7' : (profileUser.isAlly ? '#34A853' : 'var(--text-main)'),
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
                   <Shield size={15} />
                 </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 800, color: profileUser.isAlly ? '#34A853' : 'var(--text-main)', lineHeight: 1.1, whiteSpace: 'nowrap' }}>
-                  {profileUser.isAlly ? 'Aliado Oficial' : 'Estudiante'}
+                <div style={{ fontSize: '0.92rem', fontWeight: 800, color: isUserAdmin ? '#A855F7' : (profileUser.isAlly ? '#34A853' : 'var(--text-main)'), lineHeight: 1.1, whiteSpace: 'nowrap' }}>
+                  {isUserAdmin ? 'Creador RUMBO' : (profileUser.isAlly ? 'Aliado Oficial' : 'Estudiante')}
                 </div>
                 <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
                   Rango
