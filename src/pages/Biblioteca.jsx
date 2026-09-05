@@ -198,135 +198,53 @@ export const Biblioteca = () => {
         </p>
 
         {/* Main Tab Switcher */}
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '28px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
           <motion.button 
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setMainTab('documentos')}
             style={{ 
-              padding: '14px 28px', 
-              borderRadius: '20px', 
+              padding: '10px 18px', 
+              borderRadius: '16px', 
               fontWeight: 800, 
-              fontSize: '0.98rem',
+              fontSize: '0.88rem',
               border: mainTab === 'documentos' ? 'none' : '1.5px solid var(--card-border)',
               background: mainTab === 'documentos' ? 'linear-gradient(135deg, #007AFF 0%, #00C6FF 100%)' : 'var(--card-bg)',
               color: mainTab === 'documentos' ? '#FFFFFF' : 'var(--text-main)',
               cursor: 'pointer',
-              boxShadow: mainTab === 'documentos' ? '0 8px 24px rgba(0, 122, 255, 0.35)' : 'none',
-              transition: 'all 0.25s ease'
+              boxShadow: mainTab === 'documentos' ? '0 6px 20px rgba(0, 122, 255, 0.35)' : 'none',
+              transition: 'all 0.2s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
           >
             📚 Material Oficial ({filteredTomos.length + filteredPracticas.length})
           </motion.button>
 
-          {/* BOTÓN IRRESISTIBLE: Aportes de la Comunidad */}
           <motion.button 
-            whileHover={{ scale: 1.06, boxShadow: '0 12px 32px rgba(245, 158, 11, 0.55), 0 0 25px rgba(236, 72, 153, 0.55)' }}
-            whileTap={{ scale: 0.95 }}
-            animate={mainTab !== 'comunidad' ? { scale: [1, 1.03, 1] } : {}}
-            transition={mainTab !== 'comunidad' ? { repeat: Infinity, duration: 2.8, ease: 'easeInOut' } : { duration: 0.2 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setMainTab('comunidad')}
             style={{ 
-              position: 'relative',
-              padding: '14px 28px', 
-              borderRadius: '20px', 
-              fontWeight: 900, 
-              fontSize: '1rem',
-              border: mainTab === 'comunidad' ? 'none' : '2px solid #F59E0B',
-              background: mainTab === 'comunidad' 
-                ? 'linear-gradient(135deg, #F59E0B 0%, #EC4899 50%, #8B5CF6 100%)' 
-                : 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(236, 72, 153, 0.18) 100%)',
-              color: '#FFFFFF',
+              padding: '10px 18px', 
+              borderRadius: '16px', 
+              fontWeight: 800, 
+              fontSize: '0.88rem',
+              border: mainTab === 'comunidad' ? 'none' : '1.5px solid var(--card-border)',
+              background: mainTab === 'comunidad' ? 'linear-gradient(135deg, #F59E0B 0%, #EC4899 100%)' : 'var(--card-bg)',
+              color: mainTab === 'comunidad' ? '#FFFFFF' : 'var(--text-main)',
               cursor: 'pointer',
-              boxShadow: mainTab === 'comunidad' 
-                ? '0 10px 30px rgba(245, 158, 11, 0.5), 0 4px 20px rgba(236, 72, 153, 0.4)' 
-                : '0 6px 22px rgba(245, 158, 11, 0.3), inset 0 0 12px rgba(245, 158, 11, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              transition: 'all 0.25s ease',
-              textShadow: '0 2px 4px rgba(0,0,0,0.4)',
-              letterSpacing: '0.01em'
-            }}
-          >
-            <span style={{ fontSize: '1.2rem' }}>🤝</span>
-            <span>Aportes de la Comunidad ({filteredCommunity.length})</span>
-            <span style={{
-              background: 'linear-gradient(135deg, #FFE066, #FF512F)',
-              color: '#000000',
-              fontSize: '0.72rem',
-              fontWeight: 900,
-              padding: '3px 9px',
-              borderRadius: '12px',
-              textShadow: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-              letterSpacing: '0.03em',
+              boxShadow: mainTab === 'comunidad' ? '0 6px 20px rgba(245, 158, 11, 0.35)' : 'none',
+              transition: 'all 0.2s ease',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '3px'
-            }}>
-              🔥 APUNTES ✨
-            </span>
+              gap: '6px'
+            }}
+          >
+            🤝 Aportes de la Comunidad ({filteredCommunity.length})
           </motion.button>
         </div>
-
-        {/* Banner Interactivo y Llamativo: Aportes de la Comunidad / Aliados */}
-        <motion.div
-          whileHover={{ scale: 1.02, boxShadow: '0 8px 30px rgba(245, 158, 11, 0.35)' }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setMainTab('comunidad')}
-          style={{
-            maxWidth: '740px',
-            margin: '20px auto 0',
-            padding: '16px 22px',
-            borderRadius: '22px',
-            background: mainTab === 'comunidad' 
-              ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.24) 0%, rgba(236, 72, 153, 0.24) 100%)' 
-              : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%)',
-            border: '2px solid #F59E0B',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '14px',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            cursor: 'pointer',
-            boxShadow: '0 6px 22px rgba(245, 158, 11, 0.2)',
-            transition: 'all 0.25s ease'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: '240px' }}>
-            <span style={{ fontSize: '1.6rem' }}>💡</span>
-            <div style={{ textAlign: 'left' }}>
-              <strong style={{ fontSize: '0.96rem', color: 'var(--text-main)', display: 'block' }}>
-                ¡Comunidad & Aliados activos compartiendo material! ✨
-              </strong>
-              <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-                Encuentra resúmenes, exámenes, guías de práctica y apuntes valiosos.
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={(e) => { e.stopPropagation(); setMainTab('comunidad'); }}
-            style={{
-              padding: '10px 18px',
-              borderRadius: '14px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #F59E0B, #EC4899)',
-              color: '#FFFFFF',
-              fontWeight: 900,
-              fontSize: '0.86rem',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(245, 158, 11, 0.45)',
-              letterSpacing: '0.02em'
-            }}
-          >
-            🔥 Toca para ver Material ➔
-          </button>
-        </motion.div>
 
         {/* Global Accent-Insensitive Search Bar */}
         <div style={{ position: 'relative', maxWidth: '640px', margin: '24px auto 0' }}>
