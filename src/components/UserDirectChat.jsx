@@ -128,15 +128,18 @@ export const UserDirectChat = ({ profileUid, profileName = 'este usuario', isOwn
     }
   };
 
-  const handleDeleteMessage = (msgId) => {
+  const handleDeleteMessage = (msg) => {
+    const isOtherUserMsg = user && msg?.authorUid && msg.authorUid !== user.uid;
     setConfirmModal({
       isOpen: true,
-      title: "Eliminar Mensaje",
-      message: "¿Deseas eliminar este mensaje del chat?",
+      title: isOtherUserMsg ? "⚠️ Confirmar Eliminación (Moderación)" : "Eliminar Mensaje",
+      message: isOtherUserMsg 
+        ? `¿Deseas eliminar este mensaje de ${msg.authorName || 'este usuario'}?` 
+        : "¿Deseas eliminar este mensaje del chat?",
       confirmText: "Sí, Eliminar",
       onConfirm: async () => {
         try {
-          await deleteDoc(doc(db, 'mensajes_directos_perfil', msgId));
+          await deleteDoc(doc(db, 'mensajes_directos_perfil', msg.id));
         } catch (err) {
           console.error("Error deleting message:", err);
           setNoticeModal({ isOpen: true, title: "Error", message: "Error al eliminar: " + err.message, type: 'error' });
@@ -341,7 +344,7 @@ export const UserDirectChat = ({ profileUid, profileName = 'este usuario', isOwn
                           </span>
                           {canDelete && (
                             <button
-                              onClick={() => handleDeleteMessage(msg.id)}
+                              onClick={() => handleDeleteMessage(msg)}
                               title="Eliminar mensaje"
                               style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 0 }}
                             >

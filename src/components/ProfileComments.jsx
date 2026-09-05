@@ -209,15 +209,18 @@ const PostItemCard = ({
   };
 
   // Delete a Sub-comment
-  const handleDeleteSubComment = (subCommentId) => {
+  const handleDeleteSubComment = (subComment) => {
+    const isOther = user && subComment.authorUid && subComment.authorUid !== user.uid;
     setConfirmModal({
       isOpen: true,
-      title: "Borrar Comentario",
-      message: "¿Deseas borrar este comentario?",
+      title: isOther ? "⚠️ Confirmar Eliminación" : "Borrar Comentario",
+      message: isOther 
+        ? `¿Deseas eliminar el comentario de ${subComment.authorName || 'este usuario'}?`
+        : "¿Deseas borrar este comentario?",
       confirmText: "Sí, Borrar",
       onConfirm: async () => {
         try {
-          await deleteDoc(doc(db, 'publicacion_comentarios', subCommentId));
+          await deleteDoc(doc(db, 'publicacion_comentarios', subComment.id));
         } catch (err) {
           console.error("Error deleting subcomment:", err);
           setNoticeModal({ isOpen: true, title: "Error", message: "No se pudo eliminar el comentario: " + err.message, type: 'error' });
@@ -617,7 +620,7 @@ const PostItemCard = ({
                     </span>
                     {canDeleteSub && (
                       <button
-                        onClick={() => handleDeleteSubComment(c.id)}
+                        onClick={() => handleDeleteSubComment(c)}
                         title="Borrar comentario"
                         style={{
                           background: 'none',
@@ -933,13 +936,19 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
 
   const handleDeleteItem = (item) => {
     const isComment = item._type === 'comment';
-    const confirmMsg = isComment
-      ? "¿Deseas eliminar esta publicación del muro?"
-      : "¿Deseas eliminar este material publicado?";
+    const isOtherUserItem = user && item.authorUid && item.authorUid !== user.uid;
+
+    const modalTitle = isOtherUserItem 
+      ? "⚠️ Confirmar Eliminación (Moderación)" 
+      : (isComment ? "Eliminar Publicación" : "Eliminar Material");
+
+    const confirmMsg = isOtherUserItem
+      ? `¿Deseas eliminar ${isComment ? 'la publicación' : 'el material'} de ${item.authorName || 'este usuario'}?`
+      : (isComment ? "¿Deseas eliminar esta publicación del muro?" : "¿Deseas eliminar este material publicado?");
 
     setConfirmModal({
       isOpen: true,
-      title: isComment ? "Eliminar Publicación" : "Eliminar Material",
+      title: modalTitle,
       message: confirmMsg,
       confirmText: "Sí, Eliminar",
       onConfirm: async () => {
