@@ -44,7 +44,7 @@ import {
   Bookmark
 } from 'lucide-react';
 import { searchMatches } from '../lib/searchHelper';
-import { WhatsAppIconSVG } from '../components/AliadosCarousel';
+import { WhatsAppIconSVG, TikTokIconSVG } from '../components/AliadosCarousel';
 import { db } from '../lib/firebase';
 import { uploadFileReliable, getDirectImageUrl } from '../lib/storageHelper';
 import { 
@@ -311,13 +311,26 @@ export const UserProfile = () => {
     } catch (e) {}
   };
 
+// Endorsements for each profile data point
+  const [endorsements, setEndorsements] = useState({
+    carrera: { count: 8, users: [] },
+    universidad: { count: 15, users: [] },
+    bio: { count: 12, users: [] }
+  });
+
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
   const [editCarrera, setEditCarrera] = useState('');
   const [editUniversidad, setEditUniversidad] = useState('');
   const [editAcademia, setEditAcademia] = useState('');
   const [editWhatsapp, setEditWhatsapp] = useState('');
+  const [editTiktok, setEditTiktok] = useState('');
   const [editInstagram, setEditInstagram] = useState('');
+
+  // Toggles for optional info visibility on profile
+  const [showCarrera, setShowCarrera] = useState(true);
+  const [showUniversidad, setShowUniversidad] = useState(true);
+  const [showAcademia, setShowAcademia] = useState(true);
 
   // File upload handlers for Avatar & Portada
   const handleAvatarFileChange = async (e) => {
@@ -368,11 +381,7 @@ export const UserProfile = () => {
   };
 
   // Endorsements for each profile data point
-  const [endorsements, setEndorsements] = useState({
-    carrera: { count: 8, users: [] },
-    universidad: { count: 15, users: [] },
-    bio: { count: 12, users: [] }
-  });
+  // (State declared above)
 
   const isOwnProfile = user && targetUid === user.uid;
   const isUserAdmin = Boolean(
@@ -439,8 +448,9 @@ export const UserProfile = () => {
           const bio = data.bio || (isJosnuUser ? 'Fundador & Creador de la plataforma RUMBO.' : 'Estudiante enfocado en alcanzar la meta universitaria con la comunidad RUMBO.');
           const carrera = data.carrera || (isJosnuUser ? 'Fundador & Creador RUMBO' : 'Postulante Universitario');
           const whatsappChannel = data.whatsappChannel || (isJosnuUser ? founderWhatsapp : '');
-          const instagram = data.instagram || (isJosnuUser ? founderTiktok : '');
-          const isAlly = isJosnuUser ? true : Boolean(data.isAlly);
+          const tiktokUrl = data.tiktokUrl || (isJosnuUser ? founderTiktok : '');
+          const instagram = data.instagram || '';
+          const isAlly = isJosnuUser ? true : Boolean(data.isAlly || (userUploads && userUploads.length >= 10));
           const academicStatus = isJosnuUser ? 'estudiante_unsa' : (data.academicStatus || 'postulante');
 
           const merged = {
@@ -449,6 +459,7 @@ export const UserProfile = () => {
             bio,
             carrera,
             whatsappChannel,
+            tiktokUrl,
             instagram,
             isAlly,
             academicStatus
@@ -458,10 +469,14 @@ export const UserProfile = () => {
           setEditName(displayName);
           setEditBio(bio);
           setEditCarrera(carrera);
-          setEditUniversidad(data.universidad || (isJosnuUser ? 'UNSA (Arequipa)' : ''));
-          setEditAcademia(data.academia || (isJosnuUser ? 'Creador de RUMBO' : ''));
+          setEditUniversidad(data.universidad || '');
+          setEditAcademia(data.academia || '');
           setEditWhatsapp(whatsappChannel);
+          setEditTiktok(tiktokUrl);
           setEditInstagram(instagram);
+          setShowCarrera(data.showCarrera !== undefined ? Boolean(data.showCarrera) : Boolean(carrera && carrera !== 'Postulante Universitario'));
+          setShowUniversidad(data.showUniversidad !== undefined ? Boolean(data.showUniversidad) : Boolean(data.universidad));
+          setShowAcademia(data.showAcademia !== undefined ? Boolean(data.showAcademia) : Boolean(data.academia));
           setAvatarUrl(data.photoURL || '');
           setSelectedFrame(data.avatarFrame || 'none');
           setAcademicStatus(academicStatus);
@@ -597,7 +612,11 @@ export const UserProfile = () => {
         universidad: editUniversidad.trim(),
         academia: editAcademia.trim(),
         whatsappChannel: editWhatsapp.trim(),
+        tiktokUrl: editTiktok.trim(),
         instagram: editInstagram.trim(),
+        showCarrera,
+        showUniversidad,
+        showAcademia,
         photoURL: avatarUrl.trim() || profileUser.photoURL || null,
         coverGradient: selectedGradient,
         coverUrl: customCoverUrl ? customCoverUrl.trim() : '',
@@ -1421,93 +1440,99 @@ export const UserProfile = () => {
                 </div>
 
               {/* University & Career Pills (Social Pre-U info) con Valoraciones */}
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginTop: '8px' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(0,122,255,0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(0,122,255,0.18)' }}>
-                  <span style={{
-                    padding: '3px 6px',
-                    color: 'var(--accent-color)',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <GraduationCap size={15} /> {profileUser.carrera || 'Postulante Universitario'}
-                  </span>
-                  <button
-                    onClick={() => handleEndorse('carrera')}
-                    title="Valorar vocación de este estudiante"
-                    style={{
-                      border: 'none',
-                      background: endorsements.carrera?.users?.includes(user?.uid) ? 'var(--accent-color)' : 'rgba(0,122,255,0.15)',
-                      color: endorsements.carrera?.users?.includes(user?.uid) ? '#FFF' : 'var(--accent-color)',
-                      fontSize: '0.74rem',
-                      fontWeight: 800,
-                      padding: '3px 8px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
+              {(showCarrera && profileUser.carrera) || (showUniversidad && profileUser.universidad) || (showAcademia && profileUser.academia) ? (
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginTop: '8px' }}>
+                  {showCarrera && profileUser.carrera && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(0,122,255,0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(0,122,255,0.18)' }}>
+                      <span style={{
+                        padding: '3px 6px',
+                        color: 'var(--accent-color)',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <GraduationCap size={15} /> {profileUser.carrera}
+                      </span>
+                      <button
+                        onClick={() => handleEndorse('carrera')}
+                        title="Valorar vocación de este estudiante"
+                        style={{
+                          border: 'none',
+                          background: endorsements.carrera?.users?.includes(user?.uid) ? 'var(--accent-color)' : 'rgba(0,122,255,0.15)',
+                          color: endorsements.carrera?.users?.includes(user?.uid) ? '#FFF' : 'var(--accent-color)',
+                          fontSize: '0.74rem',
+                          fontWeight: 800,
+                          padding: '3px 8px',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        🔥 {endorsements.carrera?.count || 0}
+                      </button>
+                    </div>
+                  )}
+
+                  {showUniversidad && profileUser.universidad && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(168, 85, 247, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.18)' }}>
+                      <span style={{
+                        padding: '3px 6px',
+                        color: '#A855F7',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <Award size={15} /> Meta: {profileUser.universidad}
+                      </span>
+                      <button
+                        onClick={() => handleEndorse('universidad')}
+                        title="Valorar meta universitaria de este estudiante"
+                        style={{
+                          border: 'none',
+                          background: endorsements.universidad?.users?.includes(user?.uid) ? '#A855F7' : 'rgba(168, 85, 247, 0.15)',
+                          color: endorsements.universidad?.users?.includes(user?.uid) ? '#FFF' : '#A855F7',
+                          fontSize: '0.74rem',
+                          fontWeight: 800,
+                          padding: '3px 8px',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        🎯 {endorsements.universidad?.count || 0}
+                      </button>
+                    </div>
+                  )}
+
+                  {showAcademia && profileUser.academia && (
+                    <span style={{
+                      padding: '4px 12px',
+                      borderRadius: '10px',
+                      background: 'rgba(120, 120, 128, 0.1)',
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px'
-                    }}
-                  >
-                    🔥 {endorsements.carrera?.count || 0}
-                  </button>
+                      gap: '6px'
+                    }}>
+                      <Compass size={14} /> {profileUser.academia}
+                    </span>
+                  )}
                 </div>
-
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(168, 85, 247, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.18)' }}>
-                  <span style={{
-                    padding: '3px 6px',
-                    color: '#A855F7',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <Award size={15} /> Meta: {profileUser.universidad || 'Rumbo a la Universidad'}
-                  </span>
-                  <button
-                    onClick={() => handleEndorse('universidad')}
-                    title="Valorar meta universitaria de este estudiante"
-                    style={{
-                      border: 'none',
-                      background: endorsements.universidad?.users?.includes(user?.uid) ? '#A855F7' : 'rgba(168, 85, 247, 0.15)',
-                      color: endorsements.universidad?.users?.includes(user?.uid) ? '#FFF' : '#A855F7',
-                      fontSize: '0.74rem',
-                      fontWeight: 800,
-                      padding: '3px 8px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
-                  >
-                    🎯 {endorsements.universidad?.count || 0}
-                  </button>
-                </div>
-
-                {profileUser.academia && (
-                  <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '10px',
-                    background: 'rgba(120, 120, 128, 0.1)',
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <Compass size={14} /> {profileUser.academia}
-                  </span>
-                )}
-              </div>
+              ) : null}
             </div>
           </div>
 
-            {/* Social Bio / Motivation Phrase con Valoración de Perfil */}
+            {/* Social Bio / Motivation Phrase con Reacción de Corazón y Redes Sociales */}
             <div style={{ marginBottom: '22px' }}>
               <div style={{
                 background: 'rgba(120, 120, 128, 0.05)',
@@ -1516,7 +1541,7 @@ export const UserProfile = () => {
                 border: '1px solid var(--card-border)'
               }}>
                 <p style={{
-                  margin: '0 0 10px 0',
+                  margin: '0 0 12px 0',
                   fontSize: '0.98rem',
                   color: 'var(--text-main)',
                   lineHeight: 1.6,
@@ -1527,53 +1552,114 @@ export const UserProfile = () => {
                   "{profileUser.bio || 'Preparándome para ingresar a la universidad con RUMBO. Compartiendo material para sumar a la comunidad.'}"
                 </p>
 
-                {/* Rating button & Social SVG icons near description */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  {profileUser.whatsappChannel ? (
-                    <a
-                      href={profileUser.whatsappChannel}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Canal de WhatsApp Oficial"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        padding: '6px 12px',
-                        borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                        color: '#FFFFFF',
-                        textDecoration: 'none',
-                        fontSize: '0.8rem',
-                        fontWeight: 800,
-                        boxShadow: '0 4px 10px rgba(37, 211, 102, 0.35)',
-                        transition: 'transform 0.2s ease'
-                      }}
-                    >
-                      <WhatsAppIconSVG size={16} /> Canal WhatsApp
-                    </a>
+                {/* Rating heart button & Social SVG buttons for Allies & Admin */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                  {/* Social Buttons Container (Visible ONLY if profileUser is Ally or Admin) */}
+                  {(profileUser.isAlly || isUserAdmin) ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      {profileUser.whatsappChannel && (
+                        <a
+                          href={profileUser.whatsappChannel}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Canal de WhatsApp Oficial"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            borderRadius: '12px',
+                            background: 'linear-gradient(135deg, #25D366, #128C7E)',
+                            color: '#FFFFFF',
+                            textDecoration: 'none',
+                            fontSize: '0.8rem',
+                            fontWeight: 800,
+                            boxShadow: '0 4px 10px rgba(37, 211, 102, 0.35)',
+                            transition: 'transform 0.2s ease'
+                          }}
+                        >
+                          <WhatsAppIconSVG size={16} /> WhatsApp
+                        </a>
+                      )}
+
+                      {profileUser.tiktokUrl && (
+                        <a
+                          href={profileUser.tiktokUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="TikTok Oficial"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            borderRadius: '12px',
+                            background: '#000000',
+                            color: '#FFFFFF',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            textDecoration: 'none',
+                            fontSize: '0.8rem',
+                            fontWeight: 800,
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                            transition: 'transform 0.2s ease'
+                          }}
+                        >
+                          <TikTokIconSVG size={16} /> TikTok
+                        </a>
+                      )}
+
+                      {profileUser.instagram && (
+                        <a
+                          href={profileUser.instagram.startsWith('http') ? profileUser.instagram : `https://instagram.com/${profileUser.instagram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Instagram Oficial"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            borderRadius: '12px',
+                            background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F56040)',
+                            color: '#FFFFFF',
+                            textDecoration: 'none',
+                            fontSize: '0.8rem',
+                            fontWeight: 800,
+                            boxShadow: '0 4px 10px rgba(253, 29, 29, 0.35)',
+                            transition: 'transform 0.2s ease'
+                          }}
+                        >
+                          <Instagram size={16} /> Instagram
+                        </a>
+                      )}
+                    </div>
                   ) : <div />}
 
+                  {/* Clean ❤️ Heart Reaction Button */}
                   <button
                     onClick={() => handleEndorse('bio')}
-                    title="Valorar y enviar ánimos a este estudiante"
+                    title="Enviar un corazón de apoyo a este perfil"
                     style={{
                       border: 'none',
                       background: endorsements.bio?.users?.includes(user?.uid) ? 'rgba(239, 68, 68, 0.18)' : 'rgba(120, 120, 128, 0.1)',
                       color: endorsements.bio?.users?.includes(user?.uid) ? '#EF4444' : 'var(--text-secondary)',
-                      fontSize: '0.78rem',
-                      fontWeight: 700,
-                      padding: '5px 12px',
+                      fontSize: '0.82rem',
+                      fontWeight: 800,
+                      padding: '6px 14px',
                       borderRadius: '12px',
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '6px',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      boxShadow: endorsements.bio?.users?.includes(user?.uid) ? '0 2px 10px rgba(239, 68, 68, 0.25)' : 'none'
                     }}
                   >
-                    ❤️ Valorar Ánimo y Motivación ({endorsements.bio?.count || 0})
+                    <span style={{ fontSize: '1rem', transform: endorsements.bio?.users?.includes(user?.uid) ? 'scale(1.15)' : 'scale(1)' }}>❤️</span>
+                    <span>{endorsements.bio?.count || 0}</span>
                   </button>
                 </div>
               </div>
@@ -3180,7 +3266,7 @@ export const UserProfile = () => {
             )}
           </div>
 
-          {/* 3. DESCRIPCIÓN & NOMBRE */}
+          {/* 3. DESCRIPCIÓN, DATOS SOCIALES Y REDES */}
           <div style={{
             background: 'var(--card-bg)',
             border: '1.5px solid var(--card-border)',
@@ -3191,7 +3277,7 @@ export const UserProfile = () => {
             gap: '14px'
           }}>
             <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              ✍️ 3. Nombre & Descripción
+              ✍️ 3. Información Personal & Opcional
             </h3>
 
             {/* Display Name */}
@@ -3240,6 +3326,189 @@ export const UserProfile = () => {
                 }}
               />
             </div>
+
+            {/* Carrera Opcional */}
+            <div style={{ borderTop: '1px dashed var(--card-border)', paddingTop: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                  🎓 Carrera a la que postulas / estudias (Opcional)
+                </label>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={showCarrera} onChange={e => setShowCarrera(e.target.checked)} />
+                  Mostrar en perfil
+                </label>
+              </div>
+              <input
+                type="text"
+                value={editCarrera}
+                onChange={(e) => setEditCarrera(e.target.value)}
+                placeholder="Ej. Ingeniería de Sistemas, Medicina Humana..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  border: '1.5px solid var(--card-border)',
+                  background: 'rgba(120,120,128,0.06)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.88rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Universidad Opcional */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                  🏛️ Universidad / Meta (Opcional)
+                </label>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={showUniversidad} onChange={e => setShowUniversidad(e.target.checked)} />
+                  Mostrar en perfil
+                </label>
+              </div>
+              <input
+                type="text"
+                value={editUniversidad}
+                onChange={(e) => setEditUniversidad(e.target.value)}
+                placeholder="Ej. UNSA (Arequipa), UNMSM, UNI..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  border: '1.5px solid var(--card-border)',
+                  background: 'rgba(120,120,128,0.06)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.88rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Academia Opcional */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                  🧭 Academia / Preparación (Opcional)
+                </label>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={showAcademia} onChange={e => setShowAcademia(e.target.checked)} />
+                  Mostrar en perfil
+                </label>
+              </div>
+              <input
+                type="text"
+                value={editAcademia}
+                onChange={(e) => setEditAcademia(e.target.value)}
+                placeholder="Ej. Ciclo Intensivo, Autoaprendizaje..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  border: '1.5px solid var(--card-border)',
+                  background: 'rgba(120,120,128,0.06)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.88rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Configuración de Redes Sociales (SOLO para Aliados con +10 Aportes o Administrador) */}
+            {(profileUser?.isAlly || userUploads.length >= 10 || isUserAdmin) ? (
+              <div style={{
+                marginTop: '10px',
+                padding: '14px',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, rgba(37, 211, 102, 0.08), rgba(168, 85, 247, 0.08))',
+                border: '1.5px solid rgba(37, 211, 102, 0.3)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🌟 Botones de Redes Sociales (Desbloqueados por Aliado / Admin)
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                  Al colocar tus enlaces, aparecerán como botones de acceso directo debajo de tu descripción.
+                </span>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#25D366', marginBottom: '4px' }}>
+                    Enlace de Canal / Grupo de WhatsApp:
+                  </label>
+                  <input
+                    type="url"
+                    value={editWhatsapp}
+                    onChange={(e) => setEditWhatsapp(e.target.value)}
+                    placeholder="https://whatsapp.com/channel/..."
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.82rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>
+                    Enlace de Perfil de TikTok:
+                  </label>
+                  <input
+                    type="url"
+                    value={editTiktok}
+                    onChange={(e) => setEditTiktok(e.target.value)}
+                    placeholder="https://www.tiktok.com/@tu_usuario"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.82rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#EC4899', marginBottom: '4px' }}>
+                    Enlace de Instagram:
+                  </label>
+                  <input
+                    type="text"
+                    value={editInstagram}
+                    onChange={(e) => setEditInstagram(e.target.value)}
+                    placeholder="https://instagram.com/tu_usuario o @tu_usuario"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.82rem'
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div style={{
+                marginTop: '6px',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                background: 'rgba(120,120,128,0.06)',
+                border: '1px dashed var(--card-border)',
+                fontSize: '0.78rem',
+                color: 'var(--text-secondary)'
+              }}>
+                🔒 <strong>Botones Sociales en Perfil:</strong> Sube más de 10 aportes a la comunidad para convertirte en <strong>Aliado RUMBO</strong> y colocar enlaces directos a tu WhatsApp, TikTok e Instagram.
+              </div>
+            )}
           </div>
 
           {/* 4. INSIGNIAS & RANGOS (OPCIÓN MOSTRAR/OCULTAR) */}
