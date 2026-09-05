@@ -253,7 +253,7 @@ export const UserDirectChat = ({
             senderPhoto: user.photoURL || null,
             type: 'chat',
             conversationId: conversationId,
-            targetPath: `/usuario/${currentPartnerUid}?tab=chat&with=${user.uid}`,
+            targetPath: `/chats?with=${user.uid}`,
             message: imageUrl 
               ? (text ? `📷 Te envió una foto con mensaje: "${text.slice(0, 30)}"` : '📷 Te envió una imagen') 
               : `te envió un mensaje privado: "${text.slice(0, 45)}"`,
@@ -586,7 +586,7 @@ export const UserDirectChat = ({
                       flex: 1
                     }}>
                       {group.lastMsg?.senderUid === user.uid ? 'Tú: ' : ''}
-                      {group.lastMsg?.text || 'Mensaje adjunto'}
+                      {group.lastMsg?.imageUrl ? (group.lastMsg?.text ? `📷 ${group.lastMsg.text}` : '📷 Foto') : (group.lastMsg?.text || 'Mensaje')}
                     </p>
 
                     {group.unreadCount > 0 && (

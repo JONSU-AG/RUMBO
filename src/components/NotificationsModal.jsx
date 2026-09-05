@@ -117,15 +117,13 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
 
     onClose();
 
-    // 1. Mensaje Directo Privado (WhatsApp-like) -> Ir a los mensajes privados con ese remitente
+    // 1. Mensaje Directo Privado (WhatsApp-like) -> Ir a la página independiente /chats con ese remitente
     if (n.type === 'chat' || n.type === 'mensaje' || n.type === 'direct_message' || n.targetPath?.includes('tab=chat')) {
       const chatPartner = n.senderUid && n.senderUid !== user?.uid ? n.senderUid : n.chatUid;
       if (chatPartner) {
-        navigate(`/usuario/${user?.uid || n.recipientUid}?tab=chat&with=${chatPartner}`);
-      } else if (n.targetPath) {
-        navigate(n.targetPath);
+        navigate(`/chats?with=${chatPartner}`);
       } else {
-        navigate(`/usuario/${user?.uid || n.recipientUid}?tab=chat`);
+        navigate('/chats');
       }
       return;
     }
