@@ -823,17 +823,19 @@ export const UserDirectChat = ({
                         src={getDirectImageUrl(msg.imageUrl)}
                         alt="Imagen adjunta"
                         onError={(e) => {
+                          e.target.onerror = null; // Prevent infinite error loops
                           const thumbUrl = getDriveThumbnailUrl(msg.imageUrl, 'w800');
                           const exportUrl = getDriveExportUrl(msg.imageUrl);
-                          if (e.target.src !== thumbUrl && e.target.src !== exportUrl && thumbUrl) {
+                          
+                          if (thumbUrl && e.target.src !== thumbUrl) {
                             e.target.src = thumbUrl;
-                          } else if (e.target.src === thumbUrl && exportUrl) {
+                          } else if (exportUrl && e.target.src !== exportUrl) {
                             e.target.src = exportUrl;
                           } else {
-                            // If all remote links fail, show fallback icon nicely
-                            e.target.onerror = null;
                             e.target.style.display = 'none';
-                            e.target.parentNode.innerHTML = `<div style="padding: 10px; font-size: 0.78rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px;">📷 Abrir Foto</div>`;
+                            if (e.target.parentNode) {
+                              e.target.parentNode.innerHTML = `<div style="padding: 10px; font-size: 0.78rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px;">📷 Ver Imagen</div>`;
+                            }
                           }
                         }}
                         style={{
@@ -925,9 +927,12 @@ export const UserDirectChat = ({
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
-              const previewUrl = URL.createObjectURL(file);
-              setImagePreviewModal({ isOpen: true, file: file, previewUrl: previewUrl, isCropped: false });
-              setSelectedImage(file);
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setImagePreviewModal({ isOpen: true, file: file, previewUrl: reader.result, isCropped: false });
+                setSelectedImage(file);
+              };
+              reader.readAsDataURL(file);
             }
           }}
         />
