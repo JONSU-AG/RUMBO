@@ -79,17 +79,26 @@ export const AcademyDetail = () => {
 
       // Subscribe to real-time Firestore database for Briceño 2027 and Briceño Areas
       try {
-        const ref2027 = doc(db, 'academias_data', 'briceno_2027');
+        const weeksCollectionRef = collection(db, 'briceno_2027_semanas');
+        const ref2027Doc = doc(db, 'academias_data', 'briceno_2027');
         const refAreas = doc(db, 'academias_data', 'briceno_areas');
 
-        const unsub2027 = onSnapshot(ref2027, (snap) => {
-          if (snap.exists() && snap.data()?.weeks) {
-            setBriceno2027Data(snap.data().weeks);
+        // Listen to individual week documents in collection 'briceno_2027_semanas'
+        const unsub2027Weeks = onSnapshot(weeksCollectionRef, (snap) => {
+          if (!snap.empty) {
+            const weeksList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            weeksList.sort((a, b) => (a.num || 0) - (b.num || 0));
+            setBriceno2027Data(weeksList);
           } else {
-            // Seed initial data if missing in Firestore
-            setDoc(ref2027, { weeks: BRICENO_2027, updatedAt: new Date().toISOString() }, { merge: true });
+            // Seed individual week documents into collection 'briceno_2027_semanas' so editing is super easy
+            BRICENO_2027.forEach((weekObj) => {
+              const weekDocId = `semana_${weekObj.num}`;
+              setDoc(doc(db, 'briceno_2027_semanas', weekDocId), weekObj, { merge: true });
+            });
+            // Also seed fallback single document
+            setDoc(ref2027Doc, { weeks: BRICENO_2027, updatedAt: new Date().toISOString() }, { merge: true });
           }
-        }, (err) => console.warn("Notice Briceño 2027 listener:", err));
+        }, (err) => console.warn("Notice Briceño 2027 Weeks listener:", err));
 
         const unsubAreas = onSnapshot(refAreas, (snap) => {
           if (snap.exists() && snap.data()?.areas) {
@@ -101,7 +110,7 @@ export const AcademyDetail = () => {
         }, (err) => console.warn("Notice Briceño Areas listener:", err));
 
         return () => {
-          unsub2027();
+          unsub2027Weeks();
           unsubAreas();
         };
       } catch (e) {
