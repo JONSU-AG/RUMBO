@@ -18,7 +18,8 @@ import {
   AlertTriangle,
   FileText,
   MessageCircle,
-  ThumbsUp
+  ThumbsUp,
+  ChevronDown
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { 
@@ -1092,31 +1093,51 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
           </p>
         </div>
 
-        {/* Filter Pills */}
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          {[
-            { id: 'all', label: `🌟 Todo (${combinedFeed.length})` },
-            { id: 'posts', label: `💬 Fotos y Mensajes (${comments.length})` },
-            { id: 'materials', label: `📚 Materiales (${userUploads.length})` }
-          ].map(filter => (
-            <button
-              key={filter.id}
-              onClick={() => setActiveFeedFilter(filter.id)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: '12px',
-                border: '1px solid var(--card-border)',
-                background: activeFeedFilter === filter.id ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.08)',
-                color: activeFeedFilter === filter.id ? '#FFFFFF' : 'var(--text-main)',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {filter.label}
-            </button>
-          ))}
+        {/* Filter Dropdown Select */}
+        <div style={{ position: 'relative', minWidth: '170px' }}>
+          <select
+            value={activeFeedFilter}
+            onChange={(e) => setActiveFeedFilter(e.target.value)}
+            style={{
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              width: '100%',
+              padding: '8px 36px 8px 14px',
+              borderRadius: '14px',
+              border: '1.5px solid var(--card-border)',
+              background: 'var(--card-bg)',
+              color: 'var(--text-main)',
+              fontWeight: 800,
+              fontSize: '0.83rem',
+              cursor: 'pointer',
+              outline: 'none',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+              backdropFilter: 'blur(10px)',
+              transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+            }}
+          >
+            <option value="all" style={{ background: 'var(--card-bg)', color: 'var(--text-main)', fontWeight: 700 }}>
+              🌟 Mostrar Todo ({combinedFeed.length})
+            </option>
+            <option value="posts" style={{ background: 'var(--card-bg)', color: 'var(--text-main)', fontWeight: 700 }}>
+              💬 Fotos y Mensajes ({comments.length})
+            </option>
+            <option value="materials" style={{ background: 'var(--card-bg)', color: 'var(--text-main)', fontWeight: 700 }}>
+              📚 Materiales ({userUploads.length})
+            </option>
+          </select>
+          <div style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            pointerEvents: 'none',
+            color: 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <ChevronDown size={16} />
+          </div>
         </div>
       </div>
 
