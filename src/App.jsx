@@ -79,10 +79,23 @@ export function App() {
               onClose={() => setIsTermsOpen(false)}
               title="Términos, Condiciones & Privacidad"
             >
-              <p><strong>1. Uso de la Plataforma:</strong> RUMBO es una plataforma educativa de libre acceso orientada a la preparación preuniversitaria.</p>
-              <p><strong>2. Aliados y Usuarios:</strong> Los usuarios pueden registrarse voluntariamente para personalizar su aprendizaje y acceder a la creación de flashcards y marcadores.</p>
-              <p><strong>3. Propiedad Intelectual:</strong> Todo el material educativo se comparte con fines puramente académicos y divulgativos.</p>
-              <p><strong>4. Protección de Datos:</strong> No comercializamos tus datos. Tu información se almacena de forma segura en infraestructura Firebase (Google Cloud).</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.88rem', lineHeight: 1.5, color: 'var(--text-main)' }}>
+                <p style={{ margin: 0 }}>
+                  <strong>1. Propósito Educativo Comunitario:</strong> RUMBO es un espacio de apoyo preuniversitario libre y gratuito impulsado por la comunidad estudiantil para facilitar el aprendizaje y la preparación académica.
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong>2. Protección Absoluta de la Privacidad:</strong> Tu privacidad y datos personales están resguardados bajo altos estándares de seguridad en la nube (Firebase / Google Cloud). No comercializamos ni exponemos tu información personal.
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong>3. Almacenamiento Comunitario Neutro (Estilo Nube):</strong> La plataforma opera como infraestructura neutra de almacenamiento comunitario (similar a Google Drive o servicios en la nube) donde los estudiantes comparten enlaces y apuntes de buena fe para su estudio personal.
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong>4. Uso Justo y Académico:</strong> Todo el material compartido en la plataforma tiene la única finalidad de apoyar el aprendizaje libre y la difusión del conocimiento preuniversitario sin fines de lucro.
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong>5. Retiro Amigable por Reporte:</strong> RUMBO respeta el trabajo de autores e instituciones. Si eres titular de derechos sobre algún material y solicitas su retiro, la plataforma atenderá amigablemente tu solicitud y procederá a su eliminación de inmediato a través del sistema de reportes disponible en cada publicación.
+                </p>
+              </div>
             </IOSModal>
           </div>
         </Router>

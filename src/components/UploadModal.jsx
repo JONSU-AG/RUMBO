@@ -303,9 +303,19 @@ export const UploadModal = ({ isOpen, onClose, onUploadSuccess, initialSourceMod
                 <h2 style={{ fontSize: '1.45rem', fontWeight: 800, margin: '0 0 4px', color: 'var(--text-main)' }}>
                   Aportar Material a RUMBO
                 </h2>
-                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.86rem' }}>
-                  Comparte libros, prácticas o carpetas con la comunidad
+                <p style={{ margin: '0 0 6px 0', color: 'var(--text-secondary)', fontSize: '0.86rem' }}>
+                  Comparte libros, prácticas o carpetas con la comunidad estudiantil
                 </p>
+                <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', background: 'rgba(0,122,255,0.06)', padding: '6px 12px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid rgba(0,122,255,0.14)' }}>
+                  <span>📖 Material compartido para fines estrictamente académicos.</span>
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent('rumbo_open_terms'))}
+                    style={{ background: 'none', border: 'none', color: 'var(--accent-color)', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: '0.76rem', textDecoration: 'underline' }}
+                  >
+                    Términos & Privacidad
+                  </button>
+                </div>
               </div>
 
               {error && (
