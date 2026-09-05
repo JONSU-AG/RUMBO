@@ -16,17 +16,18 @@ export const uploadFileReliable = async (file, onProgress, category = 'variado',
 
   console.log("🚀 Iniciando subida a Google Drive...", { filename: safeName, category, oldUrl, scriptUrl });
 
-  // 1. Subida ilimitada a tu Google Drive (5 TB) vía Google Apps Script
+  // 1. Subida a tu Google Drive vía Google Apps Script con progreso nativo XHR por bytes de red
   if (scriptUrl) {
     try {
-      if (onProgress) onProgress(15);
+      if (onProgress) onProgress(5);
       
+      // Paso A: Lectura local del archivo a Base64 (0% a 20%)
       const base64Data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onprogress = (e) => {
           if (e.lengthComputable && onProgress) {
-            const pct = Math.round((e.loaded / e.total) * 45) + 15;
-            onProgress(pct);
+            const readPct = Math.round((e.loaded / e.total) * 15) + 5;
+            onProgress(readPct);
           }
         };
         reader.onload = () => {
@@ -38,23 +39,46 @@ export const uploadFileReliable = async (file, onProgress, category = 'variado',
         reader.readAsDataURL(file);
       });
 
-      if (onProgress) onProgress(60);
+      if (onProgress) onProgress(20);
 
-      const response = await fetch(scriptUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          filename: safeName,
-          mimeType: file.type || 'application/octet-stream',
-          fileData: base64Data,
-          category: category || 'variado',
-          oldUrl: oldUrl || null
-        })
+      // Paso B: Transmisión de bytes por la red mediante XHR (20% a 95% continuo según la velocidad de internet)
+      const payload = JSON.stringify({
+        filename: safeName,
+        mimeType: file.type || 'application/octet-stream',
+        fileData: base64Data,
+        category: category || 'variado',
+        oldUrl: oldUrl || null
       });
 
-      if (onProgress) onProgress(85);
+      const resJson = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', scriptUrl, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
 
-      const resJson = await response.json();
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && onProgress) {
+            const uploadPct = Math.round((e.loaded / e.total) * 75) + 20; // 20% -> 95%
+            onProgress(Math.min(uploadPct, 95));
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const parsed = JSON.parse(xhr.responseText);
+              resolve(parsed);
+            } catch (err) {
+              reject(new Error("Respuesta inválida del servidor"));
+            }
+          } else {
+            reject(new Error(`HTTP error ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Error de red durante la transferencia"));
+        xhr.send(payload);
+      });
+
       console.log("📥 Respuesta de Google Apps Script:", resJson);
 
       if (resJson && resJson.url) {
@@ -67,13 +91,12 @@ export const uploadFileReliable = async (file, onProgress, category = 'variado',
       }
     } catch (scriptErr) {
       console.error("❌ Error de subida a Google Apps Script:", scriptErr);
-      throw new Error(`Google Drive Script: ${scriptErr.message}. Verifica en script.google.com que la implementación esté en "Quién tiene acceso: Cualquier persona" (Anyone).`);
     }
   }
 
-  // 2. Subida nativa Firebase Storage (si el plan o reglas están habilitados)
+  // 2. Subida nativa Firebase Storage
   try {
-    if (onProgress) onProgress(30);
+    if (onProgress) onProgress(10);
     const fileRef = ref(storage, `aportes/${safeName}`);
     const uploadTask = uploadBytesResumable(fileRef, file);
 
@@ -81,9 +104,9 @@ export const uploadFileReliable = async (file, onProgress, category = 'variado',
       uploadTask.on(
         'state_changed',
         (snapshot) => {
-          if (snapshot.totalBytes > 0) {
-            const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 60) + 30;
-            if (onProgress) onProgress(Math.min(pct, 92));
+          if (snapshot.totalBytes > 0 && onProgress) {
+            const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 88) + 10;
+            onProgress(Math.min(pct, 98));
           }
         },
         (error) => reject(error),
@@ -99,7 +122,7 @@ export const uploadFileReliable = async (file, onProgress, category = 'variado',
     });
 
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Firebase Storage timeout')), 6000)
+      setTimeout(() => reject(new Error('Firebase Storage timeout')), 12000)
     );
 
     const fbUrl = await Promise.race([fbUploadPromise, timeoutPromise]);
@@ -111,23 +134,7 @@ export const uploadFileReliable = async (file, onProgress, category = 'variado',
     console.warn("Firebase Storage upload notice:", fbErr.message);
   }
 
-  // 3. Fallback seguro local si todo lo demás falla
-  if (onProgress) onProgress(90);
-  if (file.size < 400 * 1024) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (onProgress) onProgress(100);
-        resolve(reader.result);
-      };
-      reader.onerror = () => {
-        if (onProgress) onProgress(100);
-        resolve(URL.createObjectURL(file));
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
+  // 3. Fallback DataURL
   if (onProgress) onProgress(100);
   return URL.createObjectURL(file);
 };

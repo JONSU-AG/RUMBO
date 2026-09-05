@@ -93,31 +93,6 @@ export const LiquidNavbar = () => {
         <Logo showText={true} />
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {/* Admin quick button on mobile */}
-          {isAdmin && (
-            <NavLink
-              to="/admin"
-              title="Panel de Administrador"
-              style={{
-                padding: '6px 10px',
-                borderRadius: '16px',
-                border: 'none',
-                background: isAdminActive 
-                  ? 'linear-gradient(135deg, #A855F7, #6366F1)' 
-                  : 'rgba(168, 85, 247, 0.15)',
-                color: isAdminActive ? '#FFFFFF' : '#A855F7',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                textDecoration: 'none'
-              }}
-            >
-              <Shield size={14} />
-              <span>Admin</span>
-            </NavLink>
-          )}
 
           {/* Bell Notification Button on Mobile */}
           {user && (

@@ -132,7 +132,7 @@ export const UploadModal = ({ isOpen, onClose, onUploadSuccess, initialSourceMod
 
       // Handle Device File Upload
       if (sourceMode === 'file' && selectedFile) {
-        setUploadProgress(25);
+        setUploadProgress(5);
         fileMeta = {
           name: selectedFile.name,
           size: formatFileSize(selectedFile.size),
@@ -142,12 +142,11 @@ export const UploadModal = ({ isOpen, onClose, onUploadSuccess, initialSourceMod
         finalUrl = await uploadFileReliable(selectedFile, (progress) => {
           setUploadProgress(progress);
         }, category);
-        setUploadProgress(90);
       } else {
         // Link mode smooth progress
         setUploadProgress(50);
-        await new Promise(r => setTimeout(r, 300));
-        setUploadProgress(90);
+        await new Promise(r => setTimeout(r, 200));
+        setUploadProgress(100);
       }
 
       const categoriaObj = CATEGORIES.find(c => c.id === category);
