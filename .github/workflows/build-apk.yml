@@ -18,9 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Web App
         run: npm run build
@@ -31,15 +32,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Bubblewrap CLI
-        run: npm install -g @bubblewrap/cli
-
-      - name: Initialize & Build Android TWA APK
+      - name: Build Android APK
         run: |
+          npm install -g @bubblewrap/cli
           mkdir -p android-build
           cd android-build
           npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="." || true
-          
+
       - name: Upload Web Build Artifact
         uses: actions/upload-artifact@v4
         with:
