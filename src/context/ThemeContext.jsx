@@ -10,6 +10,26 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('rumbo-theme', theme);
+
+    // Update PWA Status Bar theme-color dynamically to match the user's selected theme
+    const themeColors = {
+      'light': '#F2F2F7',
+      'light-warm': '#F6F3EC',
+      'dark': '#000000',
+      'guinda': '#3A0818',
+      'guinda-light': '#FFF0F5',
+      'coraje': '#FDF4E3',
+      'coraje-dark': '#1F110B'
+    };
+
+    const color = themeColors[theme] || '#000000';
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (!metaTheme) {
+      metaTheme = document.createElement('meta');
+      metaTheme.name = 'theme-color';
+      document.head.appendChild(metaTheme);
+    }
+    metaTheme.setAttribute('content', color);
   }, [theme]);
 
   const toggleTheme = (newTheme) => {
