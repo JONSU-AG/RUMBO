@@ -11,15 +11,17 @@ export const ThemeProvider = ({ children }) => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('rumbo-theme', theme);
 
-    // Update PWA Status Bar theme-color dynamically to match the user's selected theme
+    // Update PWA Status Bar theme-color dynamically to match the exact background of each user theme
     const themeColors = {
       'light': '#F2F2F7',
       'light-warm': '#F6F3EC',
       'dark': '#000000',
-      'guinda': '#3A0818',
-      'guinda-light': '#FFF0F5',
-      'coraje': '#FDF4E3',
-      'coraje-dark': '#1F110B'
+      'guinda': '#2d060d',
+      'guinda-light': '#FDF2F4',
+      'coraje': '#F4EBE1',
+      'coraje-dark': '#120919',
+      'beige-carmesi': '#E8DFD8',
+      'google-vibrant': '#F0F4F9'
     };
 
     const color = themeColors[theme] || '#000000';
