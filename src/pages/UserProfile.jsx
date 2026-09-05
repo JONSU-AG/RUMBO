@@ -611,9 +611,10 @@ export const UserProfile = () => {
         }
       }
 
-      // Sync avatar and frame across user's ally card if exists
+      // Sync name, avatar and frame across user's ally card if exists
       try {
         await setDoc(doc(db, 'solicitudes_aliados', targetUid), {
+          name: updatedFields.displayName,
           avatar: updatedFields.photoURL,
           avatarFrame: selectedFrame
         }, { merge: true });

@@ -39,7 +39,7 @@ const formatFileSize = (bytes) => {
 };
 
 export const UploadModal = ({ isOpen, onClose, onUploadSuccess, initialSourceMode = 'link' }) => {
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const [step, setStep] = useState('form'); // 'form' | 'confirm' | 'uploading' | 'success'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -156,7 +156,7 @@ export const UploadModal = ({ isOpen, onClose, onUploadSuccess, initialSourceMod
       // 1. Prepare data for Firestore
       const uploadData = {
         title: title.trim(),
-        author: author.trim() || (user?.displayName || 'Anónimo'),
+        author: author.trim() || (userData?.displayName || 'Anónimo'),
         category: category,
         categoriaLabel: categoriaLabel,
         type: sourceMode === 'file' 
@@ -168,7 +168,7 @@ export const UploadModal = ({ isOpen, onClose, onUploadSuccess, initialSourceMod
         fileMeta: fileMeta,
         uploadedBy: {
           uid: user ? user.uid : 'anonimo',
-          name: user ? (user.displayName || user.email || 'Aliado') : 'Usuario RUMBO',
+          name: user ? (userData?.displayName || 'Estudiante RUMBO') : 'Usuario RUMBO',
           email: user?.email || '',
           photoURL: user?.photoURL || null
         },

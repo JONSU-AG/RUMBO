@@ -32,7 +32,7 @@ import { useAuth } from '../context/AuthContext';
 import { ConfirmModal, NoticeModal } from './ConfirmModal';
 import { Link } from 'react-router-dom';
 import { searchMatches, normalizeSearchText } from '../lib/searchHelper';
-import { LiveUserAvatar } from './LiveUserAvatar';
+import { LiveUserAvatar, LiveUserName } from './LiveUserAvatar';
 
 /**
  * Parsea el texto del comentario para convertir automáticamente menciones como:
@@ -627,7 +627,7 @@ export const CommentsSection = ({
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                           <Link to={`/usuario/${c.authorUid}`} style={{ color: 'var(--text-main)', fontWeight: 700, fontSize: '0.88rem', textDecoration: 'none' }}>
-                            {c.authorName}
+                            <LiveUserName uid={c.authorUid} fallbackName={c.authorName} />
                           </Link>
                           <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
                             {formatDate(c.createdAt)}

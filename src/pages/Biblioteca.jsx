@@ -26,7 +26,7 @@ import { InspirationalDailyBanner } from '../components/InspirationalDailyBanner
 import { ReactionsBar } from '../components/ReactionsBar';
 import { CommentsSection } from '../components/CommentsSection';
 import { BookmarkButton } from '../components/BookmarkButton';
-import { LiveUserAvatar } from '../components/LiveUserAvatar';
+import { LiveUserAvatar, LiveUserName } from '../components/LiveUserAvatar';
 import { ADMIN_EMAILS, isAuthorOfFirebase } from '../context/AuthContext';
 import { TOMOS, PRACTICAS } from '../data/legacyData';
 import { searchMatches } from '../lib/searchHelper';
@@ -958,10 +958,12 @@ export const Biblioteca = () => {
                                       }}
                                       title="Ver perfil y muro de este usuario"
                                     >
-                                      {item.author || item.uploadedBy?.name || 'Comunidad'} ↗
+                                      <LiveUserName uid={item.uploadedBy?.uid} fallbackName={item.author || item.uploadedBy?.name || 'Comunidad'} /> ↗
                                     </Link>
                                   ) : (
-                                    <strong style={{ color: 'var(--text-main)' }}>{item.author || item.uploadedBy?.name || 'Comunidad'}</strong>
+                                    <strong style={{ color: 'var(--text-main)' }}>
+                                      <LiveUserName uid={item.uploadedBy?.uid} fallbackName={item.author || item.uploadedBy?.name || 'Comunidad'} />
+                                    </strong>
                                   )}
                                 </div>
 

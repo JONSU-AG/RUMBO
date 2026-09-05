@@ -363,3 +363,31 @@ export const LiveUserAvatar = ({
   );
 };
 
+export const LiveUserName = ({ uid, fallbackName = 'Estudiante RUMBO', style = {}, className = '' }) => {
+  const { user, userData } = useAuth();
+  const [liveName, setLiveName] = useState(() => {
+    if (user && uid === user.uid && userData?.displayName) {
+      return userData.displayName;
+    }
+    return fallbackName;
+  });
+
+  useEffect(() => {
+    if (!uid) return;
+    if (user && uid === user.uid && userData?.displayName) {
+      setLiveName(userData.displayName);
+    }
+
+    try {
+      const unsub = onSnapshot(doc(db, 'usuarios', uid), (snap) => {
+        if (snap.exists() && snap.data().displayName) {
+          setLiveName(snap.data().displayName);
+        }
+      }, (err) => console.warn("LiveUserName listener notice:", err));
+      return () => unsub();
+    } catch (e) {}
+  }, [uid, user, userData]);
+
+  return <span style={style} className={className}>{liveName || fallbackName}</span>;
+};
+

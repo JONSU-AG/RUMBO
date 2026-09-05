@@ -36,7 +36,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { uploadFileReliable } from '../lib/storageHelper';
 import { ConfirmModal, NoticeModal } from './ConfirmModal';
-import { LiveUserAvatar } from './LiveUserAvatar';
+import { LiveUserAvatar, LiveUserName } from './LiveUserAvatar';
 
 const POST_EMOJIS = ['❤️', '🔥', '⭐'];
 const COMMENT_EMOJIS = ['👍', '👎', '❤️', '🔥'];
@@ -273,7 +273,7 @@ const PostItemCard = ({
                   textDecoration: 'none'
                 }}
               >
-                {item.authorName}
+                <LiveUserName uid={item.authorUid} fallbackName={item.authorName} />
               </Link>
               <span style={{
                 padding: '2px 8px',
@@ -609,7 +609,7 @@ const PostItemCard = ({
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Link to={`/usuario/${c.authorUid}`} style={{ fontWeight: 800, fontSize: '0.84rem', color: 'var(--text-main)', textDecoration: 'none' }}>
-                    {c.authorName}
+                    <LiveUserName uid={c.authorUid} fallbackName={c.authorName} />
                   </Link>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
