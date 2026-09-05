@@ -49,6 +49,7 @@ export const AcademyDetail = () => {
   const [data, setData] = useState(null);
   const [bricenoTab, setBricenoTab] = useState('2027');
   const [selectedWeek, setSelectedWeek] = useState('all');
+  const [expandedWeeks, setExpandedWeeks] = useState({}); // { [weekNum]: boolean }
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [isKelsenHorarioOpen, setIsKelsenHorarioOpen] = useState(false);
@@ -692,22 +693,33 @@ export const AcademyDetail = () => {
 
                   if (filteredCourses.length === 0) return null;
 
+                  const isExpanded = selectedWeek !== 'all' || query.trim().length > 0 || expandedWeeks[weekItem.num];
+
                   return (
                     <div key={`week-${wIdx}`} style={{ marginBottom: '36px' }}>
-                      {/* Week Header */}
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: '10px',
-                        marginBottom: '20px',
-                        padding: '14px 20px',
-                        borderRadius: '20px',
-                        background: 'rgba(52, 199, 89, 0.12)',
-                        border: '1px solid rgba(52, 199, 89, 0.3)'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      {/* Week Header - Clickable Collapsible */}
+                      <div 
+                        onClick={() => {
+                          if (selectedWeek === 'all') {
+                            setExpandedWeeks(prev => ({ ...prev, [weekItem.num]: !prev[weekItem.num] }));
+                          }
+                        }}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: '10px',
+                          marginBottom: isExpanded ? '20px' : '0px',
+                          padding: '16px 22px',
+                          borderRadius: '20px',
+                          background: 'rgba(52, 199, 89, 0.12)',
+                          border: '1px solid rgba(52, 199, 89, 0.3)',
+                          cursor: selectedWeek === 'all' ? 'pointer' : 'default',
+                          transition: 'all 0.25s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
                             {weekItem.nombre}
                           </h2>
@@ -715,114 +727,138 @@ export const AcademyDetail = () => {
                             ({filteredCourses.length} cursos con clases)
                           </span>
                         </div>
-                        <span style={{
-                          padding: '4px 12px',
-                          borderRadius: '12px',
-                          background: '#34C759',
-                          color: '#FFFFFF',
-                          fontSize: '0.75rem',
-                          fontWeight: 800
-                        }}>
-                          {weekItem.status || 'Disponible'}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            background: '#34C759',
+                            color: '#FFFFFF',
+                            fontSize: '0.75rem',
+                            fontWeight: 800
+                          }}>
+                            {weekItem.status || 'Disponible'}
+                          </span>
+                          {selectedWeek === 'all' && !query.trim() && (
+                            <span style={{
+                              fontSize: '0.82rem',
+                              fontWeight: 800,
+                              color: '#34C759',
+                              background: 'rgba(52, 199, 89, 0.2)',
+                              padding: '4px 10px',
+                              borderRadius: '10px'
+                            }}>
+                              {isExpanded ? 'Ocultar ▲' : 'Desplegar ▼'}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Course Cards inside Week */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                        {filteredCourses.map((subCat, sIdx) => {
-                          const iconData = getCourseSvgData(subCat.nombre);
-                          const filteredVideos = (subCat.videos || []).filter(v => 
-                            searchMatches([v.nombre], query)
-                          );
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25 }}
+                            style={{ display: 'flex', flexDirection: 'column', gap: '22px', overflow: 'hidden' }}
+                          >
+                            {filteredCourses.map((subCat, sIdx) => {
+                              const iconData = getCourseSvgData(subCat.nombre);
+                              const filteredVideos = (subCat.videos || []).filter(v => 
+                                searchMatches([v.nombre], query)
+                              );
 
-                          return (
-                            <div
-                              key={`course-${sIdx}`}
-                              className="glass-card"
-                              style={{
-                                padding: '24px',
-                                borderRadius: '24px',
-                                border: '1px solid var(--card-border)'
-                              }}
-                            >
-                              {/* Course Header with Custom SVG */}
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
+                              return (
                                 <div
-                                  className="subject-icon-wrapper"
+                                  key={`course-${sIdx}`}
+                                  className="glass-card"
                                   style={{
-                                    width: '48px',
-                                    height: '48px',
-                                    color: iconData.color,
-                                    background: `linear-gradient(135deg, ${iconData.bg}, ${iconData.color}1a)`,
-                                    border: `1.5px solid ${iconData.color}35`,
-                                    borderRadius: '15px',
-                                    padding: '9px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: `0 5px 16px ${iconData.color}22`,
-                                    flexShrink: 0
+                                    padding: '24px',
+                                    borderRadius: '24px',
+                                    border: '1px solid var(--card-border)'
                                   }}
-                                  dangerouslySetInnerHTML={{ __html: iconData.svg }}
-                                />
-                                <div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
-                                      {subCat.nombre}
-                                    </h3>
-                                    <span style={{
-                                      fontSize: '0.75rem',
-                                      fontWeight: 700,
-                                      padding: '3px 10px',
-                                      borderRadius: '10px',
-                                      background: 'rgba(0, 122, 255, 0.1)',
-                                      color: 'var(--accent-color)'
-                                    }}>
-                                      {subCat.categoria}
-                                    </span>
-                                  </div>
-                                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                                    {filteredVideos.length} clase{filteredVideos.length !== 1 ? 's' : ''} en video
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Videos Grid */}
-                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px' }}>
-                                {filteredVideos.map((vid, vIdx) => (
-                                  <motion.a
-                                    key={vIdx}
-                                    href={vid.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    whileHover={{ scale: 1.02, y: -2 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    style={{
-                                      background: 'rgba(120, 120, 128, 0.07)',
-                                      border: '1px solid var(--card-border)',
-                                      padding: '16px',
-                                      borderRadius: '18px',
-                                      textDecoration: 'none',
-                                      display: 'flex',
-                                      flexDirection: 'column',
-                                      justifyContent: 'space-between',
-                                      gap: '12px',
-                                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                                    }}
-                                  >
-                                    <h4 style={{ fontSize: '0.94rem', fontWeight: 700, margin: 0, color: 'var(--text-main)', lineHeight: 1.4 }}>
-                                      {vid.nombre}
-                                    </h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FF0000', fontWeight: 700, fontSize: '0.84rem' }}>
-                                      <PlayCircle size={18} /> Ver en YouTube ↗
+                                >
+                                  {/* Course Header with Custom SVG */}
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
+                                    <div
+                                      className="subject-icon-wrapper"
+                                      style={{
+                                        width: '48px',
+                                        height: '48px',
+                                        color: iconData.color,
+                                        background: `linear-gradient(135deg, ${iconData.bg}, ${iconData.color}1a)`,
+                                        border: `1.5px solid ${iconData.color}35`,
+                                        borderRadius: '15px',
+                                        padding: '9px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: `0 5px 16px ${iconData.color}22`,
+                                        flexShrink: 0
+                                      }}
+                                      dangerouslySetInnerHTML={{ __html: iconData.svg }}
+                                    />
+                                    <div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+                                          {subCat.nombre}
+                                        </h3>
+                                        <span style={{
+                                          fontSize: '0.75rem',
+                                          fontWeight: 700,
+                                          padding: '3px 10px',
+                                          borderRadius: '10px',
+                                          background: 'rgba(0, 122, 255, 0.1)',
+                                          color: 'var(--accent-color)'
+                                        }}>
+                                          {subCat.categoria}
+                                        </span>
+                                      </div>
+                                      <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                                        {filteredVideos.length} clase{filteredVideos.length !== 1 ? 's' : ''} en video
+                                      </span>
                                     </div>
-                                  </motion.a>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                                  </div>
+
+                                  {/* Videos Grid */}
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px' }}>
+                                    {filteredVideos.map((vid, vIdx) => (
+                                      <motion.a
+                                        key={vIdx}
+                                        href={vid.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        style={{
+                                          background: 'rgba(120, 120, 128, 0.07)',
+                                          border: '1px solid var(--card-border)',
+                                          padding: '16px',
+                                          borderRadius: '18px',
+                                          textDecoration: 'none',
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          justifyContent: 'space-between',
+                                          gap: '12px',
+                                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                                        }}
+                                      >
+                                        <h4 style={{ fontSize: '0.94rem', fontWeight: 700, margin: 0, color: 'var(--text-main)', lineHeight: 1.4 }}>
+                                          {vid.nombre}
+                                        </h4>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FF0000', fontWeight: 700, fontSize: '0.84rem' }}>
+                                          <PlayCircle size={18} /> Ver en YouTube ↗
+                                        </div>
+                                      </motion.a>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   );
                 })
