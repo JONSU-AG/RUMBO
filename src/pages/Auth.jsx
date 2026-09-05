@@ -57,11 +57,17 @@ export const Auth = () => {
       await signInWithPopup(auth, googleProvider);
       navigate('/');
     } catch (err) {
+      console.warn("Google auth error:", err);
       const msgs = {
-        'auth/popup-closed-by-user': 'Cerraste el popup antes de iniciar sesión.',
-        'auth/operation-not-allowed': 'Activa Google en Firebase Console.',
+        'auth/popup-closed-by-user': 'Cerraste la ventana de Google antes de iniciar sesión.',
+        'auth/operation-not-allowed': 'Activa el proveedor de Google en Firebase Console.',
+        'auth/popup-blocked': 'La ventana emergente fue bloqueada.',
       };
-      setError(msgs[err.code] || err.message);
+      if (err.message?.includes('initial') || err.code === 'auth/internal-error' || err.code === 'auth/unauthorized-domain') {
+        setError('En la app móvil Android, por favor regístrate o ingresa usando tu Correo y Contraseña.');
+      } else {
+        setError(msgs[err.code] || 'Error con Google. Por favor ingresa usando tu Correo y Contraseña.');
+      }
     } finally {
       setGoogleLoading(false);
     }

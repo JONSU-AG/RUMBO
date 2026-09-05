@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RUMBO</string>
+    <string name="title_activity_main">RUMBO</string>
+    <string name="package_name">com.rumbo.app</string>
+    <string name="custom_url_scheme">com.rumbo.app</string>
+</resources>
