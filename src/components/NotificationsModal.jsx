@@ -111,6 +111,21 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const deleteAllNotifications = async () => {
+    if (notifications.length === 0) return;
+    try {
+      for (const n of notifications) {
+        if (n.id && n.recipientUid === user?.uid) {
+          await deleteDoc(doc(db, 'notificaciones', n.id));
+        }
+      }
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch (err) {
+      console.error("Error deleting all notifications:", err);
+    }
+  };
+
   const handleNotificationClick = (n) => {
     markAsRead(n.id);
 
@@ -237,13 +252,13 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllAsRead}
                     title="Marcar todas como leídas"
                     style={{
-                      padding: '6px 12px',
+                      padding: '6px 10px',
                       borderRadius: '10px',
                       border: '1px solid var(--card-border)',
                       background: 'rgba(0, 122, 255, 0.08)',
@@ -257,6 +272,27 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                     }}
                   >
                     <Check size={14} /> Leídas
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    onClick={deleteAllNotifications}
+                    title="Vaciar notificaciones"
+                    style={{
+                      padding: '6px 10px',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(255, 59, 48, 0.3)',
+                      background: 'rgba(255, 59, 48, 0.08)',
+                      color: '#FF3B30',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <Trash2 size={14} /> Vaciar
                   </button>
                 )}
                 <button
@@ -774,9 +810,27 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                      Emitido: {formatDate(selectedNoticePopup.createdAt)}
-                    </span>
+                    <button
+                      onClick={() => {
+                        deleteNotification(selectedNoticePopup.id);
+                        setSelectedNoticePopup(null);
+                      }}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255, 59, 48, 0.3)',
+                        background: 'rgba(255, 59, 48, 0.08)',
+                        color: '#FF3B30',
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <Trash2 size={14} /> Borrar aviso
+                    </button>
                     <button
                       onClick={() => setSelectedNoticePopup(null)}
                       style={{
