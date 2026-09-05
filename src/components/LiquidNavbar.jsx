@@ -88,32 +88,34 @@ export const LiquidNavbar = () => {
 
   return (
     <>
-      {/* Mobile Header (Fixed Top Bar) */}
+      {/* Mobile Header (Fixed Top Bar with Labels for New Users) */}
       <header className="mobile-header">
         <Logo showText={true} />
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {/* Admin quick button on mobile */}
           {isAdmin && (
             <NavLink
               to="/admin"
               title="Panel de Administrador"
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
+                padding: '6px 10px',
+                borderRadius: '16px',
                 border: 'none',
                 background: isAdminActive 
                   ? 'linear-gradient(135deg, #A855F7, #6366F1)' 
                   : 'rgba(168, 85, 247, 0.15)',
                 color: isAdminActive ? '#FFFFFF' : '#A855F7',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                gap: '4px',
+                fontSize: '0.74rem',
+                fontWeight: 800,
                 textDecoration: 'none'
               }}
             >
-              <Shield size={17} />
+              <Shield size={14} />
+              <span>Admin</span>
             </NavLink>
           )}
 
@@ -121,38 +123,40 @@ export const LiquidNavbar = () => {
           {user && (
             <button
               onClick={() => setIsNotifOpen(true)}
-              title="Notificaciones"
+              title="Notificaciones y Avisos"
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
+                padding: '6px 10px',
+                borderRadius: '16px',
                 border: 'none',
                 background: 'rgba(0, 122, 255, 0.12)',
                 color: 'var(--accent-color)',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                gap: '4px',
+                fontSize: '0.74rem',
+                fontWeight: 800,
                 cursor: 'pointer',
                 position: 'relative'
               }}
             >
-              <Bell size={17} />
+              <Bell size={14} />
+              <span>Avisos</span>
               {unreadCount > 0 && (
                 <span style={{
                   position: 'absolute',
-                  top: '-2px',
-                  right: '-2px',
+                  top: '-3px',
+                  right: '-3px',
                   background: '#EF4444',
                   color: '#FFFFFF',
-                  fontSize: '0.65rem',
+                  fontSize: '0.6rem',
                   fontWeight: 800,
-                  width: '17px',
-                  height: '17px',
+                  width: '15px',
+                  height: '15px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '2px solid var(--card-bg)'
+                  border: '1.5px solid var(--card-bg)'
                 }}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
@@ -163,41 +167,45 @@ export const LiquidNavbar = () => {
           {/* Quick upload button */}
           <button
             onClick={() => setIsUploadOpen(true)}
-            title="Aportar Material"
+            title="Aportar Material Educativo"
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
+              padding: '6px 10px',
+              borderRadius: '16px',
               border: 'none',
               background: 'rgba(0, 122, 255, 0.12)',
               color: 'var(--accent-color)',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              gap: '4px',
+              fontSize: '0.74rem',
+              fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <UploadCloud size={17} />
+            <UploadCloud size={14} />
+            <span>Subir</span>
           </button>
 
           {/* Theme Palette Button */}
           <button
             onClick={() => setIsThemeOpen(true)}
-            title="Cambiar Tema"
+            title="Cambiar Tema Visual"
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
+              padding: '6px 10px',
+              borderRadius: '16px',
               border: 'none',
               background: 'rgba(120, 120, 128, 0.12)',
               color: 'var(--text-main)',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              gap: '4px',
+              fontSize: '0.74rem',
+              fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <Palette size={17} />
+            <Palette size={14} />
+            <span>Tema</span>
           </button>
         </div>
       </header>

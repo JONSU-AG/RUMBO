@@ -1145,7 +1145,8 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
                       gap: '6px'
                     }}
                   >
-                    <ImageIcon size={16} /> Adjuntar Foto / Imagen
+                    <ImageIcon size={16} />
+                    <span className="hide-on-mobile">Adjuntar Foto</span>
                   </button>
                 </div>
 
@@ -1155,7 +1156,7 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
                   type="submit"
                   disabled={(!newComment.trim() && !imageUrl) || submitting || uploadingImage}
                   style={{
-                    padding: '8px 20px',
+                    padding: '8px 18px',
                     borderRadius: '12px',
                     border: 'none',
                     background: (newComment.trim() || imageUrl) && !uploadingImage ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.2)',
@@ -1170,7 +1171,7 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
                   }}
                 >
                   <Send size={14} />
-                  {submitting ? 'Publicando...' : 'Publicar'}
+                  <span className="hide-on-mobile">{submitting ? 'Publicando...' : 'Publicar'}</span>
                 </motion.button>
               </div>
             </div>

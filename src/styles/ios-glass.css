@@ -780,6 +780,11 @@ body {
     border-bottom-right-radius: 0 !important;
     max-height: 90vh !important;
   }
+
+  /* Responsive Comment & Action Text Hide Helper */
+  .hide-on-mobile {
+    display: none !important;
+  }
 }
 
 /* Mobile Touch & Haptic Feedback Polish */

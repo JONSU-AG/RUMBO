@@ -443,7 +443,7 @@ export const CommentsSection = ({
                       }}
                     >
                       <Link2 size={15} />
-                      {selectedVideo ? 'Cambiar clase indexada' : '📎 Indexar clase / video'}
+                      <span className="hide-on-mobile">{selectedVideo ? 'Cambiar clase' : '📎 Indexar clase'}</span>
                     </button>
                   )}
 
@@ -453,7 +453,7 @@ export const CommentsSection = ({
                     type="submit"
                     disabled={!newComment.trim() || submitting}
                     style={{
-                      padding: '10px 22px',
+                      padding: '10px 18px',
                       borderRadius: '14px',
                       border: 'none',
                       background: newComment.trim() ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.2)',
@@ -468,7 +468,7 @@ export const CommentsSection = ({
                     }}
                   >
                     <Send size={15} />
-                    {submitting ? 'Publicando...' : 'Publicar en el Foro'}
+                    <span className="hide-on-mobile">{submitting ? 'Publicando...' : 'Publicar'}</span>
                   </motion.button>
                 </div>
 
