@@ -55,7 +55,8 @@ const PostItemCard = ({
   getDirectImageUrl,
   handleImageError,
   isImageUrl,
-  getDrivePreviewUrl
+  getDrivePreviewUrl,
+  isTargetPost = false
 }) => {
   const isComment = item._type === 'comment';
   const canDelete = user && (user.uid === item.authorUid || user.uid === profileUid || isAdmin);
@@ -240,6 +241,7 @@ const PostItemCard = ({
 
   return (
     <motion.div
+      id={`post-${item.id}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className="ios-glass-card"
@@ -249,10 +251,38 @@ const PostItemCard = ({
         display: 'flex',
         flexDirection: 'column',
         gap: '12px',
-        border: isComment ? '1px solid var(--card-border)' : '1.5px solid rgba(0, 122, 255, 0.25)',
-        background: isComment ? 'var(--card-bg)' : 'rgba(0, 122, 255, 0.03)'
+        border: isTargetPost 
+          ? '2px solid #EC4899' 
+          : isComment 
+            ? '1px solid var(--card-border)' 
+            : '1.5px solid rgba(0, 122, 255, 0.25)',
+        background: isTargetPost
+          ? 'rgba(236, 72, 153, 0.06)'
+          : isComment 
+            ? 'var(--card-bg)' 
+            : 'rgba(0, 122, 255, 0.03)',
+        boxShadow: isTargetPost 
+          ? '0 0 25px rgba(236, 72, 153, 0.28)' 
+          : 'none',
+        transition: 'all 0.3s ease'
       }}
     >
+      {isTargetPost && (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '4px 12px',
+          borderRadius: '12px',
+          background: 'rgba(236, 72, 153, 0.15)',
+          color: '#EC4899',
+          fontSize: '0.76rem',
+          fontWeight: 800,
+          alignSelf: 'flex-start'
+        }}>
+          📌 Publicación de tu notificación
+        </div>
+      )}
       {/* Post Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -745,7 +775,7 @@ const PostItemCard = ({
 };
 
 // ─── COMPONENTE PRINCIPAL PROFILE COMMENTS / TIMELINE ───
-export const ProfileComments = ({ profileUid, profileName = 'este usuario', userUploads = [], onReport }) => {
+export const ProfileComments = ({ profileUid, profileName = 'este usuario', userUploads = [], onReport, targetPostId = null }) => {
   const { user, isAdmin } = useAuth();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -760,6 +790,19 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
   const [noticeModal, setNoticeModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
 
   const fileInputRef = useRef(null);
+
+  // Auto-scroll to target post if coming from notification
+  useEffect(() => {
+    if (targetPostId) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`post-${targetPostId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [targetPostId, comments.length, userUploads.length]);
 
   useEffect(() => {
     if (!profileUid) return;
@@ -1260,6 +1303,7 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
               handleImageError={handleImageError}
               isImageUrl={isImageUrl}
               getDrivePreviewUrl={getDrivePreviewUrl}
+              isTargetPost={Boolean(targetPostId && String(item.id) === String(targetPostId))}
             />
           ))
         )}

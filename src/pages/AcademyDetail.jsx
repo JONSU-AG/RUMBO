@@ -151,7 +151,7 @@ export const AcademyDetail = () => {
   const handleSearch = (e) => setQuery(e.target.value);
 
   return (
-    <div className="page-container" style={{ padding: '24px', paddingBottom: '100px' }}>
+    <div className="page-container" style={{ padding: '0 24px 100px', maxWidth: '1240px', margin: '0 auto', boxSizing: 'border-box' }}>
       {/* Frase o Versículo del Día (Amor, Estudio, Paz y Amabilidad) */}
       <InspirationalDailyBanner />
 
@@ -195,120 +195,124 @@ export const AcademyDetail = () => {
           </button>
         </div>
         
-        {/* ─── BARRA DE BÚSQUEDA Y BOTÓN CHIQUITO DE FORO AL COSTADO ─── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '20px', flexWrap: 'wrap', width: '100%' }}>
-          <div style={{ position: 'relative', flex: '1 1 300px', maxWidth: '520px' }}>
-            <input 
-              type="text" 
-              placeholder="🔍 Buscar clase, profesor, materia o semana (sin importar tildes)..." 
-              value={query}
-              onChange={handleSearch}
-              style={{ 
-                width: '100%', 
-                padding: '14px 44px 14px 18px', 
-                border: '1.5px solid var(--card-border)', 
-                borderRadius: '16px', 
-                background: 'var(--card-bg)', 
-                color: 'var(--text-main)',
-                fontSize: '0.95rem',
-                outline: 'none',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
-                boxSizing: 'border-box'
-              }}
-            />
-            {query && (
-              <button
-                onClick={() => setQuery('')}
-                style={{
-                  position: 'absolute',
-                  right: '14px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'rgba(120,120,128,0.15)',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: 'var(--text-secondary)',
-                  fontSize: '0.75rem',
-                  fontWeight: 700
+        {/* ─── PARA ACADEMIAS QUE NO SON BRICEÑO: BARRA DE BÚSQUEDA Y BOTÓN DE FORO EN EL HEADER ─── */}
+        {data.type !== 'briceno' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '20px', flexWrap: 'wrap', width: '100%' }}>
+            <div style={{ position: 'relative', flex: '1 1 300px', maxWidth: '520px' }}>
+              <input 
+                type="text" 
+                placeholder="🔍 Buscar clase, profesor, materia o semana (sin importar tildes)..." 
+                value={query}
+                onChange={handleSearch}
+                style={{ 
+                  width: '100%', 
+                  padding: '14px 44px 14px 18px', 
+                  border: '1.5px solid var(--card-border)', 
+                  borderRadius: '16px', 
+                  background: 'var(--card-bg)', 
+                  color: 'var(--text-main)',
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                  boxSizing: 'border-box'
                 }}
-              >
-                ✕
-              </button>
-            )}
-          </div>
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '14px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(120,120,128,0.15)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '24px',
+                    height: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.75rem',
+                    fontWeight: 700
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
-          {/* Panel / Botón Chiquito de Comentarios al costado de la Lupa */}
-          <button
-            onClick={() => setIsForumOpen(!isForumOpen)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 18px',
-              height: '48px',
-              borderRadius: '16px',
-              border: isForumOpen ? '1.5px solid var(--accent-color)' : '1.5px solid var(--card-border)',
-              background: isForumOpen ? 'rgba(0,122,255,0.14)' : 'var(--card-bg)',
-              color: isForumOpen ? 'var(--accent-color)' : 'var(--text-main)',
-              fontSize: '0.88rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
-            title="Abrir o cerrar panel de foro y preguntas de esta academia"
-          >
-            <MessageSquare size={18} color="var(--accent-color)" />
-            <span>💬 Foro & Preguntas</span>
-            <span style={{
-              background: isForumOpen ? 'var(--accent-color)' : 'rgba(120,120,128,0.18)',
-              color: isForumOpen ? '#ffffff' : 'var(--text-main)',
-              padding: '2px 8px',
-              borderRadius: '10px',
-              fontSize: '0.75rem',
-              fontWeight: 800
-            }}>
-              {isForumOpen ? 'Ocultar ▲' : 'Ver ▼'}
-            </span>
-          </button>
-        </div>
+            {/* Panel / Botón Chiquito de Comentarios al costado de la Lupa */}
+            <button
+              onClick={() => setIsForumOpen(!isForumOpen)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 18px',
+                height: '48px',
+                borderRadius: '16px',
+                border: isForumOpen ? '1.5px solid var(--accent-color)' : '1.5px solid var(--card-border)',
+                background: isForumOpen ? 'rgba(0,122,255,0.14)' : 'var(--card-bg)',
+                color: isForumOpen ? 'var(--accent-color)' : 'var(--text-main)',
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              title="Abrir o cerrar panel de foro y preguntas de esta academia"
+            >
+              <MessageSquare size={18} color="var(--accent-color)" />
+              <span>💬 Foro & Preguntas</span>
+              <span style={{
+                background: isForumOpen ? 'var(--accent-color)' : 'rgba(120,120,128,0.18)',
+                color: isForumOpen ? '#ffffff' : 'var(--text-main)',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '0.75rem',
+                fontWeight: 800
+              }}>
+                {isForumOpen ? 'Ocultar ▲' : 'Ver ▼'}
+              </span>
+            </button>
+          </div>
+        )}
       </header>
 
-      {/* ─── FORO & RECOMENDACIONES DESPLEGABLE CHIQUITO (DESDE EL BOTÓN AL COSTADO DE BÚSQUEDA) ─── */}
-      <AnimatePresence>
-        {isForumOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-            animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-            transition={{ duration: 0.25 }}
-            style={{ overflow: 'hidden', marginBottom: '24px' }}
-          >
-            <CommentsSection
-              targetId={`academia-${data?.type}`}
-              targetTitle={`Academia ${data?.name}`}
-              targetType="course"
-              promptHint={`¿Estudiando con ${data?.name}? Comparte qué temas vinieron en tu simulacro o indexa clases clave 👇`}
-              indexableVideos={indexableVideos}
-              initialOpen={true}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ─── FORO DESPLEGABLE PARA ACADEMIAS QUE NO SON BRICEÑO ─── */}
+      {data.type !== 'briceno' && (
+        <AnimatePresence>
+          {isForumOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{ overflow: 'hidden', marginBottom: '24px' }}
+            >
+              <CommentsSection
+                targetId={`academia-${data?.type}`}
+                targetTitle={`Academia ${data?.name}`}
+                targetType="course"
+                promptHint={`¿Estudiando con ${data?.name}? Comparte qué temas vinieron en tu simulacro o indexa clases clave 👇`}
+                indexableVideos={indexableVideos}
+                initialOpen={true}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
       {data.type === 'briceno' && (
         <div style={{ marginBottom: '32px' }}>
           {/* Eye-catching Cycles Cards */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '16px',
             marginBottom: '20px'
           }}>
@@ -354,8 +358,8 @@ export const AcademyDetail = () => {
               <h3 style={{ margin: '0 0 4px', fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
                 Ciclo Actual 2027
               </h3>
-              <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-                Clases organizadas por semanas, materias con iconos SVG y prácticas.
+              <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                En el ciclo actual, las clases se suben constantemente. Clases organizadas por semanas y materias.
               </p>
             </motion.div>
 
@@ -405,58 +409,6 @@ export const AcademyDetail = () => {
                 Bancos y clases intensivas clasificadas por materias clave.
               </p>
             </motion.div>
-
-            {/* Card 3: Prácticas en Drive (Exclusivo Ciclo Actual 2027) */}
-            {bricenoTab === '2027' && (
-              <motion.a
-                href="https://drive.google.com/drive/folders/1sGaLVsVGtWeggLUWtw_vB14iwH3mHHH1"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                className="glass-card"
-                style={{
-                  padding: '20px 22px',
-                  borderRadius: '22px',
-                  textDecoration: 'none',
-                  position: 'relative',
-                  border: '1px solid rgba(0, 122, 255, 0.3)',
-                  background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(56, 189, 248, 0.08))',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.25s ease'
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <div style={{
-                      width: '42px', height: '42px', borderRadius: '14px',
-                      background: 'rgba(0, 122, 255, 0.2)', color: 'var(--accent-color)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}>
-                      <HardDrive size={22} />
-                    </div>
-                    <span style={{
-                      padding: '4px 10px',
-                      borderRadius: '12px',
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      background: 'rgba(0, 122, 255, 0.2)',
-                      color: 'var(--accent-color)'
-                    }}>
-                      EXCLUSIVO CICLO ACTUAL ↗
-                    </span>
-                  </div>
-                  <h3 style={{ margin: '0 0 4px', fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                    Prácticas en Drive (Ciclo en Curso)
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-                    Banco exclusivo en Drive con PDFs del ciclo actual en curso.
-                  </p>
-                </div>
-              </motion.a>
-            )}
           </div>
 
           {/* Week Selector Bar (When in Ciclo 2027) */}
@@ -464,61 +416,208 @@ export const AcademyDetail = () => {
             <div 
               className="glass-card" 
               style={{
-                padding: '14px 20px',
+                padding: '12px 18px',
                 borderRadius: '20px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                justifyContent: 'space-between',
+                gap: '12px',
                 flexWrap: 'wrap',
                 background: 'var(--card-bg)'
               }}
             >
-              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                📅 Filtrar por Semana:
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', flex: '1 1 auto' }}>
+                <span style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  📅 Filtrar por Semana:
+                </span>
 
-              <button
-                onClick={() => setSelectedWeek('all')}
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: selectedWeek === 'all' ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.12)',
-                  color: selectedWeek === 'all' ? '#FFFFFF' : 'var(--text-secondary)',
-                  fontWeight: 700,
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                🌟 Todas las Semanas
-              </button>
-
-              {BRICENO_2027.map(w => (
                 <button
-                  key={w.num}
-                  onClick={() => setSelectedWeek(w.num)}
+                  onClick={() => setSelectedWeek('all')}
                   style={{
-                    padding: '8px 18px',
-                    borderRadius: '14px',
+                    padding: '7px 16px',
+                    borderRadius: '12px',
                     border: 'none',
-                    background: selectedWeek === w.num ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.12)',
-                    color: selectedWeek === w.num ? '#FFFFFF' : 'var(--text-secondary)',
+                    background: selectedWeek === 'all' ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.12)',
+                    color: selectedWeek === 'all' ? '#FFFFFF' : 'var(--text-secondary)',
                     fontWeight: 700,
-                    fontSize: '0.85rem',
+                    fontSize: '0.84rem',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  {w.nombre} ({w.data?.length || 0} materias)
+                  🌟 Todas
                 </button>
-              ))}
+
+                {BRICENO_2027.map(w => (
+                  <button
+                    key={w.num}
+                    onClick={() => setSelectedWeek(w.num)}
+                    style={{
+                      padding: '7px 14px',
+                      borderRadius: '12px',
+                      border: 'none',
+                      background: selectedWeek === w.num ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.12)',
+                      color: selectedWeek === w.num ? '#FFFFFF' : 'var(--text-secondary)',
+                      fontWeight: 700,
+                      fontSize: '0.84rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {w.nombre} ({w.data?.length || 0})
+                  </button>
+                ))}
+              </div>
+
+              {/* Botón pequeño de Material Usado en Clases a su costado de los filtros */}
+              <a
+                href="https://drive.google.com/drive/folders/1sGaLVsVGtWeggLUWtw_vB14iwH3mHHH1"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Material usado en clases (se actualiza constantemente en el ciclo actual)"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '7px',
+                  padding: '8px 15px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(56, 189, 248, 0.12))',
+                  border: '1.5px solid rgba(0, 122, 255, 0.35)',
+                  color: 'var(--accent-color)',
+                  fontWeight: 800,
+                  fontSize: '0.84rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 8px rgba(0, 122, 255, 0.12)',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <HardDrive size={15} />
+                <span>Material usado en clases</span>
+                <span style={{
+                  background: 'var(--accent-color)',
+                  color: '#ffffff',
+                  fontSize: '0.70rem',
+                  fontWeight: 800,
+                  padding: '2px 7px',
+                  borderRadius: '8px'
+                }}>
+                  Drive ↗
+                </span>
+              </a>
             </div>
           )}
+
+          {/* ─── EN BRICEÑO: BUSCADOR + FORO ABAJO DE LOS FILTROS POR SEMANA ─── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px', flexWrap: 'wrap', width: '100%' }}>
+            <div style={{ position: 'relative', flex: '1 1 280px', maxWidth: '520px' }}>
+              <input 
+                type="text" 
+                placeholder="🔍 Buscar clase, profesor, materia o semana..." 
+                value={query}
+                onChange={handleSearch}
+                style={{ 
+                  width: '100%', 
+                  padding: '12px 42px 12px 16px', 
+                  border: '1.5px solid var(--card-border)', 
+                  borderRadius: '16px', 
+                  background: 'var(--card-bg)', 
+                  color: 'var(--text-main)',
+                  fontSize: '0.92rem',
+                  outline: 'none',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                  boxSizing: 'border-box'
+                }}
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(120,120,128,0.15)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '22px',
+                    height: '22px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.75rem',
+                    fontWeight: 700
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Panel / Botón Chiquito de Comentarios al costado de la Lupa */}
+            <button
+              onClick={() => setIsForumOpen(!isForumOpen)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 16px',
+                height: '44px',
+                borderRadius: '14px',
+                border: isForumOpen ? '1.5px solid var(--accent-color)' : '1.5px solid var(--card-border)',
+                background: isForumOpen ? 'rgba(0,122,255,0.14)' : 'var(--card-bg)',
+                color: isForumOpen ? 'var(--accent-color)' : 'var(--text-main)',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              title="Abrir o cerrar panel de foro y preguntas de esta academia"
+            >
+              <MessageSquare size={16} color="var(--accent-color)" />
+              <span>💬 Foro & Preguntas</span>
+              <span style={{
+                background: isForumOpen ? 'var(--accent-color)' : 'rgba(120,120,128,0.18)',
+                color: isForumOpen ? '#ffffff' : 'var(--text-main)',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 800
+              }}>
+                {isForumOpen ? 'Ocultar ▲' : 'Ver ▼'}
+              </span>
+            </button>
+          </div>
+
+          {/* ─── FORO DESPLEGABLE EN BRICEÑO ABAJO DEL BUSCADOR ─── */}
+          <AnimatePresence>
+            {isForumOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 14 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                transition={{ duration: 0.25 }}
+                style={{ overflow: 'hidden', marginBottom: '16px' }}
+              >
+                <CommentsSection
+                  targetId={`academia-${data?.type}`}
+                  targetTitle={`Academia ${data?.name}`}
+                  targetType="course"
+                  promptHint={`¿Estudiando en Briceño? Comparte tus dudas de clase, preguntas de simulacros o tips clave 👇`}
+                  indexableVideos={indexableVideos}
+                  initialOpen={true}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <section style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {data.type === 'esparta' && data.items.map((course, idx) => {
           if (query && !searchMatches([course.name, ...(course.lessons || []).map(l => l.title)], query)) return null;
           return (
@@ -696,7 +795,7 @@ export const AcademyDetail = () => {
                   const isExpanded = selectedWeek !== 'all' || query.trim().length > 0 || expandedWeeks[weekItem.num];
 
                   return (
-                    <div key={`week-${wIdx}`} style={{ marginBottom: '36px' }}>
+                    <div key={`week-${wIdx}`} style={{ marginBottom: isExpanded ? '14px' : '0px' }}>
                       {/* Week Header - Clickable Collapsible */}
                       <div 
                         onClick={() => {
@@ -710,9 +809,9 @@ export const AcademyDetail = () => {
                           alignItems: 'center',
                           flexWrap: 'wrap',
                           gap: '10px',
-                          marginBottom: isExpanded ? '20px' : '0px',
-                          padding: '16px 22px',
-                          borderRadius: '20px',
+                          marginBottom: isExpanded ? '12px' : '0px',
+                          padding: '12px 18px',
+                          borderRadius: '16px',
                           background: 'rgba(52, 199, 89, 0.12)',
                           border: '1px solid rgba(52, 199, 89, 0.3)',
                           cursor: selectedWeek === 'all' ? 'pointer' : 'default',
@@ -720,7 +819,7 @@ export const AcademyDetail = () => {
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+                          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
                             {weekItem.nombre}
                           </h2>
                           <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
@@ -761,7 +860,7 @@ export const AcademyDetail = () => {
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.25 }}
-                            style={{ display: 'flex', flexDirection: 'column', gap: '22px', overflow: 'hidden' }}
+                            style={{ display: 'flex', flexDirection: 'column', gap: '16px', overflow: 'hidden' }}
                           >
                             {filteredCourses.map((subCat, sIdx) => {
                               const iconData = getCourseSvgData(subCat.nombre);

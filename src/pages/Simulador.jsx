@@ -22,7 +22,11 @@ import {
   Check,
   Flag,
   Trash2,
-  Edit3
+  Edit3,
+  Image as ImageIcon,
+  UploadCloud,
+  Loader2,
+  Maximize2
 } from 'lucide-react';
 import { InspirationalDailyBanner } from '../components/InspirationalDailyBanner';
 import { datosSimulador } from '../data/simuladorData';
@@ -30,6 +34,58 @@ import { db } from '../lib/firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { ReportModal } from '../components/ReportModal';
+import { uploadFileReliable } from '../lib/storageHelper';
+
+export const cleanOptionText = (text) => {
+  if (!text) return '';
+  return String(text).replace(/^[A-Ea-e][\)\.\:\-]\s*|^\([A-Ea-e]\)\s*/, '').trim();
+};
+
+export const normalizeAnswerIndex = (ans, options = null) => {
+  if (ans === undefined || ans === null) return 0;
+
+  // 1. Si se pasa el arreglo de opciones y ans coincide con el texto de alguna opción
+  if (Array.isArray(options) && typeof ans === 'string') {
+    const cleanAns = cleanOptionText(ans).toLowerCase();
+    const foundIdx = options.findIndex(opt => {
+      const cleanOpt = cleanOptionText(opt).toLowerCase();
+      return cleanOpt === cleanAns || cleanOpt === String(ans).trim().toLowerCase();
+    });
+    if (foundIdx !== -1) return foundIdx;
+  }
+
+  // 2. Si ya es un número
+  if (typeof ans === 'number') {
+    if (Array.isArray(options) && ans > options.length - 1 && ans <= options.length) {
+      return ans - 1; // Ajuste si se guardó 1-indexado (ej. 1 a 5)
+    }
+    return Math.max(0, ans);
+  }
+
+  const str = String(ans).trim().toUpperCase();
+
+  // 3. Buscar letra A, B, C, D, E
+  const letterMatch = str.match(/([A-E])/);
+  if (letterMatch && (str.length <= 8 || str.includes('CLAVE') || str.includes('OPCI') || str.includes('RESPUESTA'))) {
+    const char = letterMatch[1];
+    if (char === 'A') return 0;
+    if (char === 'B') return 1;
+    if (char === 'C') return 2;
+    if (char === 'D') return 3;
+    if (char === 'E') return 4;
+  }
+
+  // 4. Buscar número directo en string '0', '1', '2', '3', '4'
+  const parsed = parseInt(str, 10);
+  if (!isNaN(parsed)) {
+    if (Array.isArray(options) && parsed > options.length - 1 && parsed <= options.length) {
+      return parsed - 1;
+    }
+    return Math.max(0, parsed);
+  }
+
+  return 0;
+};
 
 const DEFAULT_FLASHCARDS = [
   { id: '1', q: "¿Qué es la Mitosis?", a: "Proceso de división celular que da como resultado dos células hijas genéticamente idénticas a la célula madre.", subject: "Biología", authorName: "Comunidad RUMBO" },
@@ -40,7 +96,7 @@ const DEFAULT_FLASHCARDS = [
 
 const examData = [
   { id: 1, q: "En la anatomía humana, ¿cuál es el hueso más largo?", options: ["Fémur", "Tibia", "Húmero", "Peroné"], answer: 0 },
-  { id: 2, q: "¿Cuál es la obra cumbre de César Vallejo?", options: ["Los Heraldos Negros", "Trilce", "Poemas Humanos", "Tungsteno"], answer: 2 },
+  { id: 2, q: "¿Cuál es la obra cumbre de César Vallejo?", options: ["Los Heraldos Negros", "Trilce", "Poemas Humanos", "Tungsteno"], answer: 1 },
 ];
 
 function formatNum(n) {
@@ -137,7 +193,9 @@ export const Simulador = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCardId, setEditingCardId] = useState(null);
-  const [newCard, setNewCard] = useState({ q: '', a: '', subject: 'Biología' });
+  const [newCard, setNewCard] = useState({ q: '', a: '', subject: 'Biología', imageUrl: '' });
+  const [cardImageUploading, setCardImageUploading] = useState(false);
+  const [cardImageProgress, setCardImageProgress] = useState(0);
   const [creating, setCreating] = useState(false);
 
   // Subscribe to community flashcards
@@ -159,29 +217,30 @@ export const Simulador = () => {
   }, []);
 
   const handleSaveFlashcard = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!newCard.q.trim() || !newCard.a.trim() || creating) return;
     setCreating(true);
     try {
+      const cardPayload = {
+        q: newCard.q.trim(),
+        a: newCard.a.trim(),
+        subject: newCard.subject,
+        imageUrl: (newCard.imageUrl || '').trim()
+      };
+
       if (editingCardId) {
         // Edit existing card
-        await updateDoc(doc(db, 'flashcards', editingCardId), {
-          q: newCard.q.trim(),
-          a: newCard.a.trim(),
-          subject: newCard.subject
-        });
+        await updateDoc(doc(db, 'flashcards', editingCardId), cardPayload);
       } else {
         // Create new card
         await addDoc(collection(db, 'flashcards'), {
-          q: newCard.q.trim(),
-          a: newCard.a.trim(),
-          subject: newCard.subject,
+          ...cardPayload,
           authorName: user?.displayName || 'Estudiante RUMBO',
           authorUid: user?.uid || null,
           createdAt: serverTimestamp()
         });
       }
-      setNewCard({ q: '', a: '', subject: 'Biología' });
+      setNewCard({ q: '', a: '', subject: 'Biología', imageUrl: '' });
       setEditingCardId(null);
       setIsCreateOpen(false);
     } catch (err) {
@@ -197,7 +256,12 @@ export const Simulador = () => {
       return;
     }
     setEditingCardId(card.id);
-    setNewCard({ q: card.q, a: card.a, subject: card.subject || 'Biología' });
+    setNewCard({ 
+      q: card.q || '', 
+      a: card.a || '', 
+      subject: card.subject || 'Biología',
+      imageUrl: card.imageUrl || card.img || ''
+    });
     setIsCreateOpen(true);
   };
 
@@ -253,13 +317,17 @@ export const Simulador = () => {
   const [examResultsModal, setExamResultsModal] = useState({ isOpen: false, score: 0, total: 0, details: [] });
   const [isExamCreateOpen, setIsExamCreateOpen] = useState(false);
   const [editingExamId, setEditingExamId] = useState(null);
+  const [examImageUploading, setExamImageUploading] = useState(false);
+  const [examImageProgress, setExamImageProgress] = useState(0);
   const [newExamQuestion, setNewExamQuestion] = useState({
     q: '',
     opt0: '',
     opt1: '',
     opt2: '',
     opt3: '',
-    answer: 0
+    opt4: '',
+    answer: 0,
+    imageUrl: ''
   });
 
   // Subscribe to community exam questions
@@ -281,19 +349,24 @@ export const Simulador = () => {
   }, []);
 
   const handleSaveExamQuestion = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!newExamQuestion.q.trim() || !newExamQuestion.opt0.trim() || !newExamQuestion.opt1.trim() || creating) return;
     setCreating(true);
     try {
+      // Build options array cleanly (supporting up to 5 options A..E)
+      const rawOptions = [
+        newExamQuestion.opt0.trim(),
+        newExamQuestion.opt1.trim(),
+        newExamQuestion.opt2.trim(),
+        newExamQuestion.opt3.trim(),
+        newExamQuestion.opt4.trim()
+      ].filter((op, i) => op.length > 0 || i < 2);
+
       const payload = {
         q: newExamQuestion.q.trim(),
-        options: [
-          newExamQuestion.opt0.trim(),
-          newExamQuestion.opt1.trim(),
-          newExamQuestion.opt2.trim() || 'N.A.',
-          newExamQuestion.opt3.trim() || 'Todas las anteriores'
-        ],
-        answer: Number(newExamQuestion.answer) || 0,
+        options: rawOptions,
+        answer: normalizeAnswerIndex(newExamQuestion.answer, rawOptions),
+        imageUrl: (newExamQuestion.imageUrl || '').trim(),
         authorName: user?.displayName || 'Estudiante RUMBO',
         authorUid: user?.uid || null,
         createdAt: serverTimestamp()
@@ -305,7 +378,7 @@ export const Simulador = () => {
         await addDoc(collection(db, 'preguntas_examen'), payload);
       }
 
-      setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', answer: 0 });
+      setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', opt4: '', answer: 0, imageUrl: '' });
       setEditingExamId(null);
       setIsExamCreateOpen(false);
     } catch (err) {
@@ -322,12 +395,14 @@ export const Simulador = () => {
     }
     setEditingExamId(qItem.id);
     setNewExamQuestion({
-      q: qItem.q,
+      q: qItem.q || '',
       opt0: qItem.options?.[0] || '',
       opt1: qItem.options?.[1] || '',
       opt2: qItem.options?.[2] || '',
       opt3: qItem.options?.[3] || '',
-      answer: qItem.answer || 0
+      opt4: qItem.options?.[4] || '',
+      answer: normalizeAnswerIndex(qItem.answer, qItem.options),
+      imageUrl: qItem.imageUrl || qItem.img || ''
     });
     setIsExamCreateOpen(true);
   };
@@ -747,7 +822,25 @@ export const Simulador = () => {
                         </div>
                       </div>
                       
-                      <h2 style={{ fontSize: '1.35rem', color: 'var(--text-main)', fontWeight: 700, lineHeight: 1.45, margin: '16px 0', wordBreak: 'break-word' }}>
+                      {/* Image if present */}
+                      {filteredCards[activeCardIndex]?.imageUrl && (
+                        <div style={{ margin: '10px 0', textAlign: 'center', width: '100%' }}>
+                          <img
+                            src={filteredCards[activeCardIndex].imageUrl}
+                            alt="Gráfico de la tarjeta"
+                            style={{
+                              maxHeight: '140px',
+                              maxWidth: '100%',
+                              borderRadius: '14px',
+                              objectFit: 'contain',
+                              border: '1.5px solid var(--card-border)',
+                              background: 'rgba(0,0,0,0.02)'
+                            }}
+                          />
+                        </div>
+                      )}
+                      
+                      <h2 style={{ fontSize: '1.35rem', color: 'var(--text-main)', fontWeight: 700, lineHeight: 1.45, margin: '12px 0', wordBreak: 'break-word' }}>
                         {filteredCards[activeCardIndex]?.q}
                       </h2>
                       
@@ -878,7 +971,7 @@ export const Simulador = () => {
                         </button>
                       </div>
 
-                      <form onSubmit={handleCreateFlashcard} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <form onSubmit={handleSaveFlashcard} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <div>
                           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
                             Materia o Curso
@@ -906,6 +999,103 @@ export const Simulador = () => {
                             style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(120,120,128,0.06)', color: 'var(--text-main)', fontSize: '0.9rem', boxSizing: 'border-box' }}
                             required
                           />
+                        </div>
+
+                        {/* 🖼️ Imagen opcional para la tarjeta */}
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                            🖼️ Imagen o Esquema (Opcional)
+                          </label>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              value={newCard.imageUrl}
+                              onChange={(e) => setNewCard(prev => ({ ...prev, imageUrl: e.target.value }))}
+                              placeholder="URL de imagen o sube un archivo..."
+                              style={{
+                                flex: 1,
+                                padding: '8px 12px',
+                                borderRadius: '10px',
+                                border: '1px solid var(--card-border)',
+                                background: 'rgba(120,120,128,0.06)',
+                                color: 'var(--text-main)',
+                                fontSize: '0.82rem'
+                              }}
+                            />
+                            <label
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: '10px',
+                                background: 'rgba(0,122,255,0.12)',
+                                color: 'var(--accent-color)',
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
+                                cursor: cardImageUploading ? 'wait' : 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <Upload size={14} />
+                              {cardImageUploading ? `${cardImageProgress}%` : 'Subir'}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                disabled={cardImageUploading}
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  setCardImageUploading(true);
+                                  setCardImageProgress(0);
+                                  try {
+                                    const downloadUrl = await uploadFileReliable(
+                                      file,
+                                      (prog) => setCardImageProgress(prog),
+                                      'flashcards'
+                                    );
+                                    if (downloadUrl) {
+                                      setNewCard(prev => ({ ...prev, imageUrl: downloadUrl }));
+                                    }
+                                  } catch (err) {
+                                    alert("Error al subir imagen: " + err.message);
+                                  } finally {
+                                    setCardImageUploading(false);
+                                  }
+                                }}
+                              />
+                            </label>
+                          </div>
+                          {newCard.imageUrl && (
+                            <div style={{ position: 'relative', marginTop: '8px', display: 'inline-block' }}>
+                              <img
+                                src={newCard.imageUrl}
+                                alt="Vista previa"
+                                style={{ maxHeight: '80px', borderRadius: '8px', border: '1px solid var(--card-border)' }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setNewCard(prev => ({ ...prev, imageUrl: '' }))}
+                                style={{
+                                  position: 'absolute',
+                                  top: '-6px',
+                                  right: '-6px',
+                                  background: '#EF4444',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: '50%',
+                                  width: '20px',
+                                  height: '20px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         <div>
@@ -970,7 +1160,7 @@ export const Simulador = () => {
                   <button
                     onClick={() => {
                       setEditingExamId(null);
-                      setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', answer: 0 });
+                      setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', answer: 0, imageUrl: '' });
                       setIsExamCreateOpen(true);
                     }}
                     style={{
@@ -1039,21 +1229,70 @@ export const Simulador = () => {
                 <div
                   className="ios-glass-card"
                   style={{ 
-                    padding: '36px 28px', 
+                    padding: '32px 24px', 
                     width: '100%',
-                    maxWidth: '680px', 
+                    maxWidth: '720px', 
                     margin: '0 auto',
                     border: '1.5px solid rgba(236, 72, 153, 0.3)',
                     boxShadow: '0 20px 40px rgba(236, 72, 153, 0.1)'
                   }}
                 >
                   {(() => {
-                    const currentQItem = filteredExamQuestions[Math.min(currentQuestion, filteredExamQuestions.length - 1)];
+                    const safeQIndex = Math.min(currentQuestion, filteredExamQuestions.length - 1);
+                    const currentQItem = filteredExamQuestions[safeQIndex];
                     const isAuthorOrAdmin = isAdmin || (user && user.uid === currentQItem?.authorUid);
 
                     return (
                       <>
-                        <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                        {/* Question Navigator Strip */}
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          overflowX: 'auto',
+                          paddingBottom: '12px',
+                          marginBottom: '16px',
+                          borderBottom: '1px solid var(--card-border)'
+                        }}>
+                          {filteredExamQuestions.map((q, qIndex) => {
+                            const isAnswered = userExamAnswers[qIndex] !== undefined && userExamAnswers[qIndex] !== null;
+                            const isCurrent = safeQIndex === qIndex;
+
+                            return (
+                              <button
+                                key={qIndex}
+                                type="button"
+                                onClick={() => {
+                                  setCurrentQuestion(qIndex);
+                                  setSelectedOption(userExamAnswers[qIndex] !== undefined ? userExamAnswers[qIndex] : null);
+                                }}
+                                style={{
+                                  minWidth: '34px',
+                                  height: '34px',
+                                  borderRadius: '10px',
+                                  border: isCurrent ? '2px solid #EC4899' : '1px solid var(--card-border)',
+                                  background: isCurrent 
+                                    ? 'linear-gradient(135deg, #EC4899, #F43F5E)' 
+                                    : (isAnswered ? 'rgba(16, 185, 129, 0.18)' : 'rgba(120,120,128,0.08)'),
+                                  color: isCurrent ? '#FFFFFF' : (isAnswered ? '#059669' : 'var(--text-secondary)'),
+                                  fontWeight: 800,
+                                  fontSize: '0.8rem',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  transition: 'all 0.2s ease',
+                                  flexShrink: 0
+                                }}
+                                title={`Ir a Pregunta ${qIndex + 1}${isAnswered ? ' (Respondida)' : ''}`}
+                              >
+                                {qIndex + 1}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ 
                               background: 'rgba(236, 72, 153, 0.12)', 
@@ -1063,7 +1302,7 @@ export const Simulador = () => {
                               fontSize: '0.85rem', 
                               fontWeight: 800 
                             }}>
-                              🎯 Pregunta {Math.min(currentQuestion + 1, filteredExamQuestions.length)} de {filteredExamQuestions.length}
+                              🎯 Pregunta {safeQIndex + 1} de {filteredExamQuestions.length}
                             </span>
                           </div>
 
@@ -1107,17 +1346,37 @@ export const Simulador = () => {
                           </div>
                         </div>
 
-                        <h2 style={{ fontSize: '1.35rem', color: 'var(--text-main)', marginBottom: '12px', fontWeight: 700, lineHeight: 1.45 }}>
+                        <h2 style={{ fontSize: '1.3rem', color: 'var(--text-main)', marginBottom: '14px', fontWeight: 800, lineHeight: 1.45 }}>
                           {currentQItem?.q}
                         </h2>
 
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '24px', fontWeight: 600 }}>
+                        {/* Image for question if present */}
+                        {(currentQItem?.imageUrl || currentQItem?.img) && (
+                          <div style={{ textAlign: 'center', margin: '14px 0 20px' }}>
+                            <img
+                              src={currentQItem.imageUrl || currentQItem.img}
+                              alt="Gráfico de la pregunta"
+                              style={{
+                                maxHeight: '320px',
+                                maxWidth: '100%',
+                                borderRadius: '16px',
+                                border: '1.5px solid var(--card-border)',
+                                objectFit: 'contain',
+                                background: 'rgba(0,0,0,0.02)',
+                                boxShadow: '0 6px 20px rgba(0,0,0,0.08)'
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '22px', fontWeight: 600 }}>
                           ✍️ Pregunta creada por: <span style={{ color: 'var(--accent-color)', fontWeight: 800 }}>{currentQItem?.authorName || 'Comunidad RUMBO'}</span>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                           {(currentQItem?.options || []).map((opt, i) => {
                             const isSelected = selectedOption === i;
+                            const letter = ['A', 'B', 'C', 'D', 'E'][i] || String.fromCharCode(65 + i);
                             return (
                               <motion.button 
                                 key={i}
@@ -1125,109 +1384,171 @@ export const Simulador = () => {
                                 whileTap={{ scale: 0.99 }}
                                 onClick={() => {
                                   setSelectedOption(i);
-                                  setUserExamAnswers(prev => ({ ...prev, [currentQuestion]: i }));
+                                  setUserExamAnswers(prev => ({ ...prev, [safeQIndex]: i }));
                                 }}
                                 style={{
-                                  padding: '16px 20px',
-                                  borderRadius: '18px',
-                                  border: isSelected ? '2px solid #EC4899' : '1px solid var(--card-border)',
+                                  padding: '14px 18px',
+                                  borderRadius: '16px',
+                                  border: isSelected ? '2px solid #EC4899' : '1.5px solid var(--card-border)',
                                   background: isSelected ? 'linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(244, 63, 94, 0.08))' : 'var(--card-bg)',
                                   color: 'var(--text-main)',
-                                  fontSize: '1.05rem',
+                                  fontSize: '0.98rem',
                                   textAlign: 'left',
                                   cursor: 'pointer',
                                   transition: 'all 0.2s ease',
                                   display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '14px',
+                                  alignItems: 'flex-start',
+                                  gap: '12px',
                                   boxShadow: isSelected ? '0 8px 20px rgba(236, 72, 153, 0.15)' : 'none'
                                 }}
                               >
                                 <div style={{ 
-                                  width: '28px', 
-                                  height: '28px', 
+                                  width: '30px', 
+                                  height: '30px', 
                                   borderRadius: '50%', 
                                   border: isSelected ? 'none' : '2px solid var(--text-secondary)',
-                                  background: isSelected ? 'linear-gradient(135deg, #EC4899, #F43F5E)' : 'transparent',
+                                  background: isSelected ? 'linear-gradient(135deg, #EC4899, #F43F5E)' : 'rgba(120,120,128,0.08)',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  color: '#fff',
+                                  color: isSelected ? '#fff' : 'var(--text-secondary)',
                                   fontWeight: 800,
                                   fontSize: '0.85rem',
-                                  flexShrink: 0
+                                  flexShrink: 0,
+                                  marginTop: '2px'
                                 }}>
-                                  {isSelected ? <Check size={16} strokeWidth={3} /> : String.fromCharCode(65 + i)}
+                                  {isSelected ? <Check size={16} strokeWidth={3} /> : letter}
                                 </div>
-                                <span style={{ fontWeight: isSelected ? 700 : 500 }}>{opt}</span>
+                                <span style={{ fontWeight: isSelected ? 700 : 500, flex: 1, lineHeight: 1.5 }}>
+                                  {cleanOptionText(opt)}
+                                </span>
                               </motion.button>
                             );
                           })}
                         </div>
 
-                        <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              // Calculate score and build detailed summary
-                              const allAnswers = { ...userExamAnswers, [currentQuestion]: selectedOption };
-                              let correctCount = 0;
-                              const details = filteredExamQuestions.map((q, idx) => {
-                                const userChoice = allAnswers[idx];
-                                const isCorrect = userChoice === q.answer;
-                                if (isCorrect) correctCount++;
-                                return {
-                                  question: q.q,
-                                  options: q.options || [],
-                                  userChoice,
-                                  correctChoice: q.answer,
-                                  isCorrect,
-                                  authorName: q.authorName || 'Comunidad RUMBO'
-                                };
-                              });
+                        <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            {safeQIndex > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const prevIdx = safeQIndex - 1;
+                                  setCurrentQuestion(prevIdx);
+                                  setSelectedOption(userExamAnswers[prevIdx] !== undefined ? userExamAnswers[prevIdx] : null);
+                                }}
+                                style={{
+                                  padding: '12px 18px',
+                                  borderRadius: '16px',
+                                  border: '1.5px solid var(--card-border)',
+                                  background: 'var(--card-bg)',
+                                  color: 'var(--text-main)',
+                                  fontWeight: 700,
+                                  fontSize: '0.88rem',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px'
+                                }}
+                              >
+                                ◀ Anterior
+                              </button>
+                            )}
 
-                              setExamResultsModal({
-                                isOpen: true,
-                                score: correctCount,
-                                total: filteredExamQuestions.length,
-                                details
-                              });
-                            }}
-                            style={{
-                              padding: '12px 20px',
-                              borderRadius: '16px',
-                              border: '1.5px solid rgba(236, 72, 153, 0.4)',
-                              background: 'rgba(236, 72, 153, 0.12)',
-                              color: '#EC4899',
-                              fontWeight: 800,
-                              fontSize: '0.88rem',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px'
-                            }}
-                          >
-                            📋 Ver Respuestas
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Calculate score and build detailed summary with normalization
+                                const allAnswers = { ...userExamAnswers, [safeQIndex]: selectedOption };
+                                let correctCount = 0;
+                                const details = filteredExamQuestions.map((q, idx) => {
+                                  const userChoice = allAnswers[idx];
+                                  const userChoiceNorm = userChoice !== undefined && userChoice !== null ? normalizeAnswerIndex(userChoice, q.options) : null;
+                                  const correctChoiceNorm = normalizeAnswerIndex(q.answer, q.options);
+                                  
+                                  let isCorrect = false;
+                                  if (userChoiceNorm !== null) {
+                                    if (userChoiceNorm === correctChoiceNorm) {
+                                      isCorrect = true;
+                                    } else if (Array.isArray(q.options) && q.options[userChoiceNorm] && q.options[correctChoiceNorm]) {
+                                      const textUser = cleanOptionText(q.options[userChoiceNorm]).toLowerCase();
+                                      const textCorrect = cleanOptionText(q.options[correctChoiceNorm]).toLowerCase();
+                                      if (textUser === textCorrect && textUser.length > 0) {
+                                        isCorrect = true;
+                                      }
+                                    }
+                                  }
+                                  if (isCorrect) correctCount++;
+                                  return {
+                                    question: q.q,
+                                    imageUrl: q.imageUrl || q.img || '',
+                                    options: q.options || [],
+                                    userChoice: userChoiceNorm,
+                                    correctChoice: correctChoiceNorm,
+                                    isCorrect,
+                                    authorName: q.authorName || 'Comunidad RUMBO'
+                                  };
+                                });
+
+                                setExamResultsModal({
+                                  isOpen: true,
+                                  score: correctCount,
+                                  total: filteredExamQuestions.length,
+                                  details
+                                });
+                              }}
+                              style={{
+                                padding: '12px 18px',
+                                borderRadius: '16px',
+                                border: '1.5px solid rgba(236, 72, 153, 0.4)',
+                                background: 'rgba(236, 72, 153, 0.12)',
+                                color: '#EC4899',
+                                fontWeight: 800,
+                                fontSize: '0.88rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                            >
+                              📋 Ver Claves & Explicación
+                            </button>
+                          </div>
 
                           <button 
                             onClick={() => {
-                              const updatedAnswers = { ...userExamAnswers, [currentQuestion]: selectedOption };
-                              if (currentQuestion < filteredExamQuestions.length - 1) {
-                                setCurrentQuestion(q => q + 1);
-                                setSelectedOption(updatedAnswers[currentQuestion + 1] !== undefined ? updatedAnswers[currentQuestion + 1] : null);
+                              const updatedAnswers = { ...userExamAnswers, [safeQIndex]: selectedOption };
+                              if (safeQIndex < filteredExamQuestions.length - 1) {
+                                const nextIdx = safeQIndex + 1;
+                                setCurrentQuestion(nextIdx);
+                                setSelectedOption(updatedAnswers[nextIdx] !== undefined ? updatedAnswers[nextIdx] : null);
                               } else {
                                 // Finalize exam and open popup modal automatically
                                 let correctCount = 0;
                                 const details = filteredExamQuestions.map((q, idx) => {
                                   const userChoice = updatedAnswers[idx];
-                                  const isCorrect = userChoice === q.answer;
+                                  const userChoiceNorm = userChoice !== undefined && userChoice !== null ? normalizeAnswerIndex(userChoice, q.options) : null;
+                                  const correctChoiceNorm = normalizeAnswerIndex(q.answer, q.options);
+                                  
+                                  let isCorrect = false;
+                                  if (userChoiceNorm !== null) {
+                                    if (userChoiceNorm === correctChoiceNorm) {
+                                      isCorrect = true;
+                                    } else if (Array.isArray(q.options) && q.options[userChoiceNorm] && q.options[correctChoiceNorm]) {
+                                      const textUser = cleanOptionText(q.options[userChoiceNorm]).toLowerCase();
+                                      const textCorrect = cleanOptionText(q.options[correctChoiceNorm]).toLowerCase();
+                                      if (textUser === textCorrect && textUser.length > 0) {
+                                        isCorrect = true;
+                                      }
+                                    }
+                                  }
                                   if (isCorrect) correctCount++;
                                   return {
                                     question: q.q,
+                                    imageUrl: q.imageUrl || q.img || '',
                                     options: q.options || [],
-                                    userChoice,
-                                    correctChoice: q.answer,
+                                    userChoice: userChoiceNorm,
+                                    correctChoice: correctChoiceNorm,
                                     isCorrect,
                                     authorName: q.authorName || 'Comunidad RUMBO'
                                   };
@@ -1243,19 +1564,19 @@ export const Simulador = () => {
                             }}
                             disabled={selectedOption === null}
                             style={{
-                              padding: '14px 32px',
+                              padding: '14px 28px',
                               borderRadius: '16px',
                               border: 'none',
                               background: selectedOption === null ? 'var(--card-border)' : 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
                               color: selectedOption === null ? 'var(--text-muted)' : '#FFFFFF',
                               fontWeight: 800,
-                              fontSize: '1rem',
+                              fontSize: '0.95rem',
                               cursor: selectedOption === null ? 'not-allowed' : 'pointer',
                               boxShadow: selectedOption === null ? 'none' : '0 8px 22px rgba(236, 72, 153, 0.35)',
                               transition: 'all 0.25s ease'
                             }}
                           >
-                            {currentQuestion < filteredExamQuestions.length - 1 ? 'Siguiente Pregunta ➔' : 'Finalizar Examen & Ver Resultados 🏁'}
+                            {safeQIndex < filteredExamQuestions.length - 1 ? 'Siguiente Pregunta ➔' : 'Finalizar Examen & Ver Resultados 🏁'}
                           </button>
                         </div>
                       </>
@@ -1276,6 +1597,7 @@ export const Simulador = () => {
                     inset: 0,
                     background: 'rgba(0,0,0,0.65)',
                     backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                     zIndex: 9999,
                     display: 'flex',
                     alignItems: 'center',
@@ -1287,18 +1609,22 @@ export const Simulador = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       className="ios-glass-card"
-                      style={{ width: '100%', maxWidth: '500px', padding: '28px', borderRadius: '26px' }}
+                      style={{ width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto', padding: '26px', borderRadius: '26px' }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                          {editingExamId ? '✏️ Editar Pregunta Examen' : '✨ Crear Pregunta para Examen Rápido'}
-                        </h3>
-                        <button onClick={() => setIsExamCreateOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--card-border)', paddingBottom: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '1.2rem' }}>{editingExamId ? '✏️' : '✨'}</span>
+                          <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                            {editingExamId ? 'Editar Pregunta del Examen' : 'Nueva Pregunta para Examen Rápido'}
+                          </h3>
+                        </div>
+                        <button onClick={() => setIsExamCreateOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}>
                           <X size={20} />
                         </button>
                       </div>
 
-                      <form onSubmit={handleSaveExamQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <form onSubmit={handleSaveExamQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        {/* Enunciado */}
                         <div>
                           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
                             Pregunta o Enunciado:
@@ -1307,45 +1633,224 @@ export const Simulador = () => {
                             rows={2}
                             value={newExamQuestion.q}
                             onChange={(e) => setNewExamQuestion(prev => ({ ...prev, q: e.target.value }))}
-                            placeholder="Ej. ¿En qué año se firmó la Independencia del Perú?"
+                            placeholder="Ej. En la fotosíntesis, ¿dónde se lleva a cabo la fase luminosa?"
                             style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(120,120,128,0.06)', color: 'var(--text-main)', fontSize: '0.88rem', boxSizing: 'border-box' }}
                             required
                           />
                         </div>
 
-                        {['A (Correcta)', 'B', 'C', 'D'].map((lbl, idx) => (
-                          <div key={idx}>
-                            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: idx === 0 ? '#10B981' : 'var(--text-secondary)', marginBottom: '4px' }}>
-                              Opción {lbl}:
-                            </label>
-                            <input
-                              type="text"
-                              value={newExamQuestion[`opt${idx}`]}
-                              onChange={(e) => setNewExamQuestion(prev => ({ ...prev, [`opt${idx}`]: e.target.value }))}
-                              placeholder={`Texto de la opción ${lbl}`}
-                              style={{ width: '100%', padding: '8px 12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(120,120,128,0.06)', color: 'var(--text-main)', fontSize: '0.85rem', boxSizing: 'border-box' }}
-                              required={idx < 2}
-                            />
-                          </div>
-                        ))}
-
+                        {/* Subir Imagen para la Pregunta */}
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                            Indica cuál es la Opción Correcta:
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                            📷 Imagen o Esquema para la Pregunta (Opcional):
                           </label>
-                          <select
-                            value={newExamQuestion.answer}
-                            onChange={(e) => setNewExamQuestion(prev => ({ ...prev, answer: e.target.value }))}
-                            style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', fontSize: '0.88rem', fontWeight: 700 }}
-                          >
-                            <option value={0}>Opción A ({newExamQuestion.opt0 || 'A'})</option>
-                            <option value={1}>Opción B ({newExamQuestion.opt1 || 'B'})</option>
-                            <option value={2}>Opción C ({newExamQuestion.opt2 || 'C'})</option>
-                            <option value={3}>Opción D ({newExamQuestion.opt3 || 'D'})</option>
-                          </select>
+
+                          {newExamQuestion.imageUrl ? (
+                            <div style={{ position: 'relative', borderRadius: '14px', overflow: 'hidden', border: '1.5px solid var(--card-border)', background: 'rgba(0,0,0,0.04)', textAlign: 'center', padding: '10px' }}>
+                              <img
+                                src={newExamQuestion.imageUrl}
+                                alt="Previsualización"
+                                style={{ maxHeight: '180px', maxWidth: '100%', objectFit: 'contain', borderRadius: '8px' }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setNewExamQuestion(prev => ({ ...prev, imageUrl: '' }))}
+                                style={{
+                                  position: 'absolute',
+                                  top: '8px',
+                                  right: '8px',
+                                  background: 'rgba(239, 68, 68, 0.9)',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: '50%',
+                                  width: '28px',
+                                  height: '28px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                                }}
+                                title="Quitar Imagen"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <label
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '8px',
+                                  padding: '12px 16px',
+                                  borderRadius: '12px',
+                                  border: '1.5px dashed rgba(236, 72, 153, 0.45)',
+                                  background: 'rgba(236, 72, 153, 0.05)',
+                                  color: '#EC4899',
+                                  fontWeight: 700,
+                                  fontSize: '0.85rem',
+                                  cursor: examImageUploading ? 'wait' : 'pointer'
+                                }}
+                              >
+                                {examImageUploading ? (
+                                  <>
+                                    <Loader2 size={16} className="animate-spin" /> Subiendo imagen ({examImageProgress}%)...
+                                  </>
+                                ) : (
+                                  <>
+                                    <UploadCloud size={16} /> Subir Imagen desde el dispositivo
+                                  </>
+                                )}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  disabled={examImageUploading}
+                                  style={{ display: 'none' }}
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    setExamImageUploading(true);
+                                    setExamImageProgress(0);
+                                    try {
+                                      const downloadUrl = await uploadFileReliable(file, (p) => setExamImageProgress(p), 'preguntas_examen');
+                                      if (downloadUrl) {
+                                        setNewExamQuestion(prev => ({ ...prev, imageUrl: downloadUrl }));
+                                      }
+                                    } catch (upErr) {
+                                      alert("Error al subir imagen: " + upErr.message);
+                                    } finally {
+                                      setExamImageUploading(false);
+                                    }
+                                  }}
+                                />
+                              </label>
+
+                              <input
+                                type="url"
+                                value={newExamQuestion.imageUrl}
+                                onChange={(e) => setNewExamQuestion(prev => ({ ...prev, imageUrl: e.target.value }))}
+                                placeholder="O pega aquí una URL directa de imagen (https://...)"
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(120,120,128,0.06)', color: 'var(--text-main)', fontSize: '0.82rem', boxSizing: 'border-box' }}
+                              />
+                            </div>
+                          )}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                        {/* Opciones y Asignación de Clave Correcta (A, B, C, D, E) */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                              Opciones de Respuesta:
+                            </label>
+                            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#10B981' }}>
+                              * Toca "Elegir Clave" para marcar la respuesta correcta
+                            </span>
+                          </div>
+
+                          {[0, 1, 2, 3, 4].map((idx) => {
+                            const letter = ['A', 'B', 'C', 'D', 'E'][idx];
+                            const isThisCorrect = normalizeAnswerIndex(newExamQuestion.answer) === idx;
+
+                            return (
+                              <div 
+                                key={idx}
+                                style={{
+                                  display: 'flex',
+                                  gap: '8px',
+                                  alignItems: 'center',
+                                  padding: '6px 10px',
+                                  borderRadius: '14px',
+                                  border: isThisCorrect ? '2px solid #10B981' : '1px solid var(--card-border)',
+                                  background: isThisCorrect ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                <span style={{
+                                  width: '26px',
+                                  height: '26px',
+                                  borderRadius: '50%',
+                                  background: isThisCorrect ? '#10B981' : 'var(--card-border)',
+                                  color: isThisCorrect ? '#fff' : 'var(--text-main)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 800,
+                                  fontSize: '0.82rem',
+                                  flexShrink: 0
+                                }}>
+                                  {letter}
+                                </span>
+
+                                <input
+                                  type="text"
+                                  value={newExamQuestion[`opt${idx}`] || ''}
+                                  onChange={(e) => setNewExamQuestion(prev => ({ ...prev, [`opt${idx}`]: e.target.value }))}
+                                  placeholder={idx === 4 ? `Texto de la Opción ${letter} (Opcional)` : `Texto de la Opción ${letter}`}
+                                  style={{
+                                    flex: 1,
+                                    padding: '8px 12px',
+                                    borderRadius: '10px',
+                                    border: '1px solid var(--card-border)',
+                                    background: 'rgba(120,120,128,0.06)',
+                                    color: 'var(--text-main)',
+                                    fontSize: '0.85rem',
+                                    boxSizing: 'border-box'
+                                  }}
+                                  required={idx < 2}
+                                />
+
+                                <button
+                                  type="button"
+                                  onClick={() => setNewExamQuestion(prev => ({ ...prev, answer: idx }))}
+                                  style={{
+                                    padding: '7px 12px',
+                                    borderRadius: '10px',
+                                    border: 'none',
+                                    background: isThisCorrect ? '#10B981' : 'rgba(120,120,128,0.12)',
+                                    color: isThisCorrect ? '#FFFFFF' : 'var(--text-secondary)',
+                                    fontWeight: 800,
+                                    fontSize: '0.78rem',
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                >
+                                  {isThisCorrect ? (
+                                    <>
+                                      <Check size={14} strokeWidth={3} /> Correcta
+                                    </>
+                                  ) : (
+                                    'Elegir Clave'
+                                  )}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Confirmation Card of Selected Key */}
+                        <div style={{
+                          padding: '10px 14px',
+                          borderRadius: '12px',
+                          background: 'rgba(16, 185, 129, 0.12)',
+                          border: '1px solid rgba(16, 185, 129, 0.3)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <span style={{ fontSize: '0.85rem' }}>🎯</span>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#059669' }}>
+                            Clave asignada: <strong>Opción {['A', 'B', 'C', 'D', 'E'][normalizeAnswerIndex(newExamQuestion.answer)] || 'A'}</strong>
+                            {newExamQuestion[`opt${normalizeAnswerIndex(newExamQuestion.answer)}`] ? ` ("${newExamQuestion[`opt${normalizeAnswerIndex(newExamQuestion.answer)}`]}")` : ''}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                           <button
                             type="button"
                             onClick={() => setIsExamCreateOpen(false)}
@@ -1355,8 +1860,8 @@ export const Simulador = () => {
                           </button>
                           <button
                             type="submit"
-                            disabled={creating}
-                            style={{ flex: 2, padding: '12px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)', color: '#fff', fontWeight: 800, cursor: creating ? 'wait' : 'pointer' }}
+                            disabled={creating || examImageUploading}
+                            style={{ flex: 2, padding: '12px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)', color: '#fff', fontWeight: 800, cursor: (creating || examImageUploading) ? 'wait' : 'pointer' }}
                           >
                             {creating ? 'Guardando...' : (editingExamId ? 'Actualizar Pregunta' : 'Publicar Pregunta')}
                           </button>
@@ -1830,8 +2335,12 @@ export const Simulador = () => {
               {/* Scrollable Questions & Answers List */}
               <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', paddingRight: '4px' }}>
                 {examResultsModal.details.map((item, qIdx) => {
-                  const userOptText = item.userChoice !== undefined && item.options[item.userChoice] !== undefined ? item.options[item.userChoice] : 'Sin responder';
-                  const correctOptText = item.options[item.correctChoice] || 'N.A.';
+                  const userLetter = item.userChoice !== undefined && item.userChoice !== null ? (['A','B','C','D','E'][item.userChoice] || String.fromCharCode(65 + item.userChoice)) : '';
+                  const userOptText = item.userChoice !== undefined && item.userChoice !== null && item.options[item.userChoice] !== undefined 
+                    ? `(${userLetter}) ${cleanOptionText(item.options[item.userChoice])}` 
+                    : 'Sin responder';
+                  const correctLetter = item.correctChoice !== undefined && item.correctChoice !== null ? (['A','B','C','D','E'][item.correctChoice] || String.fromCharCode(65 + item.correctChoice)) : '';
+                  const correctOptText = `(${correctLetter}) ${cleanOptionText(item.options[item.correctChoice]) || 'N.A.'}`;
 
                   return (
                     <div
@@ -1860,7 +2369,17 @@ export const Simulador = () => {
                         </span>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.84rem', marginTop: '10px' }}>
+                      {item.imageUrl && (
+                        <div style={{ margin: '8px 0 10px', textAlign: 'center' }}>
+                          <img
+                            src={item.imageUrl}
+                            alt="Gráfico"
+                            style={{ maxHeight: '140px', maxWidth: '100%', borderRadius: '10px', objectFit: 'contain', border: '1px solid var(--card-border)' }}
+                          />
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.84rem', marginTop: '8px' }}>
                         <div style={{ color: item.isCorrect ? '#059669' : '#DC2626', fontWeight: 700 }}>
                           Tu Respuesta: <span style={{ fontWeight: 800 }}>{userOptText}</span>
                         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
@@ -228,6 +228,7 @@ export const UserProfile = () => {
   const { uid: paramUid } = useParams();
   const { user, userData, isAdmin, isBanned, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const targetUid = paramUid || user?.uid;
 
@@ -235,7 +236,24 @@ export const UserProfile = () => {
   const [userUploads, setUserUploads] = useState([]);
   const [savedMaterials, setSavedMaterials] = useState(() => getLocalSavedMaterials());
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('muro'); // 'muro' | 'guardados' | 'chat'
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'chat' || tabParam === 'mensajes') return 'chat';
+    if (tabParam === 'guardados') return 'guardados';
+    return 'muro';
+  });
+
+  // Sync activeTab when query param changes
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'chat' || tabParam === 'mensajes') {
+      setActiveTab('chat');
+    } else if (tabParam === 'guardados') {
+      setActiveTab('guardados');
+    } else if (tabParam === 'muro') {
+      setActiveTab('muro');
+    }
+  }, [searchParams]);
   const [isDirectChatModalOpen, setIsDirectChatModalOpen] = useState(false);
   const [isPersonalizarOpen, setIsPersonalizarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -876,10 +894,10 @@ export const UserProfile = () => {
           {/* Gradiente superior súper sutil para mantener el color rosa/original 100% brillante y limpio */}
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 40%, rgba(0,0,0,0.12) 100%)', pointerEvents: 'none', zIndex: 1 }} />
 
-          {/* Back Button (Top Left of Banner, below navbar on desktop) */}
+          {/* Back Button (Top Left of Banner, below navbar on desktop; hidden on mobile/Android) */}
           <button
             onClick={() => navigate(-1)}
-            className="profile-banner-back"
+            className="profile-banner-back hidden md:flex"
             style={{
               padding: '9px 16px',
               borderRadius: '16px',
@@ -1078,8 +1096,14 @@ export const UserProfile = () => {
                   onClick={() => setReportData({
                     isOpen: true,
                     targetId: targetUid,
-                    targetTitle: profileUser.displayName || 'Usuario',
-                    targetType: 'user'
+                    targetTitle: profileUser.displayName || 'Usuario RUMBO',
+                    targetType: 'user',
+                    reportedUser: {
+                      uid: targetUid,
+                      displayName: profileUser.displayName || 'Usuario RUMBO',
+                      email: profileUser.email || '',
+                      photoURL: profileUser.photoURL || ''
+                    }
                   })}
                   style={{
                     padding: '9px 15px',
@@ -1356,20 +1380,21 @@ export const UserProfile = () => {
                       </span>
                     )}
 
-                    {(profileUser.hasWarning || profileUser.banned) && (
+                    {/* El aviso en pantalla es privado para el usuario o admin, no cierra el perfil ni se expone a visitantes */}
+                    {(isOwnProfile || isAdmin) && profileUser.hasWarning && (
                       <span style={{
                         padding: '5px 14px',
                         borderRadius: '12px',
-                        background: 'rgba(239, 68, 68, 0.18)',
-                        border: '1.5px solid #EF4444',
-                        color: '#EF4444',
+                        background: 'rgba(245, 158, 11, 0.18)',
+                        border: '1.5px solid #F59E0B',
+                        color: '#D97706',
                         fontWeight: 800,
                         fontSize: '0.8rem',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px'
                       }}>
-                        ⚠️ ALERTA MODERACIÓN
+                        ⚠️ AVISO DE MODERACIÓN ACTIVO
                       </span>
                     )}
                   </>
@@ -2088,12 +2113,14 @@ export const UserProfile = () => {
               profileUid={targetUid}
               profileName={profileUser.displayName || 'este usuario'}
               isOwnProfile={isOwnProfile}
+              initialChatWithUid={searchParams.get('with')}
             />
           ) : (
             <ProfileComments
               profileUid={targetUid}
               profileName={profileUser.displayName || 'este usuario'}
               userUploads={userUploads}
+              targetPostId={searchParams.get('postId') || searchParams.get('post')}
               onReport={(id, title, type) => setReportData({ isOpen: true, targetId: id, targetTitle: title, targetType: type })}
             />
           )}
@@ -2110,6 +2137,7 @@ export const UserProfile = () => {
           profileUid={targetUid}
           profileName={profileUser.displayName || 'este usuario'}
           isOwnProfile={isOwnProfile}
+          initialChatWithUid={searchParams.get('with')}
         />
       </IOSModal>
 

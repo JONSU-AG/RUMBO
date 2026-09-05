@@ -35,7 +35,16 @@ try {
 }
 
 export const storage = getStorage(app);
-export const analytics = getAnalytics(app);
+
+let analytics = null;
+if (typeof window !== 'undefined') {
+  try {
+    analytics = getAnalytics(app);
+  } catch (e) {
+    console.warn("Analytics no soportado en este entorno:", e);
+  }
+}
+export { analytics };
 
 export default app;
 

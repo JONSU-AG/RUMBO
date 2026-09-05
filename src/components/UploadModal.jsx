@@ -153,9 +153,10 @@ export const UploadModal = ({ isOpen, onClose, onUploadSuccess, initialSourceMod
       const categoriaLabel = categoriaObj ? categoriaObj.label : 'Tomos y Libros';
 
       // 1. Prepare data for Firestore
+      const cleanAuthor = author.trim();
       const uploadData = {
         title: title.trim(),
-        author: author.trim() || (userData?.displayName || 'Anónimo'),
+        author: cleanAuthor,
         category: category,
         categoriaLabel: categoriaLabel,
         type: sourceMode === 'file' 

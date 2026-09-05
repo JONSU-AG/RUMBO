@@ -22,7 +22,13 @@ import {
   Star,
   Sparkles,
   UploadCloud,
-  Megaphone
+  Megaphone,
+  Flag,
+  MessageSquare,
+  Bell,
+  Send,
+  ShieldAlert,
+  Check
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { uploadFileReliable, getDirectImageUrl } from '../lib/storageHelper';
@@ -46,7 +52,19 @@ import { ConfirmModal, NoticeModal } from '../components/ConfirmModal';
 
 export const Admin = () => {
   const { user, isAdmin, loading: authLoading, loginWithGoogle, claimAdminRole } = useAuth();
-  const [activeTab, setActiveTab] = useState('pendientes'); // 'pendientes' | 'reportados' | 'aprobados' | 'usuarios' | 'carrusel' | 'anuncios'
+  const [activeTab, setActiveTab] = useState('reportes'); // 'reportes' | 'pendientes' | 'reportados' | 'aprobados' | 'usuarios' | 'carrusel' | 'anuncios'
+  const [reportsList, setReportsList] = useState([]);
+  const [reportFilter, setReportFilter] = useState('todos'); // 'todos' | 'perfil' | 'material' | 'pendiente'
+  const [warningModal, setWarningModal] = useState({
+    isOpen: false,
+    targetUid: '',
+    targetName: '',
+    targetEmail: '',
+    reportId: null,
+    motivoReporte: '',
+    customMessage: '',
+    submitting: false
+  });
   const [uploads, setUploads] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [solicitudesAliados, setSolicitudesAliados] = useState([]);
@@ -123,6 +141,23 @@ export const Admin = () => {
       setSolicitudesAliados(docs);
     }, (err) => {
       console.warn("Firestore error in Admin solicitudes_aliados:", err);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Subscribe to reportes collection (Bandeja de Reportes)
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'reportes'), (snapshot) => {
+      const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      docs.sort((a, b) => {
+        const tA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+        const tB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+        return tB - tA;
+      });
+      setReportsList(docs);
+    }, (err) => {
+      console.warn("Firestore error in Admin reportes:", err);
     });
 
     return () => unsubscribe();
@@ -390,17 +425,114 @@ export const Admin = () => {
     }
   };
 
-  const handleSendWarning = async (uid, userName) => {
+  const openWarningModal = (targetUser, report = null) => {
+    const uid = targetUser?.uid || targetUser?.id || report?.reportedUser?.uid || (report?.targetType === 'perfil' || report?.targetType === 'user' ? report?.targetId : null);
+    const name = targetUser?.displayName || targetUser?.name || report?.reportedUser?.displayName || report?.targetTitle || 'Usuario';
+    const email = targetUser?.email || report?.reportedUser?.email || '';
+    const reason = report?.reasonLabel || report?.reason || 'Normas comunitarias y contenido';
+    const detail = report?.details ? `Detalle: "${report.details}".` : '';
+
+    const defaultMsg = `Hola ${name}, la administración de RUMBO te notifica que tu perfil/actividad ha recibido un reporte por el siguiente motivo: "${reason}". ${detail} Te recordamos mantener tus datos y aportes acordes a las normas comunitarias.`;
+
+    setWarningModal({
+      isOpen: true,
+      targetUid: uid,
+      targetName: name,
+      targetEmail: email,
+      reportId: report?.id || null,
+      motivoReporte: reason,
+      customMessage: defaultMsg,
+      submitting: false
+    });
+  };
+
+  const handleSendWarning = (uid, userName, optionalEmail = '') => {
+    openWarningModal({ id: uid, uid, displayName: userName, email: optionalEmail });
+  };
+
+  const handleSendWarningFromModal = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!warningModal.targetUid) {
+      showNotice("Error", "No se encontró el UID del usuario a notificar.");
+      return;
+    }
+    if (!warningModal.customMessage.trim()) {
+      showNotice("Campo Requerido", "Por favor ingresa el texto del aviso que se mostrará en pantalla.");
+      return;
+    }
+
+    setWarningModal(prev => ({ ...prev, submitting: true }));
     try {
-      await updateDoc(doc(db, 'usuarios', uid), {
+      // 1. Actualizar usuario para que active el WarningBanner en pantalla
+      await updateDoc(doc(db, 'usuarios', warningModal.targetUid), {
         hasWarning: true,
-        warningMessage: 'Aviso de moderación: recuerda revisar las normas comunitarias.',
+        warningMessage: warningModal.customMessage.trim(),
         warningDismissed: false,
-        banned: false
+        warningReason: warningModal.motivoReporte,
+        banned: false,
+        lastWarningAt: new Date().toISOString()
       });
-      showNotice("Aviso Enviado", `Aviso en pantalla enviado a "${userName}".`);
-    } catch (e) {
-      showNotice("Error", "Error al enviar aviso: " + e.message);
+
+      // 2. Si proviene de un reporte, actualizar estado del reporte
+      if (warningModal.reportId) {
+        await updateDoc(doc(db, 'reportes', warningModal.reportId), {
+          status: 'aviso_enviado',
+          adminWarningSent: true,
+          adminWarningMessage: warningModal.customMessage.trim(),
+          resolvedAt: serverTimestamp(),
+          resolvedBy: user?.email || 'admin'
+        });
+      }
+
+      // 3. Notificación a la campanita
+      try {
+        await addDoc(collection(db, 'notificaciones'), {
+          recipientUid: warningModal.targetUid,
+          type: 'admin_warning',
+          title: '⚠️ Aviso de Moderación RUMBO',
+          message: warningModal.customMessage.trim(),
+          senderUid: user?.uid || 'admin',
+          senderName: 'ADMINISTRACIÓN RUMBO',
+          senderPhoto: './assets/LOGOR.png',
+          read: false,
+          createdAt: serverTimestamp(),
+          timestamp: Date.now()
+        });
+      } catch (errNotif) {
+        console.warn("Could not add notification record:", errNotif);
+      }
+
+      showNotice("Aviso Enviado", `El aviso en pantalla fue enviado exitosamente a "${warningModal.targetName}".`);
+      setWarningModal(prev => ({ ...prev, isOpen: false, submitting: false }));
+    } catch (err) {
+      showNotice("Error", "Error al enviar aviso: " + err.message);
+      setWarningModal(prev => ({ ...prev, submitting: false }));
+    }
+  };
+
+  const handleDismissReport = async (reportId) => {
+    try {
+      await updateDoc(doc(db, 'reportes', reportId), {
+        status: 'desestimado',
+        resolvedAt: serverTimestamp(),
+        resolvedBy: user?.email || 'admin'
+      });
+      showNotice("Reporte Desestimado", "El reporte fue desestimado sin ninguna sanción para el usuario.");
+    } catch (err) {
+      showNotice("Error", "Error al desestimar reporte: " + err.message);
+    }
+  };
+
+  const handleMarkReportReviewed = async (reportId) => {
+    try {
+      await updateDoc(doc(db, 'reportes', reportId), {
+        status: 'revisado',
+        resolvedAt: serverTimestamp(),
+        resolvedBy: user?.email || 'admin'
+      });
+      showNotice("Reporte Revisado", "El reporte fue marcado como revisado.");
+    } catch (err) {
+      showNotice("Error", "Error al actualizar reporte: " + err.message);
     }
   };
 
@@ -475,6 +607,29 @@ export const Admin = () => {
   const triplesUsers = usersList.filter(u => u.oculto || u.hidden || u.autoHidden || u.tripleReported || (u.reportsCount || 0) >= 3).map(u => ({ ...u, _collection: 'usuarios', _typeLabel: '👤 Perfil de Usuario' }));
 
   const triplesList = [...triplesUploads, ...triplesClassComments, ...triplesProfileComments, ...triplesForo, ...triplesUsers];
+
+  const pendingReportsCount = reportsList.filter(r => r.status === 'pendiente' || !r.status).length;
+
+  const filteredReports = reportsList.filter(rep => {
+    if (reportFilter === 'perfil' && !(rep.targetType === 'perfil' || rep.targetType === 'user')) return false;
+    if (reportFilter === 'material' && rep.targetType !== 'material') return false;
+    if (reportFilter === 'pendiente' && (rep.status === 'revisado' || rep.status === 'desestimado' || rep.status === 'aviso_enviado')) return false;
+
+    if (searchQuery) {
+      const match = searchMatches([
+        rep.targetTitle,
+        rep.reportedUser?.displayName,
+        rep.reportedUser?.email,
+        rep.reporterEmail,
+        rep.reason,
+        rep.reasonLabel,
+        rep.details,
+        rep.targetType
+      ], searchQuery);
+      if (!match) return false;
+    }
+    return true;
+  });
 
   const currentList = activeTab === 'pendientes' 
     ? pendientesList 
@@ -648,8 +803,9 @@ export const Admin = () => {
         scrollbarWidth: 'none'
       }}>
         {[
+          { id: 'reportes', label: `🚩 Bandeja de Reportes (${pendingReportsCount})` },
           { id: 'pendientes', label: `⏳ En Revisión (${pendientesList.length})` },
-          { id: 'reportados', label: `🚩 Reportados (${reportadosList.length})` },
+          { id: 'reportados', label: `🚩 Materiales Reportados (${reportadosList.length})` },
           { id: 'triples', label: `🚨 Reportes Triples (3+) (${triplesList.length})` },
           { id: 'aprobados', label: `✅ Activos (${aprobadosList.length})` },
           { id: 'carrusel', label: `🎯 Carrusel de Aliados (${1 + (solicitudesAliados?.length || 0)})` },
@@ -729,8 +885,310 @@ export const Admin = () => {
         </div>
       </div>
 
+      {/* ──────────────── TAB: BANDEJA DE REPORTES (PERFILES Y CONTENIDO) ──────────────── */}
+      {activeTab === 'reportes' && (
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="glass-card" style={{ padding: '22px 24px', borderRadius: '24px', border: '1.5px solid rgba(239, 68, 68, 0.25)', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(245, 158, 11, 0.05))' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <ShieldAlert size={24} color="#EF4444" />
+              <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                Bandeja de Reportes de Moderación ({reportsList.length})
+              </h3>
+            </div>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 }}>
+              🛡️ <strong>Regla para Perfiles de Usuario:</strong> Los perfiles de usuario <u>nunca se cierran ni se ocultan automáticamente</u>. Como Administrador, puedes revisar cada reporte recibido y, <strong>de manera opcional</strong>, enviarle un aviso en pantalla al usuario indicándole el motivo para que verifique y ajuste su cuenta.
+            </p>
+
+            {/* Sub-filtros */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap' }}>
+              {[
+                { id: 'todos', label: `Todos (${reportsList.length})` },
+                { id: 'pendiente', label: `⏳ Pendientes (${pendingReportsCount})` },
+                { id: 'perfil', label: `👤 Perfiles (${reportsList.filter(r => r.targetType === 'perfil' || r.targetType === 'user').length})` },
+                { id: 'material', label: `📚 Materiales (${reportsList.filter(r => r.targetType === 'material').length})` }
+              ].map(flt => (
+                <button
+                  key={flt.id}
+                  type="button"
+                  onClick={() => setReportFilter(flt.id)}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '12px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    border: reportFilter === flt.id ? '1.5px solid #EF4444' : '1px solid var(--card-border)',
+                    background: reportFilter === flt.id ? 'rgba(239, 68, 68, 0.15)' : 'var(--card-bg)',
+                    color: reportFilter === flt.id ? '#DC2626' : 'var(--text-main)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {flt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredReports.length === 0 ? (
+            <div className="glass-card" style={{ padding: '40px', textAlign: 'center', borderRadius: '24px' }}>
+              <p style={{ color: 'var(--text-secondary)', margin: 0, fontWeight: 600 }}>
+                {searchQuery ? `No hay reportes que coincidan con "${searchQuery}".` : 'No hay reportes en esta sección.'}
+              </p>
+            </div>
+          ) : (
+            filteredReports.map((rep) => {
+              const isProfileReport = rep.targetType === 'perfil' || rep.targetType === 'user';
+              const targetUserUid = rep.reportedUser?.uid || (isProfileReport ? rep.targetId : null);
+              const targetUserName = rep.reportedUser?.displayName || rep.targetTitle || 'Usuario';
+              const targetUserEmail = rep.reportedUser?.email || '';
+
+              return (
+                <div
+                  key={rep.id}
+                  className="glass-card"
+                  style={{
+                    padding: '22px 24px',
+                    borderRadius: '22px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                    border: rep.status === 'aviso_enviado' 
+                      ? '1.5px solid rgba(245, 158, 11, 0.4)' 
+                      : rep.status === 'desestimado'
+                      ? '1px solid var(--card-border)'
+                      : '1.5px solid rgba(239, 68, 68, 0.35)',
+                    background: 'var(--card-bg)'
+                  }}
+                >
+                  {/* Header of Report Card */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '10px',
+                        fontSize: '0.76rem',
+                        fontWeight: 800,
+                        background: isProfileReport ? 'rgba(168, 85, 247, 0.15)' : 'rgba(0, 122, 255, 0.15)',
+                        color: isProfileReport ? '#9333EA' : 'var(--accent-color)'
+                      }}>
+                        {isProfileReport ? '👤 REPORTE DE PERFIL' : `📌 REPORTE (${rep.targetType?.toUpperCase() || 'CONTENIDO'})`}
+                      </span>
+
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '10px',
+                        fontSize: '0.74rem',
+                        fontWeight: 800,
+                        background: rep.status === 'aviso_enviado' 
+                          ? 'rgba(245, 158, 11, 0.18)' 
+                          : rep.status === 'desestimado' 
+                          ? 'rgba(120, 120, 128, 0.15)' 
+                          : rep.status === 'revisado' 
+                          ? 'rgba(52, 168, 83, 0.18)' 
+                          : 'rgba(239, 68, 68, 0.18)',
+                        color: rep.status === 'aviso_enviado' 
+                          ? '#D97706' 
+                          : rep.status === 'desestimado' 
+                          ? 'var(--text-secondary)' 
+                          : rep.status === 'revisado' 
+                          ? '#059669' 
+                          : '#DC2626'
+                      }}>
+                        {rep.status === 'aviso_enviado' 
+                          ? '✉️ Aviso Enviado' 
+                          : rep.status === 'desestimado' 
+                          ? '✓ Desestimado' 
+                          : rep.status === 'revisado' 
+                          ? '✓ Revisado' 
+                          : '⏳ Pendiente'}
+                      </span>
+                    </div>
+
+                    <span style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                      {rep.createdAt?.toDate ? rep.createdAt.toDate().toLocaleString('es-PE') : (rep.timestamp ? new Date(rep.timestamp).toLocaleString('es-PE') : '')}
+                    </span>
+                  </div>
+
+                  {/* Target & Reason Info */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ fontSize: '1.02rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      Elemento Reportado: <span style={{ color: 'var(--accent-color)' }}>{rep.targetTitle || targetUserName}</span>
+                      {targetUserUid && (
+                        <Link
+                          to={`/usuario/${targetUserUid}`}
+                          target="_blank"
+                          style={{
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            color: 'var(--accent-color)',
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '3px 10px',
+                            borderRadius: '10px',
+                            background: 'rgba(0,122,255,0.1)'
+                          }}
+                        >
+                          <ExternalLink size={13} /> Ver Perfil
+                        </Link>
+                      )}
+                    </div>
+
+                    {/* Reason Box */}
+                    <div style={{
+                      padding: '10px 14px',
+                      borderRadius: '12px',
+                      background: 'rgba(239, 68, 68, 0.08)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px'
+                    }}>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#DC2626' }}>
+                        Motivo del Reporte: {rep.reasonLabel || rep.reason || 'No especificado'}
+                      </div>
+                      {rep.details && (
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-main)', fontStyle: 'italic' }}>
+                          "{rep.details}"
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Reporter Info */}
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                      Reportado por: <strong>{rep.reporterEmail || rep.reporterUid || 'Estudiante'}</strong>
+                    </div>
+
+                    {rep.adminWarningMessage && (
+                      <div style={{
+                        padding: '8px 12px',
+                        borderRadius: '10px',
+                        background: 'rgba(245, 158, 11, 0.1)',
+                        border: '1px solid rgba(245, 158, 11, 0.25)',
+                        fontSize: '0.8rem',
+                        color: '#92400E'
+                      }}>
+                        <strong>Aviso en pantalla enviado por Admin:</strong> "{rep.adminWarningMessage}"
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Admin Action Buttons */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', paddingTop: '10px', borderTop: '1px solid var(--card-border)' }}>
+                    {/* Optional Notice Button */}
+                    {targetUserUid && (
+                      <button
+                        type="button"
+                        onClick={() => openWarningModal({
+                          id: targetUserUid,
+                          uid: targetUserUid,
+                          displayName: targetUserName,
+                          email: targetUserEmail
+                        }, rep)}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: '12px',
+                          border: 'none',
+                          background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                          color: '#fff',
+                          fontWeight: 700,
+                          fontSize: '0.84rem',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)'
+                        }}
+                      >
+                        <Send size={15} /> Enviar Aviso en Pantalla (Opcional)
+                      </button>
+                    )}
+
+                    {/* Dismiss Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleDismissReport(rep.id)}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--card-border)',
+                        background: 'transparent',
+                        color: 'var(--text-secondary)',
+                        fontWeight: 700,
+                        fontSize: '0.84rem',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <CheckCircle size={15} /> Desestimar (Sin sanción)
+                    </button>
+
+                    {/* Mark Reviewed */}
+                    <button
+                      type="button"
+                      onClick={() => handleMarkReportReviewed(rep.id)}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(52, 168, 83, 0.4)',
+                        background: 'rgba(52, 168, 83, 0.08)',
+                        color: '#059669',
+                        fontWeight: 700,
+                        fontSize: '0.84rem',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      Marcar Atendido
+                    </button>
+
+                    {/* Delete Report Record */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmModal({
+                          isOpen: true,
+                          title: '¿Eliminar registro de reporte?',
+                          message: '¿Seguro que deseas eliminar este reporte de la bandeja?',
+                          confirmText: 'Eliminar',
+                          onConfirm: async () => {
+                            try {
+                              await deleteDoc(doc(db, 'reportes', rep.id));
+                              showNotice("Eliminado", "Registro de reporte eliminado.");
+                            } catch (e) {
+                              showNotice("Error", e.message);
+                            }
+                          }
+                        });
+                      }}
+                      style={{
+                        marginLeft: 'auto',
+                        padding: '8px 10px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: 'transparent',
+                        color: '#EF4444',
+                        cursor: 'pointer'
+                      }}
+                      title="Eliminar reporte de la lista"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
       {/* ──────────────── TAB: UPLOADS LIST ──────────────── */}
-      {activeTab !== 'usuarios' && activeTab !== 'carrusel' && activeTab !== 'anuncios' && (
+      {activeTab !== 'reportes' && activeTab !== 'usuarios' && activeTab !== 'carrusel' && activeTab !== 'anuncios' && (
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {filteredItems.length === 0 ? (
             <div className="glass-card" style={{ padding: '40px', textAlign: 'center', borderRadius: '24px' }}>
@@ -1811,6 +2269,172 @@ export const Admin = () => {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Enviar Aviso en Pantalla Personalizado al Usuario */}
+      {warningModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '16px'
+        }}>
+          <div className="glass-card" style={{
+            width: '100%',
+            maxWidth: '560px',
+            padding: '28px',
+            borderRadius: '24px',
+            border: '1.5px solid rgba(245, 158, 11, 0.4)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.35)',
+            background: 'var(--card-bg)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '14px',
+                  background: 'rgba(245, 158, 11, 0.15)',
+                  color: '#D97706',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <AlertTriangle size={24} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    Enviar Aviso en Pantalla
+                  </h3>
+                  <p style={{ margin: '2px 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    Notificación de moderación para: <strong>{warningModal.targetName}</strong> {warningModal.targetEmail && `(${warningModal.targetEmail})`}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setWarningModal(prev => ({ ...prev, isOpen: false }))}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  padding: '4px'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSendWarningFromModal} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                  Motivo o Causa del Reporte:
+                </label>
+                <input
+                  type="text"
+                  value={warningModal.motivoReporte}
+                  onChange={(e) => setWarningModal(prev => ({ ...prev, motivoReporte: e.target.value }))}
+                  placeholder="Ej: Foto o nombre inapropiado, spam en perfil, etc."
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    border: '1px solid var(--card-border)',
+                    background: 'var(--bg-main)',
+                    color: 'var(--text-main)',
+                    fontSize: '0.88rem'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                  Mensaje que se mostrará en pantalla al usuario (Aviso obligatorio para él): *
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  value={warningModal.customMessage}
+                  onChange={(e) => setWarningModal(prev => ({ ...prev, customMessage: e.target.value }))}
+                  placeholder="Escribe el aviso que se desplegará en la cabecera de la aplicación para este usuario..."
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '14px',
+                    border: '1px solid var(--card-border)',
+                    background: 'var(--bg-main)',
+                    color: 'var(--text-main)',
+                    fontSize: '0.88rem',
+                    resize: 'vertical',
+                    lineHeight: 1.4
+                  }}
+                />
+              </div>
+
+              <div style={{
+                padding: '10px 14px',
+                borderRadius: '12px',
+                background: 'rgba(0, 122, 255, 0.08)',
+                border: '1px solid rgba(0, 122, 255, 0.2)',
+                fontSize: '0.8rem',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.4
+              }}>
+                ℹ️ <strong>Recordatorio:</strong> Los perfiles nunca se cierran automáticamente. Este mensaje aparecerá como un banner amarillo en la parte superior de la pantalla del usuario la próxima vez que abra RUMBO para advertirle del reporte de forma opcional.
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '6px' }}>
+                <button
+                  type="button"
+                  onClick={() => setWarningModal(prev => ({ ...prev, isOpen: false }))}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '12px',
+                    border: '1px solid var(--card-border)',
+                    background: 'transparent',
+                    color: 'var(--text-secondary)',
+                    fontWeight: 700,
+                    fontSize: '0.86rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={warningModal.submitting}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                    color: '#fff',
+                    fontWeight: 800,
+                    fontSize: '0.86rem',
+                    cursor: warningModal.submitting ? 'wait' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 14px rgba(217, 119, 6, 0.3)'
+                  }}
+                >
+                  <Send size={16} />
+                  {warningModal.submitting ? 'Enviando Aviso...' : 'Enviar Aviso en Pantalla'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

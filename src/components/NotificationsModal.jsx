@@ -113,14 +113,46 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    // If it's a profile comment, reaction, wall post, or direct chat -> Navigate directly to profile!
+    onClose();
+
+    // 1. Mensaje Directo Privado (WhatsApp-like) -> Ir a los mensajes privados con ese remitente
+    if (n.type === 'chat' || n.type === 'mensaje' || n.type === 'direct_message' || n.targetPath?.includes('tab=chat')) {
+      const chatPartner = n.senderUid && n.senderUid !== user?.uid ? n.senderUid : n.chatUid;
+      if (chatPartner) {
+        navigate(`/usuario/${user?.uid || n.recipientUid}?tab=chat&with=${chatPartner}`);
+      } else if (n.targetPath) {
+        navigate(n.targetPath);
+      } else {
+        navigate(`/usuario/${user?.uid || n.recipientUid}?tab=chat`);
+      }
+      return;
+    }
+
+    // 2. Publicación, Comentario o Reacción en Muro -> Ir exactamente a esa publicación
+    if (n.postId || n.type === 'comment' || n.type === 'reaction' || n.type === 'wall_post' || n.type === 'post') {
+      const wallProfile = n.profileUid || n.targetUid || user?.uid;
+      const postHash = n.postId ? `#post-${n.postId}` : '';
+      const postParam = n.postId ? `&postId=${n.postId}` : '';
+      navigate(`/usuario/${wallProfile}?tab=muro${postParam}${postHash}`);
+      return;
+    }
+
+    // 3. Material de Biblioteca
+    if (n.type === 'material' || n.materialId) {
+      navigate(`/biblioteca?materialId=${n.materialId || n.targetId}`);
+      return;
+    }
+
+    // 4. Ruta personalizada
+    if (n.targetPath) {
+      navigate(n.targetPath);
+      return;
+    }
+
+    // 5. Fallback a perfil de usuario
     const targetUid = n.profileUid || n.targetUid || (n.senderUid && n.senderUid !== user?.uid ? n.senderUid : null);
     if (targetUid) {
-      onClose();
       navigate(`/usuario/${targetUid}`);
-    } else if (n.targetPath) {
-      onClose();
-      navigate(n.targetPath);
     }
   };
 
@@ -370,8 +402,22 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                               </span>
                             ) : null
                           ) : (
-                            <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-color)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                              Ver en Perfil <ExternalLink size={12} />
+                            <span style={{ 
+                              fontSize: '0.76rem', 
+                              fontWeight: 700, 
+                              color: (n.type === 'chat' || n.type === 'mensaje') ? '#059669' : 'var(--accent-color)', 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '4px' 
+                            }}>
+                              {(n.type === 'chat' || n.type === 'mensaje' || n.type === 'direct_message') 
+                                ? <>Ver Mensaje Privado 💬</>
+                                : (n.postId || n.type === 'comment' || n.type === 'reaction' || n.type === 'wall_post')
+                                  ? <>Ir a la Publicación 📄</>
+                                  : (n.type === 'material' || n.materialId)
+                                    ? <>Ver Material 📚</>
+                                    : <>Ver en Perfil <ExternalLink size={12} /></>
+                              }
                             </span>
                           )}
                         </div>

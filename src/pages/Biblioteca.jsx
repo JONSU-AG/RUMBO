@@ -16,7 +16,8 @@ import {
   Search,
   CheckCircle,
   Share2,
-  MessageSquare
+  MessageSquare,
+  X
 } from 'lucide-react';
 import { ReportModal } from '../components/ReportModal';
 import { UploadModal } from '../components/UploadModal';
@@ -27,13 +28,16 @@ import { ReactionsBar } from '../components/ReactionsBar';
 import { CommentsSection } from '../components/CommentsSection';
 import { BookmarkButton } from '../components/BookmarkButton';
 import { LiveUserAvatar, LiveUserName } from '../components/LiveUserAvatar';
-import { ADMIN_EMAILS, isAuthorOfFirebase } from '../context/AuthContext';
+import { CommunityUploadCard } from '../components/CommunityUploadCard';
+import { useAuth, ADMIN_EMAILS, isAuthorOfFirebase } from '../context/AuthContext';
 import { TOMOS, PRACTICAS } from '../data/legacyData';
 import { searchMatches } from '../lib/searchHelper';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, doc, updateDoc, increment, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc, increment, query, orderBy } from 'firebase/firestore';
+import { getDirectImageUrl, getDriveThumbnailUrl } from '../lib/storageHelper';
 
 export const Biblioteca = () => {
+  const { user, isAdmin } = useAuth();
   const [mainTab, setMainTab] = useState('documentos'); // 'documentos' | 'comunidad'
   const [activeDocTab, setActiveDocTab] = useState('tomos'); // 'tomos' | 'practicas'
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -42,6 +46,7 @@ export const Biblioteca = () => {
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [successContent, setSuccessContent] = useState({ title: '', message: '' });
   const [searchQuery, setSearchQuery] = useState('');
+  const [lightboxImage, setLightboxImage] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -119,6 +124,23 @@ export const Biblioteca = () => {
           setIsSuccessOpen(true);
         } catch (e) {
           setNoticeModal({ isOpen: true, title: "Error", message: "Error al reportar: " + e.message, type: 'error' });
+        }
+      }
+    });
+  };
+
+  const handleDeleteCommunityItem = (item) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "⚠️ Eliminar Publicación",
+      message: `¿Estás seguro de que deseas eliminar permanentemente "${item.title}"? Esta acción no se puede deshacer.`,
+      confirmText: "Sí, Eliminar",
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'uploads', item.id));
+          setNoticeModal({ isOpen: true, title: "Eliminado", message: "La publicación ha sido eliminada correctamente de la biblioteca y de tu perfil.", type: 'success' });
+        } catch (e) {
+          setNoticeModal({ isOpen: true, title: "Error", message: "No se pudo eliminar: " + e.message, type: 'error' });
         }
       }
     });
@@ -860,471 +882,22 @@ export const Biblioteca = () => {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {filteredCommunity.map((item) => {
-                const isPreviewOpen = !!expandedPreviews[item.id];
-                const previewUrl = getPreviewUrl(item.url);
-                const isFolder = item.type === 'drive' || item.url?.includes('/folders/');
-
-                return (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    className="glass-card"
-                    style={{
-                      padding: '24px',
-                      borderRadius: '24px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '14px'
-                    }}
-                  >
-                    {/* Layout de 2 columnas: Datos a la izquierda, Mini Recuadro de Vista Previa a la derecha */}
-                    <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                      {/* Columna Izquierda: Información del Aporte */}
-                      <div style={{ flex: '1 1 280px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {/* Header line */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            {isFolder ? (
-                              <div style={{
-                                padding: '10px',
-                                borderRadius: '12px',
-                                background: 'rgba(251, 188, 5, 0.15)',
-                                color: '#FBBC05',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                              }}>
-                                <Folder size={22} />
-                              </div>
-                            ) : (
-                              <div style={{
-                                padding: '10px',
-                                borderRadius: '12px',
-                                background: 'rgba(0, 122, 255, 0.15)',
-                                color: 'var(--accent-color)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                              }}>
-                                <FileText size={22} />
-                              </div>
-                            )}
-
-                            <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
-                                  {item.title}
-                                </h3>
-                                {(item.isOfficial || item.uploadedBy?.isCreator || item.uploadedBy?.isAdmin || isAuthorOfFirebase(item.uploadedBy?.email) || (item.uploadedBy?.email && ADMIN_EMAILS.includes(item.uploadedBy.email.toLowerCase()))) && (
-                                  <span style={{
-                                    padding: '3px 10px',
-                                    borderRadius: '10px',
-                                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2))',
-                                    border: '1.5px solid #F59E0B',
-                                    color: '#D97706',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 800
-                                  }}>
-                                    👑 MATERIAL OFICIAL RUMBO / CREADOR
-                                  </span>
-                                )}
-                              </div>
-                              
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginTop: '6px' }}>
-                                <div style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                                  <span>✍️ Subido por:</span>
-                                  <LiveUserAvatar
-                                    uid={item.uploadedBy?.uid}
-                                    fallbackName={item.author || item.uploadedBy?.name || 'Comunidad'}
-                                    fallbackPhoto={item.uploadedBy?.photoURL}
-                                    fallbackFrame={(item.isOfficial || item.uploadedBy?.isCreator || item.uploadedBy?.isAdmin || isAuthorOfFirebase(item.uploadedBy?.email) || (item.uploadedBy?.email && ADMIN_EMAILS.includes(item.uploadedBy.email.toLowerCase()))) ? 'fuego_creador' : 'carmesi'}
-                                    size={30}
-                                  />
-                                  {item.uploadedBy?.uid ? (
-                                    <Link
-                                      to={`/usuario/${item.uploadedBy.uid}`}
-                                      style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        fontSize: '0.85rem',
-                                        color: 'var(--accent-color)',
-                                        textDecoration: 'none',
-                                        fontWeight: 700,
-                                        background: 'rgba(0,122,255,0.1)',
-                                        padding: '2px 10px',
-                                        borderRadius: '10px'
-                                      }}
-                                      title="Ver perfil y muro de este usuario"
-                                    >
-                                      <LiveUserName uid={item.uploadedBy?.uid} fallbackName={item.author || item.uploadedBy?.name || 'Comunidad'} /> ↗
-                                    </Link>
-                                  ) : (
-                                    <strong style={{ color: 'var(--text-main)' }}>
-                                      <LiveUserName uid={item.uploadedBy?.uid} fallbackName={item.author || item.uploadedBy?.name || 'Comunidad'} />
-                                    </strong>
-                                  )}
-                                </div>
-
-                                <span style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  fontSize: '0.8rem',
-                                  color: '#D97706',
-                                  fontWeight: 700,
-                                  background: 'rgba(245, 158, 11, 0.14)',
-                                  padding: '3px 10px',
-                                  borderRadius: '10px',
-                                  border: '1.5px solid rgba(245, 158, 11, 0.25)'
-                                }}>
-                                  ⭐ Usuario con {item.uploadedBy?.totalReactionsReceived || (item.reactions ? Object.values(item.reactions).reduce((a, b) => a + (Array.isArray(b) ? b.length : (Number(b) || 0)), 0) : 15)} valoraciones
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Badges & Report */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {item.sourceMode === 'file' && (
-                              <span style={{
-                                padding: '4px 10px',
-                                borderRadius: '12px',
-                                background: 'rgba(52, 199, 89, 0.15)',
-                                color: '#28A745',
-                                fontSize: '0.75rem',
-                                fontWeight: 800
-                              }}>
-                                💾 DISPOSITIVO {item.fileMeta?.size ? `(${item.fileMeta.size})` : ''}
-                              </span>
-                            )}
-
-                            {isFolder && (
-                              <span style={{
-                                padding: '4px 10px',
-                                borderRadius: '12px',
-                                background: 'rgba(251, 188, 5, 0.15)',
-                                color: '#D97706',
-                                fontSize: '0.75rem',
-                                fontWeight: 800
-                              }}>
-                                📁 CARPETA DRIVE
-                              </span>
-                            )}
-
-                            <button
-                              onClick={() => {
-                                setReportTarget({ id: item.id, title: item.title });
-                                setIsReportOpen(true);
-                              }}
-                              title="Reportar link caído o inapropiado"
-                              style={{
-                                padding: '6px 10px',
-                                borderRadius: '10px',
-                                border: 'none',
-                                background: 'rgba(239, 68, 68, 0.1)',
-                                color: '#EF4444',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                fontSize: '0.75rem',
-                                fontWeight: 700
-                              }}
-                            >
-                              <Flag size={13} /> Reportar
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        {item.desc && (
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0, lineHeight: 1.5, fontStyle: 'italic' }}>
-                            "{item.desc}"
-                          </p>
-                        )}
-
-                        {/* Action buttons (Preview & Open Link) */}
-                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              padding: '10px 18px',
-                              borderRadius: '12px',
-                              background: 'var(--accent-color)',
-                              color: '#fff',
-                              textDecoration: 'none',
-                              fontWeight: 700,
-                              fontSize: '0.88rem',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              boxShadow: '0 4px 12px rgba(0,122,255,0.2)'
-                            }}
-                          >
-                            <ExternalLink size={16} /> {item.sourceMode === 'file' ? 'Descargar / Abrir Archivo' : 'Abrir Recurso'}
-                          </a>
-
-                          <button
-                            onClick={() => togglePreview(item.id)}
-                            style={{
-                              padding: '10px 18px',
-                              borderRadius: '12px',
-                              border: '1.5px solid var(--card-border)',
-                              background: isPreviewOpen ? 'rgba(120, 120, 128, 0.12)' : 'var(--card-bg)',
-                              color: 'var(--text-main)',
-                              fontWeight: 700,
-                              fontSize: '0.88rem',
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px'
-                            }}
-                          >
-                            {isPreviewOpen ? <EyeOff size={16} /> : <Eye size={16} />}
-                            {isPreviewOpen ? 'Ocultar Vista Previa' : 'Ver Vista Previa'}
-                          </button>
-
-                          <BookmarkButton item={item} size="small" />
-                        </div>
-                      </div>
-
-                      {/* Columna Derecha: MINI RECUADRO CON LA VISTA PREVIA REAL (Iframe / Imagen real) */}
-                      <motion.div
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => togglePreview(item.id)}
-                        style={{
-                          width: '140px',
-                          height: '175px',
-                          borderRadius: '16px',
-                          border: isPreviewOpen ? '2.5px solid var(--accent-color)' : '1.5px solid var(--card-border)',
-                          background: 'rgba(0,0,0,0.85)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                          cursor: 'pointer',
-                          flexShrink: 0,
-                          margin: '0 auto'
-                        }}
-                        title="Toca para expandir / ocultar la vista previa completa"
-                      >
-                        {/* Etiqueta flotante superior si es una carpeta */}
-                        {isFolder && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '8px',
-                            left: '8px',
-                            zIndex: 12,
-                            background: 'rgba(217, 119, 6, 0.95)',
-                            color: '#ffffff',
-                            padding: '3px 8px',
-                            borderRadius: '8px',
-                            fontSize: '0.65rem',
-                            fontWeight: 800,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            backdropFilter: 'blur(4px)'
-                          }}>
-                            📁 CARPETA
-                          </div>
-                        )}
-
-                        {/* Renderizado de la Vista Previa Real */}
-                        {item.url?.match(/\.(jpeg|jpg|gif|png|webp)/i) ? (
-                          <img
-                            src={item.url}
-                            alt={item.title}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          />
-                        ) : previewUrl ? (
-                          <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', background: '#ffffff' }}>
-                            <iframe
-                              src={previewUrl}
-                              title={item.title}
-                              style={{
-                                width: '560px',
-                                height: '700px',
-                                border: 'none',
-                                transform: 'scale(0.25)',
-                                transformOrigin: 'top left',
-                                pointerEvents: 'none',
-                                background: '#ffffff'
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div style={{ padding: '12px', textAlign: 'center', color: '#ffffff' }}>
-                            {isFolder ? <Folder size={34} color="#F59E0B" /> : <FileText size={34} color="var(--accent-color)" />}
-                            <div style={{ fontSize: '0.75rem', marginTop: '6px', fontWeight: 700 }}>
-                              {isFolder ? 'Carpeta Drive' : 'Vista Previa'}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Etiqueta flotante inferior para expandir / cerrar */}
-                        <div style={{
-                          position: 'absolute',
-                          bottom: '8px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          background: isPreviewOpen ? 'var(--accent-color)' : 'rgba(0, 0, 0, 0.75)',
-                          color: '#ffffff',
-                          padding: '3px 10px',
-                          borderRadius: '12px',
-                          fontSize: '0.7rem',
-                          fontWeight: 800,
-                          backdropFilter: 'blur(8px)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          whiteSpace: 'nowrap',
-                          boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                          zIndex: 10
-                        }}>
-                          {isPreviewOpen ? <EyeOff size={11} /> : <Eye size={11} />}
-                          {isPreviewOpen ? 'Ocultar' : 'Ampliar 🔍'}
-                        </div>
-                      </motion.div>
-                    </div>
-
-                    {/* Reactions Bar & File Comments Toggle on every community upload */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      flexWrap: 'wrap',
-                      gap: '10px',
-                      paddingTop: '10px',
-                      borderTop: '1px solid var(--card-border)'
-                    }}>
-                      <ReactionsBar
-                        targetId={item.id}
-                        targetType="upload"
-                        authorUid={item.uploadedBy?.uid}
-                        initialReactions={item.reactions}
-                        size="small"
-                      />
-
-                      <button
-                        onClick={() => toggleFileComments(item.id)}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '6px 14px',
-                          borderRadius: '12px',
-                          border: expandedFileComments[item.id] ? '1.5px solid var(--accent-color)' : '1px solid var(--card-border)',
-                          background: expandedFileComments[item.id] ? 'rgba(0,122,255,0.12)' : 'rgba(120, 120, 128, 0.08)',
-                          color: expandedFileComments[item.id] ? 'var(--accent-color)' : 'var(--text-main)',
-                          fontSize: '0.82rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                        title="Ver comentarios o preguntar sobre este archivo"
-                      >
-                        <MessageSquare size={14} color="var(--accent-color)" />
-                        <span>Comentarios del archivo</span>
-                        <span style={{
-                          background: expandedFileComments[item.id] ? 'var(--accent-color)' : 'rgba(120,120,128,0.18)',
-                          color: expandedFileComments[item.id] ? '#ffffff' : 'var(--text-secondary)',
-                          padding: '1px 6px',
-                          borderRadius: '8px',
-                          fontSize: '0.72rem',
-                          fontWeight: 800
-                        }}>
-                          {expandedFileComments[item.id] ? 'Ocultar ▲' : 'Comentar 👇'}
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Expandable File Comments Drawer */}
-                    <AnimatePresence>
-                      {expandedFileComments[item.id] && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.25 }}
-                          style={{ overflow: 'hidden', marginTop: '10px' }}
-                        >
-                          <CommentsSection
-                            targetId={`upload-${item.id}`}
-                            targetTitle={`Archivo: ${item.title}`}
-                            targetType="upload"
-                            promptHint={`¿Tienes alguna consulta o aporte sobre "${item.title}"? Escribe aquí 👇`}
-                            initialOpen={true}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Expandable Embedded Preview (Drive/PDF/Folders/Images) */}
-                    <AnimatePresence>
-                      {isPreviewOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          style={{
-                            marginTop: '12px',
-                            borderRadius: '18px',
-                            overflow: 'hidden',
-                            border: '1.5px solid var(--card-border)',
-                            background: '#000000'
-                          }}
-                        >
-                          <div style={{
-                            padding: '10px 16px',
-                            background: 'rgba(30, 30, 30, 0.9)',
-                            color: '#FFFFFF',
-                            fontSize: '0.8rem',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}>
-                            <span>
-                              {isFolder ? '📁 Explorador de Carpeta Google Drive' : 'Visualizador Seguro RUMBO'} {item.fileMeta?.size ? `• ${item.fileMeta.size}` : ''}
-                            </span>
-                            <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ color: '#38BDF8', textDecoration: 'none', fontWeight: 600 }}>
-                              {isFolder ? 'Abrir carpeta en Drive ↗' : 'Abrir pestaña completa ↗'}
-                            </a>
-                          </div>
-
-                          {item.fileMeta?.mimeType?.includes('image') || item.type === 'imagen' ? (
-                            <div style={{ padding: '16px', textAlign: 'center', background: '#0a0a0a' }}>
-                              <img src={item.url} alt={item.title} style={{ maxWidth: '100%', maxHeight: '500px', objectFit: 'contain', borderRadius: '12px' }} />
-                            </div>
-                          ) : (
-                            <iframe
-                              src={previewUrl}
-                              title={item.title}
-                              style={{
-                                width: '100%',
-                                height: isFolder ? '480px' : '420px',
-                                border: 'none',
-                                display: 'block',
-                                background: '#ffffff'
-                              }}
-                              allow="autoplay"
-                            />
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
+              {filteredCommunity.map((item) => (
+                <CommunityUploadCard
+                  key={item.id}
+                  item={item}
+                  user={user}
+                  isAdmin={isAdmin}
+                  onReport={(id, title) => {
+                    setReportTarget({ id, title });
+                    setIsReportOpen(true);
+                  }}
+                  onDelete={handleDeleteCommunityItem}
+                  getPreviewUrl={getPreviewUrl}
+                  setNoticeModal={setNoticeModal}
+                  setLightboxImage={setLightboxImage}
+                />
+              ))}
             </div>
           )}
         </section>
@@ -1374,6 +947,94 @@ export const Biblioteca = () => {
         message={noticeModal.message}
         type={noticeModal.type}
       />
+
+      {/* Lightbox a pantalla completa para imágenes */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightboxImage(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              background: 'rgba(0,0,0,0.92)',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ position: 'relative', maxWidth: '92vw', maxHeight: '92vh', textAlign: 'center' }}
+            >
+              <img
+                src={getDirectImageUrl(lightboxImage)}
+                onError={(e) => {
+                  const thumb = getDriveThumbnailUrl(lightboxImage, 'w1600');
+                  if (thumb && e.currentTarget.src !== thumb) e.currentTarget.src = thumb;
+                }}
+                alt="Vista ampliada"
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '84vh',
+                  borderRadius: '16px',
+                  objectFit: 'contain',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.7)'
+                }}
+              />
+              <button
+                onClick={() => setLightboxImage(null)}
+                style={{
+                  position: 'absolute',
+                  top: '-16px',
+                  right: '-16px',
+                  background: 'var(--accent-color)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.5)'
+                }}
+              >
+                <X size={20} />
+              </button>
+              <div style={{ marginTop: '10px' }}>
+                <a
+                  href={lightboxImage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#38BDF8',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <ExternalLink size={14} /> Abrir imagen original en nueva pestaña ↗
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

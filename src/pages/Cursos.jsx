@@ -19,14 +19,13 @@ export const WhatsAppIconSVG = ({ size = 18, color = "currentColor", style = {} 
 
 export const Cursos = () => {
   return (
-    <div className="page-container" style={{ paddingBottom: '100px' }}>
+    <div className="page-container" style={{ padding: '0 24px 100px', maxWidth: '1240px', margin: '0 auto', boxSizing: 'border-box' }}>
       {/* 2-Column Hero Grid: Inspiración + Comunidad */}
       <div 
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: '20px',
-          maxWidth: '1200px',
           margin: '0 auto 32px',
           width: '100%',
           alignItems: 'stretch'
@@ -118,66 +117,66 @@ export const Cursos = () => {
         </div>
       </div>
 
-      <header style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>Academias y Cursos</h1>
+      <header style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h1 style={{ fontSize: 'clamp(1.8rem, 2.8vw, 2.2rem)', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>Academias y Cursos</h1>
       </header>
 
-      <section className="academy-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+      <section className="academy-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', width: '100%', maxWidth: '1200px', margin: '0 auto', boxSizing: 'border-box' }}>
         {/* Esparta - Red Theme */}
         <Link to="/cursos/esparta" style={{ textDecoration: 'none', color: 'inherit' }}>
           <motion.div 
-            whileHover={{ y: -8, scale: 1.02 }}
+            whileHover={{ y: -4, scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             className="glass-card" 
             style={{ 
-              padding: '28px', 
-              borderRadius: '28px',
-              border: '2px solid rgba(255, 59, 48, 0.3)',
-              background: 'linear-gradient(180deg, rgba(255, 59, 48, 0.08) 0%, var(--card-bg) 60%)',
-              boxShadow: '0 12px 30px rgba(255, 59, 48, 0.12)',
+              padding: 'clamp(16px, 2.2vw, 20px)', 
+              borderRadius: '20px',
+              border: '1.5px solid rgba(255, 59, 48, 0.28)',
+              background: 'linear-gradient(180deg, rgba(255, 59, 48, 0.06) 0%, var(--card-bg) 60%)',
+              boxShadow: '0 8px 20px rgba(255, 59, 48, 0.08)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
               boxSizing: 'border-box',
-              transition: 'all 0.25s ease'
+              transition: 'all 0.2s ease'
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ 
                 background: 'linear-gradient(135deg, #FF3B30, #FF6B6B)', 
                 color: '#FFFFFF', 
-                padding: '6px 14px', 
+                padding: '4px 10px', 
                 borderRadius: '999px', 
                 fontWeight: 800, 
-                fontSize: '0.85rem',
-                boxShadow: '0 4px 10px rgba(255, 59, 48, 0.3)'
+                fontSize: '0.78rem',
+                boxShadow: '0 2px 6px rgba(255, 59, 48, 0.25)'
               }}>
                 ⚔️ ESPARTA
               </span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700 }}>18 Materias</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 700 }}>18 Materias</span>
             </div>
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Academia Esparta</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.95rem', lineHeight: 1.5, flex: 1 }}>
+            <h3 style={{ fontSize: 'clamp(1.18rem, 1.6vw, 1.35rem)', fontWeight: 800, marginBottom: '6px', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Academia Esparta</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '0.86rem', lineHeight: 1.45, flex: 1 }}>
               Preparación exigente y disciplinada para asegurar tu vacante universitaria.
             </p>
             <div style={{ 
               width: '100%', 
               textAlign: 'center', 
-              padding: '14px', 
+              padding: '10px 14px', 
               background: 'linear-gradient(135deg, #FF3B30, #FF5252)', 
               color: '#FFFFFF', 
-              borderRadius: '16px', 
+              borderRadius: '12px', 
               fontWeight: 800, 
-              fontSize: '1rem',
-              boxShadow: '0 6px 18px rgba(255, 59, 48, 0.35)',
+              fontSize: '0.88rem',
+              boxShadow: '0 4px 12px rgba(255, 59, 48, 0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
+              gap: '6px',
               boxSizing: 'border-box'
             }}>
-              Ingresar a Clases de Esparta ➔
+              Ingresar a Esparta ➔
             </div>
           </motion.div>
         </Link>
@@ -185,58 +184,58 @@ export const Cursos = () => {
         {/* Kelsen - Blue Theme */}
         <Link to="/cursos/kelsen" style={{ textDecoration: 'none', color: 'inherit' }}>
           <motion.div 
-            whileHover={{ y: -8, scale: 1.02 }}
+            whileHover={{ y: -4, scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             className="glass-card" 
             style={{ 
-              padding: '28px', 
-              borderRadius: '28px',
-              border: '2px solid rgba(0, 122, 255, 0.3)',
-              background: 'linear-gradient(180deg, rgba(0, 122, 255, 0.08) 0%, var(--card-bg) 60%)',
-              boxShadow: '0 12px 30px rgba(0, 122, 255, 0.12)',
+              padding: 'clamp(16px, 2.2vw, 20px)', 
+              borderRadius: '20px',
+              border: '1.5px solid rgba(0, 122, 255, 0.28)',
+              background: 'linear-gradient(180deg, rgba(0, 122, 255, 0.06) 0%, var(--card-bg) 60%)',
+              boxShadow: '0 8px 20px rgba(0, 122, 255, 0.08)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
               boxSizing: 'border-box',
-              transition: 'all 0.25s ease'
+              transition: 'all 0.2s ease'
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ 
                 background: 'linear-gradient(135deg, #007AFF, #00C6FF)', 
                 color: '#FFFFFF', 
-                padding: '6px 14px', 
+                padding: '4px 10px', 
                 borderRadius: '999px', 
                 fontWeight: 800, 
-                fontSize: '0.85rem',
-                boxShadow: '0 4px 10px rgba(0, 122, 255, 0.3)'
+                fontSize: '0.78rem',
+                boxShadow: '0 2px 6px rgba(0, 122, 255, 0.25)'
               }}>
                 ⚖️ KELSEN
               </span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Letras y Leyes</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Letras y Leyes</span>
             </div>
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Academia Kelsen</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.95rem', lineHeight: 1.5, flex: 1 }}>
+            <h3 style={{ fontSize: 'clamp(1.18rem, 1.6vw, 1.35rem)', fontWeight: 800, marginBottom: '6px', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Academia Kelsen</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '0.86rem', lineHeight: 1.45, flex: 1 }}>
               Especialistas en humanidades, derecho, ciencias sociales y letras preuniversitarias.
             </p>
             <div style={{ 
               width: '100%', 
               textAlign: 'center', 
-              padding: '14px', 
+              padding: '10px 14px', 
               background: 'linear-gradient(135deg, #007AFF, #0A84FF)', 
               color: '#FFFFFF', 
-              borderRadius: '16px', 
+              borderRadius: '12px', 
               fontWeight: 800, 
-              fontSize: '1rem',
-              boxShadow: '0 6px 18px rgba(0, 122, 255, 0.35)',
+              fontSize: '0.88rem',
+              boxShadow: '0 4px 12px rgba(0, 122, 255, 0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
+              gap: '6px',
               boxSizing: 'border-box'
             }}>
-              Ingresar a Clases de Kelsen ➔
+              Ingresar a Kelsen ➔
             </div>
           </motion.div>
         </Link>
@@ -244,58 +243,58 @@ export const Cursos = () => {
         {/* Briceño - Green Theme */}
         <Link to="/cursos/briceno" style={{ textDecoration: 'none', color: 'inherit' }}>
           <motion.div 
-            whileHover={{ y: -8, scale: 1.02 }}
+            whileHover={{ y: -4, scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             className="glass-card" 
             style={{ 
-              padding: '28px', 
-              borderRadius: '28px',
-              border: '2px solid rgba(5, 150, 105, 0.3)',
-              background: 'linear-gradient(180deg, rgba(5, 150, 105, 0.08) 0%, var(--card-bg) 60%)',
-              boxShadow: '0 12px 30px rgba(5, 150, 105, 0.12)',
+              padding: 'clamp(16px, 2.2vw, 20px)', 
+              borderRadius: '20px',
+              border: '1.5px solid rgba(5, 150, 105, 0.28)',
+              background: 'linear-gradient(180deg, rgba(5, 150, 105, 0.06) 0%, var(--card-bg) 60%)',
+              boxShadow: '0 8px 20px rgba(5, 150, 105, 0.08)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
               boxSizing: 'border-box',
-              transition: 'all 0.25s ease'
+              transition: 'all 0.2s ease'
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ 
                 background: 'linear-gradient(135deg, #059669, #34D399)', 
                 color: '#FFFFFF', 
-                padding: '6px 14px', 
+                padding: '4px 10px', 
                 borderRadius: '999px', 
                 fontWeight: 800, 
-                fontSize: '0.85rem',
-                boxShadow: '0 4px 10px rgba(5, 150, 105, 0.3)'
+                fontSize: '0.78rem',
+                boxShadow: '0 2px 6px rgba(5, 150, 105, 0.25)'
               }}>
                 🎓 BRICEÑO
               </span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700 }}>2027 EN CURSO</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 700 }}>2027 EN CURSO</span>
             </div>
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Academia Briceño</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.95rem', lineHeight: 1.5, flex: 1 }}>
+            <h3 style={{ fontSize: 'clamp(1.18rem, 1.6vw, 1.35rem)', fontWeight: 800, marginBottom: '6px', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Academia Briceño</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '0.86rem', lineHeight: 1.45, flex: 1 }}>
               Ciclo 2027 en curso (CEPREUNSA / Ordinario) y Proceso 2026 intensivo con todas las áreas.
             </p>
             <div style={{ 
               width: '100%', 
               textAlign: 'center', 
-              padding: '14px', 
+              padding: '10px 14px', 
               background: 'linear-gradient(135deg, #059669, #10B981)', 
               color: '#FFFFFF', 
-              borderRadius: '16px', 
+              borderRadius: '12px', 
               fontWeight: 800, 
-              fontSize: '1rem',
-              boxShadow: '0 6px 18px rgba(5, 150, 105, 0.35)',
+              fontSize: '0.88rem',
+              boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
+              gap: '6px',
               boxSizing: 'border-box'
             }}>
-              Ingresar a Clases de Briceño ➔
+              Ingresar a Briceño ➔
             </div>
           </motion.div>
         </Link>

@@ -358,17 +358,28 @@ body {
 .liquid-navbar-wrapper {
   position: fixed;
   bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: calc(100% - 32px);
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  transform: none;
+  z-index: 99999;
+  width: calc(100% - 24px);
   max-width: 520px;
+  pointer-events: auto;
+  display: block;
 }
 
 @media (min-width: 768px) {
   .liquid-navbar-wrapper {
     top: 20px;
     bottom: auto;
+    left: 50%;
+    right: auto;
+    margin-left: 0;
+    margin-right: 0;
+    transform: translateX(-50%);
     width: fit-content;
     max-width: 90vw;
   }
@@ -656,14 +667,14 @@ body {
 @media (max-width: 767px) {
   body {
     padding-top: 64px !important;
-    padding-bottom: 96px !important;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .page-container {
     padding-left: 12px !important;
     padding-right: 12px !important;
     padding-top: 16px !important;
-    padding-bottom: 100px !important;
+    padding-bottom: 120px !important;
   }
 
   /* Fixed top header on mobile (Logo & Actions pinned at top) */
@@ -685,20 +696,33 @@ body {
     box-sizing: border-box !important;
   }
 
-  /* Floating liquid navbar at bottom on mobile */
+  /* Floating liquid navbar at bottom on mobile - Guaranteed Android & iOS visibility */
   .liquid-navbar-wrapper {
     position: fixed !important;
-    bottom: max(14px, env(safe-area-inset-bottom)) !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: calc(100% - 24px) !important;
+    bottom: 14px !important;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    transform: none !important;
+    width: calc(100% - 16px) !important;
     max-width: 480px !important;
-    z-index: 1200 !important;
+    z-index: 99999 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .liquid-navbar {
-    padding: 6px 6px !important;
+    padding: 6px 8px !important;
     border-radius: 999px !important;
+    border: 1.5px solid var(--card-border) !important;
+    background: var(--navbar-bg) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.25) inset !important;
   }
 
   .nav-items-container {
@@ -706,13 +730,18 @@ body {
   }
 
   .nav-item {
-    min-width: 42px !important;
+    min-width: 40px !important;
     padding: 5px 2px !important;
     gap: 2px !important;
   }
 
   .nav-label {
     font-size: 0.62rem !important;
+  }
+
+  .desktop-admin-pill,
+  .desktop-action-btn {
+    display: none !important;
   }
 
   /* Responsive Glass Card Padding & Border Radius */
@@ -769,6 +798,7 @@ body {
   /* Floating WhatsApp on mobile */
   .floating-whatsapp {
     bottom: 84px !important;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
     right: 14px !important;
     width: 52px !important;
     height: 52px !important;
@@ -788,10 +818,7 @@ body {
 
   /* Profile Banner Header Actions Mobile Adaptability (Prevent Collisions) */
   .profile-banner-back {
-    top: 10px !important;
-    left: 10px !important;
-    padding: 6px 10px !important;
-    font-size: 0.75rem !important;
+    display: none !important;
   }
 
   .profile-banner-actions {
@@ -817,9 +844,9 @@ button, a, input, select, textarea {
   touch-action: manipulation;
 }
 
+/* Safe area spacing */
 body {
-  padding-top: var(--sat);
-  padding-bottom: var(--sab);
+  padding-top: max(var(--sat), 0px);
 }
 
 /* ═══════════════════════════════════════════════════════════════

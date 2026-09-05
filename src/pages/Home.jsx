@@ -31,7 +31,8 @@ import {
   Target,
   Trophy,
   Flame,
-  Edit3
+  Edit3,
+  Eye
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Logo } from '../components/Logo';

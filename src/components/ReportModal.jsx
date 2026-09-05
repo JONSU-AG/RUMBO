@@ -62,7 +62,10 @@ export const ReportModal = ({ isOpen, onClose, targetId, targetTitle = '', targe
             lastReportedAt: Date.now()
           };
 
-          if (isTripleReport) {
+          // Para perfiles de usuarios: Los reportes van al Admin, pero el perfil NUNCA se auto-cierra.
+          // Solo el Admin puede revisar y opcionalmente enviar un aviso en pantalla.
+          const isUserProfile = targetType === 'user' || targetType === 'perfil';
+          if (isTripleReport && !isUserProfile) {
             updateData.oculto = true;
             updateData.hidden = true;
             updateData.autoHidden = true;
