@@ -95,26 +95,43 @@ export const UserDirectChat = ({
 
   // 1. Subscribe to real-time messages for the ACTIVE 1-on-1 conversation
   useEffect(() => {
-    if (!activeConversationId) {
+    if (!user?.uid || !currentPartnerUid) {
       setActiveMessages([]);
       return;
     }
 
     try {
-      // Query modern private messages by conversationId
+      // Query private messages for this specific 2-user interaction in real time
       const q = query(
         collection(db, 'mensajes_directos_privados'),
-        where('conversationId', '==', activeConversationId)
+        where('participants', 'array-contains', user.uid)
       );
 
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        const docs = snapshot.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(m => (m.senderUid === currentPartnerUid && m.recipientUid === user.uid) || 
+                       (m.senderUid === user.uid && m.recipientUid === currentPartnerUid) ||
+                       m.conversationId === activeConversationId);
+
         docs.sort((a, b) => {
           const tA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
           const tB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
           return tA - tB;
         });
+
         setActiveMessages(docs);
+
+        // Mark incoming unread messages as read automatically when chat window is active
+        docs.forEach(async (m) => {
+          if (!m.read && m.recipientUid === user.uid) {
+            try {
+              await updateDoc(doc(db, 'mensajes_directos_privados', m.id), { read: true });
+            } catch (e) {
+              // silent catch for permission or unread update
+            }
+          }
+        });
       }, (err) => {
         console.warn("Active private chat listener notice:", err);
       });
@@ -123,7 +140,7 @@ export const UserDirectChat = ({
     } catch (e) {
       console.warn("Direct chat setup error:", e);
     }
-  }, [activeConversationId]);
+  }, [user?.uid, currentPartnerUid, activeConversationId]);
 
   // 2. If on OWN profile, listen to all conversations where user is a participant
   useEffect(() => {
@@ -1289,7 +1306,7 @@ export const UserDirectChat = ({
               {/* Image Box */}
               <div style={{
                 width: '100%',
-                maxHeight: '300px',
+                maxHeight: '320px',
                 borderRadius: '16px',
                 overflow: 'hidden',
                 background: '#000',
@@ -1302,39 +1319,14 @@ export const UserDirectChat = ({
                   alt="Vista previa"
                   style={{
                     maxWidth: '100%',
-                    maxHeight: '300px',
-                    objectFit: imagePreviewModal.isCropped ? 'cover' : 'contain'
+                    maxHeight: '320px',
+                    objectFit: 'contain'
                   }}
                 />
               </div>
 
               {/* Controls & Actions */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {/* Crop toggle simulation */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImagePreviewModal(prev => ({ ...prev, isCropped: !prev.isCropped }));
-                  }}
-                  style={{
-                    padding: '8px 12px',
-                    borderRadius: '12px',
-                    border: '1px solid var(--card-border)',
-                    background: imagePreviewModal.isCropped ? 'rgba(16, 185, 129, 0.15)' : 'rgba(120, 120, 128, 0.08)',
-                    color: imagePreviewModal.isCropped ? '#10B981' : 'var(--text-main)',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <Crop size={15} />
-                  <span>{imagePreviewModal.isCropped ? 'Restaurar encuadre original' : 'Ajustar / Recortar aspecto'}</span>
-                </button>
-
                 <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                   <button
                     type="button"
