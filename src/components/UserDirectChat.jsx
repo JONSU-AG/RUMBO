@@ -800,13 +800,15 @@ export const UserDirectChat = ({
                   {/* Message Text */}
                   {msg.text && <div>{renderMessageTextWithLinks(msg.text, isMe)}</div>}
 
-                  {/* Reaction Display Badges */}
+                  {/* Reaction Display Badges (WhatsApp Style Floating Badges) */}
                   {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                     <div style={{
                       display: 'flex',
                       gap: '4px',
                       flexWrap: 'wrap',
-                      marginTop: '6px'
+                      marginTop: '6px',
+                      position: 'relative',
+                      zIndex: 2
                     }}>
                       {Object.entries(msg.reactions).map(([emoji, users]) => {
                         if (!users || users.length === 0) return null;
@@ -815,18 +817,24 @@ export const UserDirectChat = ({
                           <button
                             key={emoji}
                             type="button"
-                            onClick={() => handleToggleReaction(msg.id, msg.reactions, emoji)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleReaction(msg.id, msg.reactions, emoji);
+                            }}
                             style={{
-                              padding: '2px 6px',
-                              borderRadius: '10px',
-                              border: 'none',
-                              background: hasReacted ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.15)',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              border: hasReacted ? '1px solid rgba(255,255,255,0.4)' : '1px solid var(--card-border)',
+                              background: hasReacted 
+                                ? (isMe ? 'rgba(255,255,255,0.25)' : 'rgba(16, 185, 129, 0.15)')
+                                : (isMe ? 'rgba(0,0,0,0.2)' : 'var(--card-bg)'),
                               color: isMe ? '#FFF' : 'var(--text-main)',
-                              fontSize: '0.72rem',
+                              fontSize: '0.75rem',
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '3px'
+                              gap: '4px',
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
                             }}
                           >
                             <span>{emoji}</span>
@@ -837,7 +845,7 @@ export const UserDirectChat = ({
                     </div>
                   )}
 
-                  {/* Metadata: Time, Copy, Reactions, Checks */}
+                  {/* Metadata & Actions Bar (Clean Time, Check, Context Action Menu) */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -845,68 +853,81 @@ export const UserDirectChat = ({
                     gap: '6px',
                     marginTop: '4px',
                     fontSize: '0.68rem',
-                    color: isMe ? 'rgba(255, 255, 255, 0.8)' : 'var(--text-secondary)'
+                    color: isMe ? 'rgba(255, 255, 255, 0.85)' : 'var(--text-secondary)'
                   }}>
-                    {/* Quick Reaction Bar */}
-                    <div style={{ display: 'flex', gap: '4px', opacity: 0.85 }}>
-                      {['❤️', '🔥', '👍'].map(emoji => (
+                    {/* Action Menu (Reactions, Copy, Delete popover) */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {/* Emoji Quick Picker */}
+                      {['❤️', '🔥', '👍', '😂', '😮'].map(emoji => (
                         <button
                           key={emoji}
                           type="button"
-                          onClick={() => handleToggleReaction(msg.id, msg.reactions, emoji)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleReaction(msg.id, msg.reactions, emoji);
+                          }}
                           title={`Reaccionar con ${emoji}`}
                           style={{
                             background: 'transparent',
                             border: 'none',
                             cursor: 'pointer',
-                            padding: '0 2px',
-                            fontSize: '0.8rem'
+                            padding: '1px 2px',
+                            fontSize: '0.82rem',
+                            opacity: 0.85,
+                            transition: 'transform 0.15s ease'
                           }}
                         >
                           {emoji}
                         </button>
                       ))}
-                    </div>
 
-                    {/* Copy Button */}
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard(msg.text)}
-                      title="Copiar mensaje"
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: isMe ? 'rgba(255, 255, 255, 0.8)' : 'var(--text-secondary)',
-                        cursor: 'pointer',
-                        padding: '0 2px',
-                        display: 'inline-flex',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <Copy size={11} />
-                    </button>
-
-                    <span>{formatTime(msg.createdAt || msg.timestamp)}</span>
-                    {isMe && <CheckCheck size={13} style={{ opacity: 0.9 }} />}
-                    
-                    {canDelete && (
+                      {/* Copy Button */}
                       <button
                         type="button"
-                        onClick={() => handleDeleteMessage(msg)}
-                        title="Eliminar mensaje"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(msg.text);
+                        }}
+                        title="Copiar mensaje"
                         style={{
                           background: 'transparent',
                           border: 'none',
-                          color: isMe ? 'rgba(255, 255, 255, 0.8)' : '#EF4444',
+                          color: isMe ? 'rgba(255, 255, 255, 0.85)' : 'var(--text-secondary)',
                           cursor: 'pointer',
-                          padding: '0 0 0 2px',
+                          padding: '1px 3px',
                           display: 'inline-flex',
                           alignItems: 'center'
                         }}
                       >
-                        <Trash2 size={11} />
+                        <Copy size={11} />
                       </button>
-                    )}
+
+                      {/* Delete Button */}
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteMessage(msg);
+                          }}
+                          title="Eliminar mensaje"
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: isMe ? 'rgba(255, 255, 255, 0.85)' : '#EF4444',
+                            cursor: 'pointer',
+                            padding: '1px 3px',
+                            display: 'inline-flex',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      )}
+                    </div>
+
+                    <span>{formatTime(msg.createdAt || msg.timestamp)}</span>
+                    {isMe && <CheckCheck size={13} style={{ opacity: 0.9 }} />}
                   </div>
                 </div>
               </motion.div>

@@ -111,6 +111,31 @@ export const LiquidNavbar = () => {
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
 
+          {/* Direct Chats Access Button on Mobile */}
+          {user && (
+            <NavLink
+              to="/perfil?tab=chat"
+              title="Mis Mensajes Privados"
+              style={{
+                padding: '6px 8px',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'rgba(16, 185, 129, 0.12)',
+                color: '#059669',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '3px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                textDecoration: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <MessageSquare size={13} />
+              <span className="hide-on-xs">Chats</span>
+            </NavLink>
+          )}
+
           {/* Bell Notification Button on Mobile */}
           {user && (
             <button
