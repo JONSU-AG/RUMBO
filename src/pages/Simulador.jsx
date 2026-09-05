@@ -21,12 +21,13 @@ import {
   Flame,
   Check,
   Flag,
-  Trash2
+  Trash2,
+  Edit3
 } from 'lucide-react';
 import { InspirationalDailyBanner } from '../components/InspirationalDailyBanner';
 import { datosSimulador } from '../data/simuladorData';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { ReportModal } from '../components/ReportModal';
 
@@ -133,6 +134,7 @@ export const Simulador = () => {
   const [currentCard, setCurrentCard] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingCardId, setEditingCardId] = useState(null);
   const [newCard, setNewCard] = useState({ q: '', a: '', subject: 'Biología' });
   const [creating, setCreating] = useState(false);
 
@@ -154,26 +156,47 @@ export const Simulador = () => {
     }
   }, []);
 
-  const handleCreateFlashcard = async (e) => {
+  const handleSaveFlashcard = async (e) => {
     e.preventDefault();
     if (!newCard.q.trim() || !newCard.a.trim() || creating) return;
     setCreating(true);
     try {
-      await addDoc(collection(db, 'flashcards'), {
-        q: newCard.q.trim(),
-        a: newCard.a.trim(),
-        subject: newCard.subject,
-        authorName: user?.displayName || 'Estudiante RUMBO',
-        authorUid: user?.uid || null,
-        createdAt: serverTimestamp()
-      });
+      if (editingCardId) {
+        // Edit existing card
+        await updateDoc(doc(db, 'flashcards', editingCardId), {
+          q: newCard.q.trim(),
+          a: newCard.a.trim(),
+          subject: newCard.subject
+        });
+      } else {
+        // Create new card
+        await addDoc(collection(db, 'flashcards'), {
+          q: newCard.q.trim(),
+          a: newCard.a.trim(),
+          subject: newCard.subject,
+          authorName: user?.displayName || 'Estudiante RUMBO',
+          authorUid: user?.uid || null,
+          createdAt: serverTimestamp()
+        });
+      }
       setNewCard({ q: '', a: '', subject: 'Biología' });
+      setEditingCardId(null);
       setIsCreateOpen(false);
     } catch (err) {
-      alert("Error al crear tarjeta: " + err.message);
+      alert("Error al guardar tarjeta: " + err.message);
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleOpenEditFlashcard = (card) => {
+    if (!card.id || card.id === '1' || card.id === '2' || card.id === '3' || card.id === '4') {
+      alert("Esta es una tarjeta predeterminada del sistema.");
+      return;
+    }
+    setEditingCardId(card.id);
+    setNewCard({ q: card.q, a: card.a, subject: card.subject || 'Biología' });
+    setIsCreateOpen(true);
   };
 
   const filteredCards = useMemo(() => {
@@ -193,9 +216,90 @@ export const Simulador = () => {
     setCurrentCard((prev) => (prev - 1 + filteredCards.length) % Math.max(1, filteredCards.length));
   };
 
-  // Exam state
+  // Exam Questions State (Community + Default)
+  const [communityExamQuestions, setCommunityExamQuestions] = useState(examData);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [isExamCreateOpen, setIsExamCreateOpen] = useState(false);
+  const [editingExamId, setEditingExamId] = useState(null);
+  const [newExamQuestion, setNewExamQuestion] = useState({
+    q: '',
+    opt0: '',
+    opt1: '',
+    opt2: '',
+    opt3: '',
+    answer: 0
+  });
+
+  // Subscribe to community exam questions
+  useEffect(() => {
+    try {
+      const q = query(collection(db, 'preguntas_examen'), orderBy('createdAt', 'desc'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          setCommunityExamQuestions([...docs, ...examData]);
+        }
+      }, (err) => {
+        console.warn("Exam questions listener notice:", err);
+      });
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn("Could not subscribe to exam questions:", e);
+    }
+  }, []);
+
+  const handleSaveExamQuestion = async (e) => {
+    e.preventDefault();
+    if (!newExamQuestion.q.trim() || !newExamQuestion.opt0.trim() || !newExamQuestion.opt1.trim() || creating) return;
+    setCreating(true);
+    try {
+      const payload = {
+        q: newExamQuestion.q.trim(),
+        options: [
+          newExamQuestion.opt0.trim(),
+          newExamQuestion.opt1.trim(),
+          newExamQuestion.opt2.trim() || 'N.A.',
+          newExamQuestion.opt3.trim() || 'Todas las anteriores'
+        ],
+        answer: Number(newExamQuestion.answer) || 0,
+        authorName: user?.displayName || 'Estudiante RUMBO',
+        authorUid: user?.uid || null,
+        createdAt: serverTimestamp()
+      };
+
+      if (editingExamId) {
+        await updateDoc(doc(db, 'preguntas_examen', editingExamId), payload);
+      } else {
+        await addDoc(collection(db, 'preguntas_examen'), payload);
+      }
+
+      setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', answer: 0 });
+      setEditingExamId(null);
+      setIsExamCreateOpen(false);
+    } catch (err) {
+      alert("Error al guardar pregunta: " + err.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleOpenEditExam = (qItem) => {
+    if (!qItem.id || qItem.id === 1 || qItem.id === 2) {
+      alert("Esta es una pregunta predeterminada del sistema.");
+      return;
+    }
+    setEditingExamId(qItem.id);
+    setNewExamQuestion({
+      q: qItem.q,
+      opt0: qItem.options?.[0] || '',
+      opt1: qItem.options?.[1] || '',
+      opt2: qItem.options?.[2] || '',
+      opt3: qItem.options?.[3] || '',
+      answer: qItem.answer || 0
+    });
+    setIsExamCreateOpen(true);
+  };
 
   // Simulador Puntaje State
   const [simArea, setSimArea] = useState('Sociales');
@@ -493,24 +597,38 @@ export const Simulador = () => {
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {(isAdmin || (user && user.uid === filteredCards[activeCardIndex]?.authorUid)) && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const cardToDelete = filteredCards[activeCardIndex];
-                                if (!cardToDelete.id || cardToDelete.id === '1' || cardToDelete.id === '2' || cardToDelete.id === '3' || cardToDelete.id === '4') {
-                                  alert("Esta es una tarjeta predeterminada del sistema.");
-                                  return;
-                                }
-                                if (window.confirm("¿Deseas eliminar esta tarjeta de repaso?")) {
-                                  deleteDoc(doc(db, 'flashcards', cardToDelete.id)).catch(err => alert("Error al eliminar: " + err.message));
-                                }
-                              }}
-                              title="Eliminar Tarjeta"
-                              style={{ background: 'rgba(239, 68, 68, 0.12)', border: 'none', color: '#EF4444', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
-                            >
-                              <Trash2 size={15} />
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenEditFlashcard(filteredCards[activeCardIndex]);
+                                }}
+                                title="Editar Tarjeta"
+                                style={{ background: 'rgba(0,122,255,0.12)', border: 'none', color: 'var(--accent-color)', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                              >
+                                <Edit3 size={15} />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const cardToDelete = filteredCards[activeCardIndex];
+                                  if (!cardToDelete.id || cardToDelete.id === '1' || cardToDelete.id === '2' || cardToDelete.id === '3' || cardToDelete.id === '4') {
+                                    alert("Esta es una tarjeta predeterminada del sistema.");
+                                    return;
+                                  }
+                                  if (window.confirm("¿Deseas eliminar esta tarjeta de repaso?")) {
+                                    deleteDoc(doc(db, 'flashcards', cardToDelete.id)).catch(err => alert("Error al eliminar: " + err.message));
+                                  }
+                                }}
+                                title="Eliminar Tarjeta"
+                                style={{ background: 'rgba(239, 68, 68, 0.12)', border: 'none', color: '#EF4444', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </>
                           )}
                           <button
                             type="button"
@@ -736,119 +854,307 @@ export const Simulador = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="ios-glass-card"
-              style={{ 
-                padding: '36px 28px', 
-                maxWidth: '680px', 
-                margin: '0 auto',
-                border: '1.5px solid rgba(236, 72, 153, 0.3)',
-                boxShadow: '0 20px 40px rgba(236, 72, 153, 0.1)'
-              }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}
             >
-              <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ 
-                    background: 'rgba(236, 72, 153, 0.12)', 
-                    color: '#EC4899', 
-                    padding: '6px 14px', 
-                    borderRadius: '999px', 
-                    fontSize: '0.85rem', 
-                    fontWeight: 800 
-                  }}>
-                    🎯 Pregunta {currentQuestion + 1} de {examData.length}
-                  </span>
-                </div>
-                <span style={{ 
-                  background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)', 
-                  color: '#fff', 
-                  padding: '5px 14px', 
-                  borderRadius: '999px', 
-                  fontSize: '0.82rem', 
-                  fontWeight: 800,
-                  boxShadow: '0 4px 12px rgba(244, 63, 94, 0.3)'
-                }}>
-                  UNSA OFICIAL
+              {/* Header bar for Examen Rápido with "+ Crear Pregunta" button */}
+              <div style={{
+                width: '100%',
+                maxWidth: '680px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '16px'
+              }}>
+                <span style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  📝 Examen Rápido de Práctica
                 </span>
-              </div>
-              
-              <h2 style={{ fontSize: '1.35rem', color: 'var(--text-main)', marginBottom: '28px', fontWeight: 700, lineHeight: 1.45 }}>
-                {examData[currentQuestion].q}
-              </h2>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {examData[currentQuestion].options.map((opt, i) => {
-                  const isSelected = selectedOption === i;
-                  return (
-                    <motion.button 
-                      key={i}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      onClick={() => setSelectedOption(i)}
-                      style={{
-                        padding: '16px 20px',
-                        borderRadius: '18px',
-                        border: isSelected ? '2px solid #EC4899' : '1px solid var(--card-border)',
-                        background: isSelected ? 'linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(244, 63, 94, 0.08))' : 'var(--card-bg)',
-                        color: 'var(--text-main)',
-                        fontSize: '1.05rem',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '14px',
-                        boxShadow: isSelected ? '0 8px 20px rgba(236, 72, 153, 0.15)' : 'none'
-                      }}
-                    >
-                      <div style={{ 
-                        width: '28px', 
-                        height: '28px', 
-                        borderRadius: '50%', 
-                        border: isSelected ? 'none' : '2px solid var(--text-secondary)',
-                        background: isSelected ? 'linear-gradient(135deg, #EC4899, #F43F5E)' : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#fff',
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
-                        flexShrink: 0
-                      }}>
-                        {isSelected ? <Check size={16} strokeWidth={3} /> : String.fromCharCode(65 + i)}
-                      </div>
-                      <span style={{ fontWeight: isSelected ? 700 : 500 }}>{opt}</span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'flex-end' }}>
-                <button 
+                <button
                   onClick={() => {
-                    if (currentQuestion < examData.length - 1) {
-                      setCurrentQuestion(q => q + 1);
-                      setSelectedOption(null);
-                    } else {
-                      alert("¡Examen Terminado! Tu puntaje ha sido registrado.");
-                    }
+                    setEditingExamId(null);
+                    setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', answer: 0 });
+                    setIsExamCreateOpen(true);
                   }}
-                  disabled={selectedOption === null}
                   style={{
-                    padding: '14px 32px',
-                    borderRadius: '16px',
+                    padding: '8px 16px',
+                    borderRadius: '14px',
                     border: 'none',
-                    background: selectedOption === null ? 'var(--card-border)' : 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
-                    color: selectedOption === null ? 'var(--text-muted)' : '#FFFFFF',
+                    background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
+                    color: '#FFFFFF',
                     fontWeight: 800,
-                    fontSize: '1rem',
-                    cursor: selectedOption === null ? 'not-allowed' : 'pointer',
-                    boxShadow: selectedOption === null ? 'none' : '0 8px 22px rgba(236, 72, 153, 0.35)',
-                    transition: 'all 0.25s ease'
+                    fontSize: '0.84rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)'
                   }}
                 >
-                  {currentQuestion < examData.length - 1 ? 'Siguiente Pregunta ➔' : 'Finalizar Examen 🏁'}
+                  <PlusCircle size={15} /> + Crear Pregunta
                 </button>
               </div>
+
+              {communityExamQuestions.length > 0 ? (
+                <div
+                  className="ios-glass-card"
+                  style={{ 
+                    padding: '36px 28px', 
+                    width: '100%',
+                    maxWidth: '680px', 
+                    margin: '0 auto',
+                    border: '1.5px solid rgba(236, 72, 153, 0.3)',
+                    boxShadow: '0 20px 40px rgba(236, 72, 153, 0.1)'
+                  }}
+                >
+                  {(() => {
+                    const currentQItem = communityExamQuestions[Math.min(currentQuestion, communityExamQuestions.length - 1)];
+                    const isAuthorOrAdmin = isAdmin || (user && user.uid === currentQItem?.authorUid);
+
+                    return (
+                      <>
+                        <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ 
+                              background: 'rgba(236, 72, 153, 0.12)', 
+                              color: '#EC4899', 
+                              padding: '6px 14px', 
+                              borderRadius: '999px', 
+                              fontSize: '0.85rem', 
+                              fontWeight: 800 
+                            }}>
+                              🎯 Pregunta {Math.min(currentQuestion + 1, communityExamQuestions.length)} de {communityExamQuestions.length}
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {isAuthorOrAdmin && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEditExam(currentQItem)}
+                                  title="Editar Pregunta"
+                                  style={{ background: 'rgba(0,122,255,0.12)', border: 'none', color: 'var(--accent-color)', padding: '6px 10px', borderRadius: '10px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                  <Edit3 size={14} /> Editar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!currentQItem.id || currentQItem.id === 1 || currentQItem.id === 2) {
+                                      alert("Esta es una pregunta predeterminada del sistema.");
+                                      return;
+                                    }
+                                    if (window.confirm("¿Deseas eliminar esta pregunta del examen rápido?")) {
+                                      deleteDoc(doc(db, 'preguntas_examen', currentQItem.id)).catch(err => alert("Error al eliminar: " + err.message));
+                                    }
+                                  }}
+                                  title="Eliminar Pregunta"
+                                  style={{ background: 'rgba(239, 68, 68, 0.12)', border: 'none', color: '#EF4444', padding: '6px 10px', borderRadius: '10px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                  <Trash2 size={14} /> Eliminar
+                                </button>
+                              </>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setReportData({ isOpen: true, targetId: currentQItem?.id || 'exam_q', targetTitle: currentQItem?.q || 'Pregunta Examen', targetType: 'examen' })}
+                              title="Reportar Pregunta"
+                              style={{ background: 'rgba(120,120,128,0.12)', border: 'none', color: 'var(--text-secondary)', padding: '6px 10px', borderRadius: '10px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700 }}
+                            >
+                              <Flag size={14} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <h2 style={{ fontSize: '1.35rem', color: 'var(--text-main)', marginBottom: '12px', fontWeight: 700, lineHeight: 1.45 }}>
+                          {currentQItem?.q}
+                        </h2>
+
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '24px', fontWeight: 600 }}>
+                          ✍️ Pregunta creada por: <span style={{ color: 'var(--accent-color)', fontWeight: 800 }}>{currentQItem?.authorName || 'Comunidad RUMBO'}</span>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                          {(currentQItem?.options || []).map((opt, i) => {
+                            const isSelected = selectedOption === i;
+                            return (
+                              <motion.button 
+                                key={i}
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                                onClick={() => setSelectedOption(i)}
+                                style={{
+                                  padding: '16px 20px',
+                                  borderRadius: '18px',
+                                  border: isSelected ? '2px solid #EC4899' : '1px solid var(--card-border)',
+                                  background: isSelected ? 'linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(244, 63, 94, 0.08))' : 'var(--card-bg)',
+                                  color: 'var(--text-main)',
+                                  fontSize: '1.05rem',
+                                  textAlign: 'left',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s ease',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '14px',
+                                  boxShadow: isSelected ? '0 8px 20px rgba(236, 72, 153, 0.15)' : 'none'
+                                }}
+                              >
+                                <div style={{ 
+                                  width: '28px', 
+                                  height: '28px', 
+                                  borderRadius: '50%', 
+                                  border: isSelected ? 'none' : '2px solid var(--text-secondary)',
+                                  background: isSelected ? 'linear-gradient(135deg, #EC4899, #F43F5E)' : 'transparent',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  color: '#fff',
+                                  fontWeight: 800,
+                                  fontSize: '0.85rem',
+                                  flexShrink: 0
+                                }}>
+                                  {isSelected ? <Check size={16} strokeWidth={3} /> : String.fromCharCode(65 + i)}
+                                </div>
+                                <span style={{ fontWeight: isSelected ? 700 : 500 }}>{opt}</span>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+
+                        <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'flex-end' }}>
+                          <button 
+                            onClick={() => {
+                              if (currentQuestion < communityExamQuestions.length - 1) {
+                                setCurrentQuestion(q => q + 1);
+                                setSelectedOption(null);
+                              } else {
+                                alert("¡Examen Terminado! Tu respuesta ha sido verificada.");
+                              }
+                            }}
+                            disabled={selectedOption === null}
+                            style={{
+                              padding: '14px 32px',
+                              borderRadius: '16px',
+                              border: 'none',
+                              background: selectedOption === null ? 'var(--card-border)' : 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
+                              color: selectedOption === null ? 'var(--text-muted)' : '#FFFFFF',
+                              fontWeight: 800,
+                              fontSize: '1rem',
+                              cursor: selectedOption === null ? 'not-allowed' : 'pointer',
+                              boxShadow: selectedOption === null ? 'none' : '0 8px 22px rgba(236, 72, 153, 0.35)',
+                              transition: 'all 0.25s ease'
+                            }}
+                          >
+                            {currentQuestion < communityExamQuestions.length - 1 ? 'Siguiente Pregunta ➔' : 'Finalizar Examen 🏁'}
+                          </button>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <div className="ios-glass-card" style={{ padding: '40px 20px', textAlign: 'center', borderRadius: '24px', maxWidth: '500px' }}>
+                  <p style={{ color: 'var(--text-secondary)' }}>No hay preguntas disponibles por el momento.</p>
+                </div>
+              )}
+
+              {/* Modal Crear / Editar Pregunta Examen Rápido */}
+              <AnimatePresence>
+                {isExamCreateOpen && (
+                  <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.65)',
+                    backdropFilter: 'blur(8px)',
+                    zIndex: 9999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px'
+                  }}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="ios-glass-card"
+                      style={{ width: '100%', maxWidth: '500px', padding: '28px', borderRadius: '26px' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                          {editingExamId ? '✏️ Editar Pregunta Examen' : '✨ Crear Pregunta para Examen Rápido'}
+                        </h3>
+                        <button onClick={() => setIsExamCreateOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                          <X size={20} />
+                        </button>
+                      </div>
+
+                      <form onSubmit={handleSaveExamQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                            Pregunta o Enunciado:
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={newExamQuestion.q}
+                            onChange={(e) => setNewExamQuestion(prev => ({ ...prev, q: e.target.value }))}
+                            placeholder="Ej. ¿En qué año se firmó la Independencia del Perú?"
+                            style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(120,120,128,0.06)', color: 'var(--text-main)', fontSize: '0.88rem', boxSizing: 'border-box' }}
+                            required
+                          />
+                        </div>
+
+                        {['A (Correcta)', 'B', 'C', 'D'].map((lbl, idx) => (
+                          <div key={idx}>
+                            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: idx === 0 ? '#10B981' : 'var(--text-secondary)', marginBottom: '4px' }}>
+                              Opción {lbl}:
+                            </label>
+                            <input
+                              type="text"
+                              value={newExamQuestion[`opt${idx}`]}
+                              onChange={(e) => setNewExamQuestion(prev => ({ ...prev, [`opt${idx}`]: e.target.value }))}
+                              placeholder={`Texto de la opción ${lbl}`}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(120,120,128,0.06)', color: 'var(--text-main)', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                              required={idx < 2}
+                            />
+                          </div>
+                        ))}
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                            Indica cuál es la Opción Correcta:
+                          </label>
+                          <select
+                            value={newExamQuestion.answer}
+                            onChange={(e) => setNewExamQuestion(prev => ({ ...prev, answer: e.target.value }))}
+                            style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', fontSize: '0.88rem', fontWeight: 700 }}
+                          >
+                            <option value={0}>Opción A ({newExamQuestion.opt0 || 'A'})</option>
+                            <option value={1}>Opción B ({newExamQuestion.opt1 || 'B'})</option>
+                            <option value={2}>Opción C ({newExamQuestion.opt2 || 'C'})</option>
+                            <option value={3}>Opción D ({newExamQuestion.opt3 || 'D'})</option>
+                          </select>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          <button
+                            type="button"
+                            onClick={() => setIsExamCreateOpen(false)}
+                            style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={creating}
+                            style={{ flex: 2, padding: '12px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)', color: '#fff', fontWeight: 800, cursor: creating ? 'wait' : 'pointer' }}
+                          >
+                            {creating ? 'Guardando...' : (editingExamId ? 'Actualizar Pregunta' : 'Publicar Pregunta')}
+                          </button>
+                        </div>
+                      </form>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
 
