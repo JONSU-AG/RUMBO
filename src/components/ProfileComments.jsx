@@ -384,6 +384,11 @@ const PostItemCard = ({
           <h4 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)' }}>
             {item.title}
           </h4>
+          {item.author && item.author !== (item.uploadedBy?.name || item.authorName) && (
+            <div style={{ fontSize: '0.82rem', color: 'var(--accent-color)', fontWeight: 700, marginBottom: '6px' }}>
+              ✍️ Autor Original / Crédito: <strong>{item.author}</strong>
+            </div>
+          )}
           {item.desc && (
             <p style={{ margin: '0 0 10px', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
               {item.desc}
