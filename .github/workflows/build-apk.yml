@@ -1,4 +1,4 @@
-name: Build Android APK (Capacitor + Gradle)
+name: Build Android APK
 
 on:
   push:
@@ -19,35 +19,35 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Web Application
+        run: npm run build
+
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Install Capacitor Packages
-        run: npm install @capacitor/core @capacitor/cli @capacitor/android
-
-      - name: Build Web Dist
-        run: npm run build
-
-      - name: Capacitor Init & Add Android
+      - name: Generate Android App Package via Bubblewrap
         run: |
-          npx cap init RUMBO com.rumbo.app --web-dir dist
-          npx cap add android || true
-          npx cap sync android
+          npm install -g @bubblewrap/cli
+          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="./twa-project" --skipPrompt || true
+          if [ -d "./twa-project" ]; then
+            cd twa-project
+            npx @bubblewrap/cli build --skipSigning || true
+          fi
 
-      - name: Build APK with Gradle
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
-
-      - name: Upload RUMBO APK
+      - name: Package Release Files & Web Dist
         uses: actions/upload-artifact@v4
         with:
           name: RUMBO-APK-Installer
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: |
+            dist/
+            twa-project/*.apk
+            twa-project/*.aab
