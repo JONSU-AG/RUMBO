@@ -1918,7 +1918,7 @@ export const UserProfile = () => {
                                 gap: '6px'
                               }}>
                                 {isExpanded ? <EyeOff size={15} /> : <Eye size={15} />}
-                                {isExpanded ? '✕ Ocultar Vista Previa' : '👁️ Ver Vista Previa Interactiva'}
+                                {isExpanded ? '✕ Ocultar Vista Previa' : 'Ver Vista Previa Interactiva'}
                               </span>
                             </div>
                           </div>

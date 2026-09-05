@@ -332,7 +332,17 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                             <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)', margin: '2px 0' }}>
                               {n.title || 'Aviso Oficial RUMBO'}
                             </div>
-                            <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div style={{
+                              fontSize: '0.84rem',
+                              color: 'var(--text-main)',
+                              lineHeight: 1.45,
+                              whiteSpace: (n.message && n.message.length <= 140) ? 'pre-wrap' : 'normal',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              display: (n.message && n.message.length > 140) ? '-webkit-box' : 'block',
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: 'vertical'
+                            }}>
                               {n.message}
                             </div>
                           </>
@@ -351,7 +361,15 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                           </span>
 
                           <span style={{ fontSize: '0.76rem', fontWeight: 700, color: isBroadcast ? '#A855F7' : 'var(--accent-color)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                            {isBroadcast ? '👁️ Leer Aviso' : 'Ver en Perfil'} <ExternalLink size={12} />
+                            {isBroadcast ? (
+                              (n.message && n.message.length > 140) ? (
+                                <><Eye size={13} /> Ver más</>
+                              ) : (
+                                <><Eye size={13} /> Leer Aviso</>
+                              )
+                            ) : (
+                              <>Ver en Perfil <ExternalLink size={12} /></>
+                            )}
                           </span>
                         </div>
                       </div>

@@ -1197,7 +1197,8 @@ export const Home = () => {
                   fontSize: '0.78rem',
                   fontWeight: 800
                 }}>
-                  <span>👁️ Vista Previa en Vivo · Solo tú puedes ver y editar tu tarjeta</span>
+                  <Eye size={14} />
+                  <span>Vista Previa en Vivo · Solo tú puedes ver y editar tu tarjeta</span>
                 </div>
 
                 {/* Tarjeta Renderizada en Vivo */}

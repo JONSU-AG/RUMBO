@@ -501,7 +501,7 @@ export const Biblioteca = () => {
                               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                               backdropFilter: 'blur(8px)'
                             }}>
-                              {isPreviewOpen ? '✕ Cerrar Vista Previa' : '👁️ Vista Previa Interactiva'}
+                              {isPreviewOpen ? '✕ Cerrar Vista Previa' : 'Ver Vista Previa Interactiva'}
                             </span>
                           </div>
                         </div>
@@ -696,7 +696,7 @@ export const Biblioteca = () => {
                               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                               backdropFilter: 'blur(8px)'
                             }}>
-                              {isPreviewOpen ? '✕ Cerrar Vista Previa' : '👁️ Vista Previa Interactiva'}
+                              {isPreviewOpen ? '✕ Cerrar Vista Previa' : 'Ver Vista Previa Interactiva'}
                             </span>
                           </div>
                         </div>
