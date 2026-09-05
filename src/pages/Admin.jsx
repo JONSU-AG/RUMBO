@@ -1917,31 +1917,67 @@ export const Admin = () => {
 
       {/* Ally Add / Edit Modal */}
       {allyModal.isOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '16px'
-        }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '520px', padding: '28px', borderRadius: '28px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)' }}>
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setAllyModal(prev => ({ ...prev, isOpen: false }));
+            }
+          }}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px'
+          }}
+        >
+          <div 
+            className="glass-card" 
+            style={{ 
+              width: '100%', 
+              maxWidth: '520px', 
+              padding: '24px', 
+              borderRadius: '28px', 
+              maxHeight: '85vh', 
+              display: 'flex',
+              flexDirection: 'column',
+              boxSizing: 'border-box',
+              background: 'var(--card-bg)',
+              border: '1.5px solid var(--card-border)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexShrink: 0 }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
                 {allyModal.isEdit ? '✏️ Editar Tarjeta de Aliado' : '➕ Crear Tarjeta de Aliado'}
               </h3>
               <button
+                type="button"
                 onClick={() => setAllyModal(prev => ({ ...prev, isOpen: false }))}
-                style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                style={{ 
+                  background: 'rgba(120,120,128,0.15)', 
+                  border: 'none', 
+                  borderRadius: '50%', 
+                  width: '32px', 
+                  height: '32px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: 'var(--text-main)', 
+                  cursor: 'pointer' 
+                }}
               >
-                <X size={22} />
+                <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveAllyModal} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSaveAllyModal} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflowY: 'auto', paddingRight: '4px', gap: '14px' }}>
               <div>
                 <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
                   Nombre del Aliado / Canal *
@@ -1952,7 +1988,7 @@ export const Admin = () => {
                   placeholder="Ej: Profe Pedro UNSA"
                   value={allyModal.form.name}
                   onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, name: e.target.value } })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -1965,7 +2001,7 @@ export const Admin = () => {
                   placeholder="Ej: Docente de Matemática & Física"
                   value={allyModal.form.role}
                   onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, role: e.target.value } })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -1978,7 +2014,7 @@ export const Admin = () => {
                   placeholder="Ej: ⭐ Aliado Comunitario"
                   value={allyModal.form.badge}
                   onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, badge: e.target.value } })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -1991,7 +2027,7 @@ export const Admin = () => {
                   placeholder="Ej: Razonamiento Matemático, Física Pre"
                   value={allyModal.form.specialty}
                   onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, specialty: e.target.value } })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -2004,7 +2040,7 @@ export const Admin = () => {
                   placeholder="Ej: Brindo resúmenes y simulacros tipo UNSA..."
                   value={allyModal.form.desc}
                   onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, desc: e.target.value } })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -2017,7 +2053,7 @@ export const Admin = () => {
                   placeholder="https://whatsapp.com/channel/..."
                   value={allyModal.form.whatsappChannel}
                   onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, whatsappChannel: e.target.value } })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -2030,7 +2066,7 @@ export const Admin = () => {
                   placeholder="https://tiktok.com/@..."
                   value={allyModal.form.tiktokUrl}
                   onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, tiktokUrl: e.target.value } })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -2044,7 +2080,7 @@ export const Admin = () => {
                     placeholder="./assets/LOGOR.png o pega una URL https://..."
                     value={allyModal.form.avatar}
                     onChange={(e) => setAllyModal({ ...allyModal, form: { ...allyModal.form, avatar: e.target.value } })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-main)', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'var(--bg-main)', color: 'var(--text-main)', boxSizing: 'border-box' }}
                   />
 
                   {/* File upload button */}
@@ -2089,7 +2125,8 @@ export const Admin = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              {/* Sticky Footer Buttons inside form */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--card-border)', flexShrink: 0 }}>
                 <button
                   type="submit"
                   style={{
@@ -2101,7 +2138,8 @@ export const Admin = () => {
                     color: '#FFF',
                     fontWeight: 800,
                     fontSize: '0.9rem',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(0,122,255,0.3)'
                   }}
                 >
                   {allyModal.isEdit ? 'Guardar Cambios' : 'Agregar al Carrusel'}
