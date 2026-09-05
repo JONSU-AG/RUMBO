@@ -26,8 +26,13 @@ export const LiquidNavbar = () => {
     const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     setIsStandalone(Boolean(isStandaloneMode));
 
+    if (window.deferredPWAEvent) {
+      setDeferredPrompt(window.deferredPWAEvent);
+    }
+
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
+      window.deferredPWAEvent = e;
       setDeferredPrompt(e);
     };
 
@@ -37,21 +42,26 @@ export const LiquidNavbar = () => {
 
   const handleInstallPWA = async () => {
     setIsMenuOpen(false);
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setIsStandalone(true);
+    const activePrompt = deferredPrompt || window.deferredPWAEvent;
+
+    if (activePrompt) {
+      try {
+        activePrompt.prompt();
+        const choice = await activePrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          setIsStandalone(true);
+        }
+      } catch (err) {
+        console.warn("PWA prompt error:", err);
       }
       setDeferredPrompt(null);
+      window.deferredPWAEvent = null;
     } else if (isStandalone) {
       alert('✅ Ya estás disfrutando de RUMBO como aplicación instalada.');
     } else {
       alert(
-        '📱 Para instalar RUMBO de forma universal en tu celular o PC:\n\n' +
-        '1. En tu navegador (Chrome / Edge / Safari), toca el menú de los 3 puntos superiores.\n' +
-        '2. Selecciona "Agregar a la pantalla principal" o "Instalar aplicación".\n' +
-        '3. ¡Listo! Se creará un acceso directo nativo e independiente.'
+        '📱 Tu navegador aún está cargando la opción de instalación o requiere un paso del sistema.\n\n' +
+        'Si no salta el cartel automáticamente, abre el menú de los 3 puntos de tu navegador (Chrome / Edge) y selecciona "Agregar a la pantalla principal" o "Instalar aplicación".'
       );
     }
   };
