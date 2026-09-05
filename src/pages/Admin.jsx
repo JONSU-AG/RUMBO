@@ -609,16 +609,16 @@ export const Admin = () => {
   };
 
   // Filtered lists
-  const reportadosList = uploads.filter(u => (u.reportsCount > 0 || u.enRevision) && !u.oculto && (u.reportsCount || 0) < 3);
-  const pendientesList = uploads.filter(u => (u.enRevision || u.reportsCount === 1) && !u.oculto && (u.reportsCount || 0) < 3);
-  const aprobadosList = uploads.filter(u => !u.oculto && !u.hidden && (u.reportsCount || 0) < 3);
+  const reportadosList = uploads.filter(u => (u.reportsCount > 0 || u.enRevision) && !u.oculto && !u.hidden && (u.reportsCount || 0) < 3);
+  const pendientesList = uploads.filter(u => (u.enRevision || u.status === 'pendiente' || u.reportsCount === 1) && !u.oculto && !u.hidden && (u.reportsCount || 0) < 3);
+  const aprobadosList = uploads.filter(u => !u.oculto && !u.hidden && !u.enRevision && (u.reportsCount || 0) < 3);
 
   // Triple reports (3+ reports or auto-hidden across community content)
-  const triplesUploads = uploads.filter(u => u.oculto || u.hidden || u.autoHidden || u.tripleReported || (u.reportsCount || 0) >= 3).map(u => ({ ...u, _collection: 'uploads', _typeLabel: '📚 Material de Biblioteca' }));
-  const triplesClassComments = classComments.filter(c => c.oculto || c.hidden || c.autoHidden || c.tripleReported || (c.reportsCount || 0) >= 3);
-  const triplesProfileComments = profileComments.filter(c => c.oculto || c.hidden || c.autoHidden || c.tripleReported || (c.reportsCount || 0) >= 3);
-  const triplesForo = foroPosts.filter(f => f.oculto || f.hidden || f.autoHidden || f.tripleReported || (f.reportsCount || 0) >= 3);
-  const triplesUsers = usersList.filter(u => u.oculto || u.hidden || u.autoHidden || u.tripleReported || (u.reportsCount || 0) >= 3).map(u => ({ ...u, _collection: 'usuarios', _typeLabel: '👤 Perfil de Usuario' }));
+  const triplesUploads = uploads.filter(u => Boolean(u.oculto || u.hidden || u.autoHidden || u.tripleReported || (u.reportsCount && u.reportsCount >= 3))).map(u => ({ ...u, _collection: 'uploads', _typeLabel: '📚 Material de Biblioteca' }));
+  const triplesClassComments = classComments.filter(c => Boolean(c.oculto || c.hidden || c.autoHidden || c.tripleReported || (c.reportsCount && c.reportsCount >= 3)));
+  const triplesProfileComments = profileComments.filter(c => Boolean(c.oculto || c.hidden || c.autoHidden || c.tripleReported || (c.reportsCount && c.reportsCount >= 3)));
+  const triplesForo = foroPosts.filter(f => Boolean(f.oculto || f.hidden || f.autoHidden || f.tripleReported || (f.reportsCount && f.reportsCount >= 3)));
+  const triplesUsers = usersList.filter(u => Boolean(u.oculto || u.hidden || u.autoHidden || u.tripleReported || (u.reportsCount && u.reportsCount >= 3))).map(u => ({ ...u, _collection: 'usuarios', _typeLabel: '👤 Perfil de Usuario' }));
 
   const triplesList = [...triplesUploads, ...triplesClassComments, ...triplesProfileComments, ...triplesForo, ...triplesUsers];
 
