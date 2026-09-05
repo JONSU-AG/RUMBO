@@ -30,7 +30,8 @@ import {
   ShieldAlert,
   Check,
   Copy,
-  Code
+  Code,
+  Download
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { uploadFileReliable, getDirectImageUrl } from '../lib/storageHelper';
@@ -2609,6 +2610,416 @@ export const Admin = () => {
                   title="Copiar Script Extractor Briceño 2027 para ejecutarlo en la consola de la web"
                 >
                   <Code size={15} /> Copiar Extractor de Videos ⚡
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const downloaderScriptCode = `(async () => {
+  "use strict";
+
+  // ============================================================
+  // 🚀 DESCARGADOR BRICEÑO 2027
+  // ============================================================
+
+  console.clear();
+
+  const esperar = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const RAIZ = "BRICENO_RECURSOS/";
+  const CATEGORIAS = ["CIENCIAS ONLINE MAÑANA", "SEMINARIOS DE CIENCIAS"];
+  const ZIP_NOMBRE_BASE = "BRICENO_RECURSOS";
+
+  console.log("📦 Comprobando JSZip...");
+  if (!window.JSZip) {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+  console.log("✅ JSZip listo.");
+
+  function normalizar(texto) {
+    return String(texto || "").replace(/\\s+/g, " ").trim();
+  }
+
+  function limpiarNombre(nombre) {
+    return normalizar(nombre).replace(/[<>:"/\\\\|?*\\x00-\\x1F]/g, "_").replace(/\\.+$/g, "").trim();
+  }
+
+  function obtenerNumeroSemana(texto) {
+    const t = normalizar(texto);
+    let match = t.match(/\\bSEMANA\\s*0*(\\d{1,3})\\b/i);
+    if (match) return Number(match[1]);
+    match = t.match(/\\bS\\s*0*(\\d{1,3})\\b/i);
+    if (match) return Number(match[1]);
+    return null;
+  }
+
+  function nombreSemana(numero) {
+    return \`SEMANA \${String(numero).padStart(2, "0")}\`;
+  }
+
+  function buscarSelectorCursos() {
+    const directo = document.querySelector("#gm-curso-select-51");
+    if (directo) return directo;
+    const selects = [...document.querySelectorAll("select")];
+    const candidatos = selects.filter(select => {
+      const opciones = [...select.options].filter(option => option.value && normalizar(option.text));
+      return opciones.length > 0;
+    });
+    if (!candidatos.length) return null;
+    return candidatos.sort((a, b) => b.options.length - a.options.length)[0];
+  }
+
+  function obtenerCursos() {
+    const select = buscarSelectorCursos();
+    if (!select) return [];
+    return [...select.options]
+      .filter(option => option.value && normalizar(option.text))
+      .map(option => ({ value: option.value, nombre: normalizar(option.text) }))
+      .filter((curso, index, array) => index === array.findIndex(x => x.value === curso.value));
+  }
+
+  function buscarCategoria(nombre) {
+    const objetivo = normalizar(nombre).toUpperCase();
+    const elementos = [...document.querySelectorAll("button, a, [role='tab'], [role='button']")];
+    return elementos.find(elemento => {
+      const texto = normalizar(elemento.innerText || elemento.textContent).toUpperCase();
+      return texto === objetivo;
+    });
+  }
+
+  async function cambiarCategoria(nombre) {
+    console.log(\`\\n================================\\n📂 CATEGORÍA: \${nombre}\\n================================\`);
+    const boton = buscarCategoria(nombre);
+    if (!boton) {
+      console.warn(\`❌ No encontré la categoría: \${nombre}\`);
+      return false;
+    }
+    try { boton.click(); } catch (error) { return false; }
+    await esperar(2000);
+    return true;
+  }
+
+  function obtenerBotonesSemanas() {
+    const elementos = [...document.querySelectorAll("button, a, [role='tab'], [role='button']")];
+    const encontrados = [];
+    for (const elemento of elementos) {
+      const texto = normalizar(elemento.innerText || elemento.textContent);
+      const numero = obtenerNumeroSemana(texto);
+      if (numero === null) continue;
+      if (encontrados.some(x => x.numero === numero)) continue;
+      encontrados.push({ numero, nombre: texto || nombreSemana(numero), elemento });
+    }
+    encontrados.sort((a, b) => a.numero - b.numero);
+    return encontrados;
+  }
+
+  async function cambiarSemana(numero) {
+    const botones = obtenerBotonesSemanas();
+    const boton = botones.find(x => x.numero === numero);
+    if (!boton) {
+      console.warn(\`⚠️ No encontré \${nombreSemana(numero)}\`);
+      return null;
+    }
+    console.log(\`📅 Seleccionando \${nombreSemana(numero)}\`);
+    const antes = document.querySelector("tbody")?.innerText || "";
+    try { boton.elemento.click(); } catch (error) { return null; }
+    for (let intento = 0; intento < 30; intento++) {
+      await esperar(500);
+      const despues = document.querySelector("tbody")?.innerText || "";
+      if (despues && despues !== antes) {
+        await esperar(1200);
+        console.log(\`✅ \${nombreSemana(numero)} cargada\`);
+        return { numero, nombre: nombreSemana(numero) };
+      }
+    }
+    await esperar(1500);
+    return { numero, nombre: nombreSemana(numero) };
+  }
+
+  async function cambiarCurso(curso) {
+    const select = buscarSelectorCursos();
+    if (!select) return false;
+    console.log(\`📚 Cambiando curso → \${curso.nombre}\`);
+    const antes = document.querySelector("tbody")?.innerText || "";
+    select.value = curso.value;
+    select.dispatchEvent(new Event("input", { bubbles: true }));
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    for (let intento = 0; intento < 30; intento++) {
+      await esperar(500);
+      const despues = document.querySelector("tbody")?.innerText || "";
+      if (despues && despues !== antes) {
+        await esperar(1000);
+        console.log(\`✅ Curso cargado → \${curso.nombre}\`);
+        return true;
+      }
+    }
+    await esperar(1800);
+    return true;
+  }
+
+  function obtenerArchivos() {
+    const encontrados = [];
+    document.querySelectorAll("tr").forEach(fila => {
+      const texto = normalizar(fila.innerText);
+      if (!texto || !/\\bArchivo\\b/i.test(texto)) return;
+      const boton = [...fila.querySelectorAll("[wire\\\\:click]")].find(elemento => {
+        const accion = elemento.getAttribute("wire:click") || "";
+        return /abrirVisorArchivo\\s*\\(\\s*\\d+\\s*\\)/i.test(accion);
+      });
+      if (!boton) return;
+      const accion = boton.getAttribute("wire:click");
+      const id = accion?.match(/abrirVisorArchivo\\s*\\(\\s*(\\d+)\\s*\\)/i)?.[1];
+      if (!id) return;
+      let titulo = texto.replace(/^\\d+\\s*/, "").replace(/\\bArchivo\\b/gi, "").replace(/\\bVer\\b/gi, "").replace(/\\s+/g, " ").trim();
+      encontrados.push({ id, titulo });
+    });
+    const unicos = [];
+    const ids = new Set();
+    for (const archivo of encontrados) {
+      if (ids.has(archivo.id)) continue;
+      ids.add(archivo.id);
+      unicos.push(archivo);
+    }
+    return unicos;
+  }
+
+  function cerrarVisor() {
+    const selectores = ["[data-bs-dismiss='modal']", ".modal .btn-close", ".modal button.close", "[data-dismiss='modal']"];
+    for (const selector of selectores) {
+      const boton = document.querySelector(selector);
+      if (boton) {
+        try { boton.click(); } catch {}
+        return;
+      }
+    }
+    try {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", keyCode: 27, which: 27, bubbles: true }));
+    } catch {}
+  }
+
+  async function obtenerURL(archivo, curso) {
+    console.log(\`📂 \${curso.nombre} → \${archivo.titulo}\`);
+    const boton = [...document.querySelectorAll("[wire\\\\:click]")].find(elemento =>
+      elemento.getAttribute("wire:click") === \`abrirVisorArchivo(\${archivo.id})\`
+    );
+    if (!boton) return null;
+    try { boton.click(); } catch (error) { return null; }
+    for (let intento = 0; intento < 30; intento++) {
+      await esperar(500);
+      const enlaces = [...document.querySelectorAll("a[href]")];
+      const descargar = enlaces.find(a => /DESCARGAR/i.test(normalizar(a.innerText || a.textContent)));
+      if (descargar && descargar.href) return new URL(descargar.href, location.href).href;
+      const candidatos = [...document.querySelectorAll("a[href], button, [role='button']")];
+      for (const elemento of candidatos) {
+        const texto = normalizar(elemento.innerText || elemento.textContent);
+        const href = elemento.href || elemento.getAttribute("href");
+        const atributos = [texto, elemento.getAttribute("title") || "", elemento.getAttribute("aria-label") || "", elemento.getAttribute("download") || "", href || ""].join(" ");
+        if (/DESCARGAR|DOWNLOAD|BAJAR/i.test(atributos) && href) return new URL(href, location.href).href;
+      }
+      const iframes = [...document.querySelectorAll("iframe[src]")];
+      for (const iframe of iframes) {
+        if (iframe.src && /pdf|download|archivo|visor/i.test(iframe.src)) return new URL(iframe.src, location.href).href;
+      }
+      const elementos = [...document.querySelectorAll("embed[src], object[data]")];
+      for (const elemento of elementos) {
+        const src = elemento.getAttribute("src") || elemento.getAttribute("data");
+        if (src && /pdf|download|archivo|visor/i.test(src)) return new URL(src, location.href).href;
+      }
+    }
+    return null;
+  }
+
+  function extraerFecha(texto) {
+    if (!texto) return null;
+    let match = texto.match(/\\b(20\\d{2})[-/](\\d{1,2})[-/](\\d{1,2})\\b/);
+    if (match) return { texto: \`\${match[3].padStart(2, "0")}-\${match[2].padStart(2, "0")}-\${match[1]}\`, orden: \`\${match[1]}-\${match[2].padStart(2, "0")}-\${match[3].padStart(2, "0")}\` };
+    match = texto.match(/\\b(\\d{1,2})[-/](\\d{1,2})[-/](20\\d{2})\\b/);
+    if (match) return { texto: \`\${match[1].padStart(2, "0")}-\${match[2].padStart(2, "0")}-\${match[3]}\`, orden: \`\${match[3]}-\${match[2].padStart(2, "0")}-\${match[1].padStart(2, "0")}\` };
+    match = texto.match(/\\b(\\d{1,2})[-/](\\d{1,2})\\b/);
+    if (match) {
+      const dia = match[1].padStart(2, "0");
+      const mes = match[2].padStart(2, "0");
+      const año = new Date().getFullYear();
+      return { texto: \`\${dia}-\${mes}\`, orden: \`\${año}-\${mes}-\${dia}\` };
+    }
+    return null;
+  }
+
+  function extensionDesdeURL(url) {
+    try {
+      const pathname = new URL(url).pathname.toLowerCase();
+      const match = pathname.match(/\\.([a-z0-9]{2,8})$/);
+      if (match) return "." + match[1];
+    } catch {}
+    return ".archivo";
+  }
+
+  async function descargarContenido(url) {
+    const respuesta = await fetch(url, { credentials: "include" });
+    if (!respuesta.ok) throw new Error(\`HTTP \${respuesta.status}\`);
+    return await respuesta.blob();
+  }
+
+  const archivosZIP = [];
+  const urlsDescargadas = new Set();
+
+  async function procesarArchivo(archivo, curso, categoria, semanaNumero, semanaNombre, cursoNumero) {
+    const url = await obtenerURL(archivo, curso);
+    if (!url) { cerrarVisor(); await esperar(700); return; }
+    if (urlsDescargadas.has(url)) { cerrarVisor(); await esperar(500); return; }
+    urlsDescargadas.add(url);
+    const fecha = extraerFecha(archivo.titulo);
+    const fechaTexto = fecha ? fecha.texto : "SIN FECHA";
+    const fechaOrden = fecha ? fecha.orden : "9999-99-99";
+    const extension = extensionDesdeURL(url);
+    let nombre = limpiarNombre(archivo.titulo).replace(/\\.[a-z0-9]{2,8}$/i, "");
+    const nombreFinal = \`\${fechaTexto} - \${nombre}\${extension}\`;
+    const carpetaSemana = limpiarNombre(semanaNombre);
+    const carpetaCategoria = limpiarNombre(categoria);
+    const carpetaCurso = \`\${String(cursoNumero).padStart(2, "0")} \${limpiarNombre(curso.nombre)}\`;
+    const ruta = \`\${RAIZ}\${carpetaSemana}/\${carpetaCategoria}/\${carpetaCurso}/\${nombreFinal}\`;
+
+    try {
+      const blob = await descargarContenido(url);
+      archivosZIP.push({ semanaNumero, semanaNombre, categoria, curso: curso.nombre, cursoNumero, titulo: archivo.titulo, fecha: fechaOrden, url, ruta, blob });
+      console.log(\`✅ PREPARADO: \${ruta}\`);
+    } catch (error) { console.error(error); }
+    cerrarVisor();
+    await esperar(1000);
+  }
+
+  async function procesarCurso(curso, categoria, semanaSolicitada, cursoNumero, totalCursos) {
+    await cambiarCurso(curso);
+    await esperar(1200);
+    const botonesSemanas = obtenerBotonesSemanas();
+
+    if (botonesSemanas.length === 0) {
+      const semanaSinBoton = categoria === "SEMINARIOS DE CIENCIAS" ? 1 : 0;
+      if (semanaSolicitada !== null && semanaSolicitada !== semanaSinBoton) return;
+      const semanaNombre = nombreSemana(semanaSinBoton);
+      const archivos = obtenerArchivos();
+      for (const archivo of archivos) {
+        await procesarArchivo(archivo, curso, categoria, semanaSinBoton, semanaNombre, cursoNumero);
+        await esperar(600);
+      }
+      return;
+    }
+
+    let semanasProcesar = [];
+    if (semanaSolicitada === null) {
+      semanasProcesar = botonesSemanas.map(x => x.numero).sort((a, b) => a - b);
+    } else {
+      if (botonesSemanas.some(x => x.numero === semanaSolicitada)) {
+        semanasProcesar = [semanaSolicitada];
+      } else { return; }
+    }
+
+    for (const numeroSemana of semanasProcesar) {
+      const semana = await cambiarSemana(numeroSemana);
+      if (!semana) continue;
+      await esperar(1200);
+      const archivos = obtenerArchivos();
+      if (!archivos.length) continue;
+      for (const archivo of archivos) {
+        await procesarArchivo(archivo, curso, categoria, numeroSemana, semana.nombre, cursoNumero);
+        await esperar(600);
+      }
+    }
+  }
+
+  async function procesarCategoria(categoria, semanaSolicitada) {
+    const correcta = await cambiarCategoria(categoria);
+    if (!correcta) return;
+    await esperar(1800);
+    const cursos = obtenerCursos();
+    if (!cursos.length) return;
+    for (let i = 0; i < cursos.length; i++) {
+      await procesarCurso(cursos[i], categoria, semanaSolicitada, i + 1, cursos.length);
+      await esperar(1000);
+    }
+  }
+
+  function crearIndice() {
+    let indice = "BRICEÑO 2027 - ÍNDICE DE RECURSOS\\n============================================================\\n\\n";
+    let semanaActual = "", categoriaActual = "", cursoActual = "";
+    for (const archivo of archivosZIP) {
+      if (archivo.semanaNombre !== semanaActual) {
+        semanaActual = archivo.semanaNombre; categoriaActual = ""; cursoActual = "";
+        indice += \`\\n\\n===== \${semanaActual} =====\\n\\n\`;
+      }
+      if (archivo.categoria !== categoriaActual) {
+        categoriaActual = archivo.categoria; cursoActual = "";
+        indice += \`\\n--- \${categoriaActual} ---\\n\\n\`;
+      }
+      if (archivo.curso !== cursoActual) {
+        cursoActual = archivo.curso;
+        indice += \`\\n[\${archivo.curso}]\\n\`;
+      }
+      indice += \`\${archivo.titulo} | \${archivo.url}\\n\`;
+    }
+    return indice;
+  }
+
+  async function crearZIP() {
+    console.log("\\n================================\\n📦 CREANDO ZIP...\\n================================");
+    const zip = new JSZip();
+    archivosZIP.sort((a, b) => a.semanaNumero - b.semanaNumero || a.categoria.localeCompare(b.categoria) || a.cursoNumero - b.cursoNumero || a.fecha.localeCompare(b.fecha) || a.titulo.localeCompare(b.titulo));
+    for (const archivo of archivosZIP) { zip.file(archivo.ruta, archivo.blob); }
+    zip.file(\`\${RAIZ}INDICE_RECURSOS.txt\`, crearIndice());
+    return await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } });
+  }
+
+  function descargarZIP(contenidoZIP, nombre) {
+    const url = URL.createObjectURL(contenidoZIP);
+    const enlace = document.createElement("a");
+    enlace.href = url; enlace.download = nombre;
+    document.body.appendChild(enlace); enlace.click(); enlace.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+  }
+
+  async function ejecutar(semanaSolicitada) {
+    console.clear();
+    console.log("================================\\n🚀 DESCARGADOR BRICEÑO 2027\\n================================");
+    for (const categoria of CATEGORIAS) {
+      await procesarCategoria(categoria, semanaSolicitada);
+      await esperar(1500);
+    }
+    if (!archivosZIP.length) return;
+    const contenidoZIP = await crearZIP();
+    let nombreZIP = semanaSolicitada === null ? \`\${ZIP_NOMBRE_BASE}_TODAS_LAS_SEMANAS.zip\` : \`\${ZIP_NOMBRE_BASE}_\${nombreSemana(semanaSolicitada).replace(" ", "_")}.zip\`;
+    descargarZIP(contenidoZIP, nombreZIP);
+  }
+
+  const SEMANA = null;
+  await ejecutar(SEMANA);
+})();`;
+
+                    navigator.clipboard.writeText(downloaderScriptCode);
+                    showNotice("¡Script Copiado!", "El código del Descargador de Archivos ZIP ha sido copiado a tu portapapeles. Solo abre F12 en tu aula virtual Briceño, ve a la Consola, pega el código y presiona Enter.");
+                  }}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '12px',
+                    border: '1.5px solid #A855F7',
+                    background: 'rgba(168, 85, 247, 0.12)',
+                    color: '#A855F7',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 8px rgba(168, 85, 247, 0.15)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  title="Copiar Script Descargador de Archivos ZIP para ejecutarlo en la consola de la web"
+                >
+                  <Download size={15} /> Copiar Descargador de Archivos ZIP 📦
                 </button>
 
                 <a
