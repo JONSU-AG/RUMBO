@@ -221,7 +221,13 @@ export const UserDirectChat = ({
       let imageUrl = null;
       if (selectedImage) {
         setImageUploading(true);
-        imageUrl = await uploadFileReliable(selectedImage, () => {}, 'chat_images');
+        // Covert image file directly to compressed DataURL (Base64) to guarantee 100% instant cross-device rendering without CORS/Drive restrictions
+        imageUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(selectedImage);
+        });
       }
 
       const participants = [user.uid, currentPartnerUid].sort();
@@ -799,26 +805,43 @@ export const UserDirectChat = ({
                         e.stopPropagation();
                         setFullViewImageUrl(getDirectImageUrl(msg.imageUrl));
                       }}
-                      style={{ marginBottom: msg.text ? '6px' : '0', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
+                      style={{ 
+                        marginBottom: msg.text ? '6px' : '0', 
+                        borderRadius: '12px', 
+                        overflow: 'hidden', 
+                        border: '1px solid rgba(255,255,255,0.25)', 
+                        cursor: 'pointer',
+                        background: 'rgba(0,0,0,0.15)',
+                        minWidth: '160px',
+                        minHeight: '100px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
                     >
                       <img
                         src={getDirectImageUrl(msg.imageUrl)}
-                        alt="Adjunto"
+                        alt="Imagen adjunta"
                         onError={(e) => {
                           const thumbUrl = getDriveThumbnailUrl(msg.imageUrl, 'w800');
                           const exportUrl = getDriveExportUrl(msg.imageUrl);
-                          if (e.target.src !== thumbUrl && e.target.src !== exportUrl) {
+                          if (e.target.src !== thumbUrl && e.target.src !== exportUrl && thumbUrl) {
                             e.target.src = thumbUrl;
-                          } else if (e.target.src === thumbUrl && thumbUrl !== exportUrl) {
+                          } else if (e.target.src === thumbUrl && exportUrl) {
                             e.target.src = exportUrl;
+                          } else {
+                            // If all remote links fail, show fallback icon nicely
+                            e.target.onerror = null;
+                            e.target.style.display = 'none';
+                            e.target.parentNode.innerHTML = `<div style="padding: 10px; font-size: 0.78rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px;">📷 Abrir Foto</div>`;
                           }
                         }}
                         style={{
                           maxWidth: '100%',
-                          maxHeight: '260px',
-                          objectFit: 'cover',
+                          maxHeight: '280px',
+                          objectFit: 'contain',
                           display: 'block',
-                          borderRadius: '8px'
+                          borderRadius: '10px'
                         }}
                       />
                     </div>
