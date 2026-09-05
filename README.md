@@ -1,8 +1,17 @@
 # 🚀 RUMBO - Plataforma Preuniversitaria Gratuita & Colaborativa
 
+[![Descargar RUMBO APK](https://img.shields.io/badge/📱_Descargar_App_Android-APK_Instalable-success?style=for-the-badge&logo=android&logoColor=white)](https://github.com/JONSU-AG/RUMBO/actions/workflows/build-apk.yml)
+[![PWA Web App](https://img.shields.io/badge/🌐_Web_App-Instalable_PWA-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://rumbo.vercel.app)
+
 ![RUMBO Banner](public/assets/LOGOR.png)
 
 > **RUMBO** es una plataforma web moderna, interactiva y de acceso libre diseñada para acompañar y potenciar la preparación académica de postulantes preuniversitarios (UNSA, UNMSM, UNI y más), centralizando materiales de estudio, apuntes comunitarios, simuladores de exámenes y una red de aliados académicos.
+
+---
+
+### 📱 **Descargar Aplicación para Android (APK)**
+- 📲 **[Haz clic aquí para ir directamente a la última APK compilada](https://github.com/JONSU-AG/RUMBO/actions/workflows/build-apk.yml)**
+- ⚡ **Compilación automática:** Cada actualización genera automáticamente un archivo `app-debug.apk` actualizado y listo para instalar en cualquier smartphone.
 
 ---
 
