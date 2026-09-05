@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academia Esparta · RUMBO</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&family=Outfit:wght@500;600;700;800&family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Estilos Modulares RUMBO Web App PWA (3 Archivos) -->
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/components.css">
+  <link rel="stylesheet" href="assets/mobile-app.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="icon" href="assets/LOGOR.png">
+</head>
+<body class="theme-esparta">
+
+  <!-- =====================================================
+       HEADER / NAVBAR UNIFICADA
+  ===================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <div class="logo-box">
+          <img class="logo-mark" src="assets/LOGOR.png" alt="RUMBO">
+        </div>
+        <span class="brand-name">RUMBO</span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="index.html">Inicio</a>
+        <a href="cursos.html" class="active">Cursos</a>
+        <a href="biblioteca.html">Recursos y Comunidad</a>
+        <a href="simulador.html">Simulador</a>
+      </nav>
+
+      <button class="nav-toggle" aria-label="Abrir menú">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- =====================================================
+       CONTENIDO PRINCIPAL
+  ===================================================== -->
+  <main class="container" style="padding-top: 16px;">
+
+    <!-- CABECERA HERO CON LOGO INSTITUCIONAL DE ESPARTA -->
+    <section class="academy-hero esparta-hero">
+      <div class="academy-hero-top">
+        <nav class="breadcrumb" style="margin: 0;">
+          <a href="cursos.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Cursos
+          </a>
+          <span>/</span>
+          <span>Esparta</span>
+        </nav>
+
+        <span class="status-pill in-progress">
+          <span class="pulse-dot"></span>
+          18 Materias completas disponibles
+        </span>
+      </div>
+
+      <div style="margin-bottom: 8px;">
+        <span class="academy-badge esparta">⚔️ Corporación Educativa</span>
+      </div>
+
+      <h1 style="color: #2B388F; font-size: clamp(2rem, 4vw, 2.7rem); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px;">ESPARTA</h1>
+      <p class="sub" style="color: #475569;">Explora las 18 asignaturas completas de preparación preuniversitaria con sus clases en video ordenadas.</p>
+
+      <div class="academy-hero-actions">
+        <a href="biblioteca.html" class="btn-hero-action primary" style="background: linear-gradient(135deg, #2B388F 0%, #ED1C24 100%);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Ver Prácticas y Tomos en Biblioteca
+        </a>
+      </div>
+    </section>
+
+    <!-- FRASE / VERSÍCULO DEL DÍA -->
+    <div class="daily-quote-card" style="margin: 0 auto 20px; max-width: 960px;">
+      <div class="quote-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+      <div class="quote-body">
+        <span class="quote-kicker">💬 Mensaje del día</span>
+        <span class="quote-text">«Los pensamientos del diligente ciertamente tienden a la abundancia; mas todo el que se apresura alocadamente, de cierto va a la pobreza.» — Proverbios 21:5</span>
+      </div>
+    </div>
+
+    <!-- BOTÓN SIMPLIFICADO WHATSAPP -->
+    <div class="academy-whatsapp-simple-wrap">
+      <a href="https://whatsapp.com/channel/0029VbDFAEu7YScyVZBNul0X" target="_blank" rel="noopener noreferrer" class="btn-academy-whatsapp" aria-label="Canal oficial de WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.52 3.48A11.82 11.82 0 0 0 12.08 0C5.55 0 .24 5.31.24 11.84c0 2.09.55 4.13 1.6 5.93L.13 24l6.37-1.67a11.84 11.84 0 0 0 5.58 1.42h.01c6.53 0 11.84-5.31 11.84-11.84 0-3.17-1.23-6.15-3.41-8.43ZM12.09 21.7c-1.75 0-3.46-.47-4.96-1.36l-.36-.21-3.78.99 1.01-3.68-.23-.38a9.82 9.82 0 0 1-1.51-5.22c0-5.43 4.42-9.85 9.85-9.85 2.63 0 5.1 1.03 6.96 2.89a9.78 9.78 0 0 1 2.89 6.96c0 5.43-4.42 9.85-9.85 9.85Zm5.4-7.38c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.21 5.09 4.5.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/>
+        </svg>
+        <span>Canal de WhatsApp ↗</span>
+      </a>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA INTEGRADA -->
+    <div class="academy-search-wrap">
+      <div class="academy-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="esparta-search" placeholder="Buscar materia, tema o clase en Esparta...">
+      </div>
+      <div class="search-result-count" id="esparta-count">Cargando 18 materias...</div>
+    </div>
+
+    <!-- LISTA MAESTRA DE ASIGNATURAS Y CLASES -->
+    <section class="academy-accordion-list" id="esparta-list">
+      <!-- Generado dinámicamente con SVGs -->
+    </section>
+
+  </main>
+
+  <!-- =====================================================
+       BOTTOM NAV MÓVIL
+  ===================================================== -->
+  <nav class="bottom-nav" style="grid-template-columns: repeat(4, 1fr);">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 11l9-8 9 8"/>
+        <path d="M5 10v10h14V10"/>
+      </svg>
+      Inicio
+    </a>
+    <a href="cursos.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Cursos
+    </a>
+    <a href="biblioteca.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+          Recursos y Comunidad
+    </a>
+    <a href="simulador.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <path d="M8 16v-3"/>
+        <path d="M12 16V8"/>
+        <path d="M16 16v-5"/>
+      </svg>
+      Simulador
+    </a>
+  </nav>
+
+  <!-- SCRIPTS -->
+  <script src="assets/users.js"></script>
+  <script src="assets/frases.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+
+  <script>
+    const SUBJECT_ICONS = {
+      "literatura": { bg: "#FFF1F2", color: "#F43F5E", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` },
+      "biologia": { bg: "#ECFDF5", color: "#10B981", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M7 7a5 5 0 0 1 10 0M7 17a5 5 0 0 0 10 0"/><circle cx="12" cy="12" r="3"/></svg>` },
+      "anatomia": { bg: "#FEF2F2", color: "#ED1C24", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>` },
+      "quimica": { bg: "#F5F3FF", color: "#8B5CF6", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.15 19.3A2 2 0 0 0 5.86 22h12.28a2 2 0 0 0 1.71-2.7L14 9.31V2h-4Z"/><path d="M8.5 2h7M7 16h10"/></svg>` },
+      "fisica": { bg: "#FFFBEB", color: "#D97706", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>` },
+      "matematica-1": { bg: "#EEF2FF", color: "#2B388F", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="12" y1="5" x2="12" y2="19"/><circle cx="12" cy="12" r="10"/></svg>` },
+      "matematica-2": { bg: "#EEF2FF", color: "#2B388F", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6M15 9l-6 6"/></svg>` },
+      "razonamiento-matematico": { bg: "#F0F9FF", color: "#0284C7", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>` },
+      "razonamiento-logico": { bg: "#F0FDFA", color: "#0D9488", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 14a4 4 0 1 1 4-4 4 4 0 0 1-4 4Z"/></svg>` },
+      "historia": { bg: "#FFFBEB", color: "#B45309", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M4 18h16M6 18v-7M10 18v-7M14 18v-7M18 18v-7M2 7l10-4 10 4v2H2z"/></svg>` },
+      "geografia": { bg: "#ECFDF5", color: "#059669", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>` },
+      "civica": { bg: "#EEF2FF", color: "#2B388F", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-8 4v7c0 5 8 7 8 7s8-2 8-7V7l-8-4z"/></svg>` },
+      "filosofia": { bg: "#F5F3FF", color: "#7C3AED", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>` },
+      "psicologia": { bg: "#FDF2F8", color: "#EC4899", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>` },
+      "ingles": { bg: "#F0F9FF", color: "#0284C7", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>` },
+      "lenguaje": { bg: "#ECFEFF", color: "#0891B2", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>` },
+      "razonamiento-verbal": { bg: "#F0FDFA", color: "#0D9488", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>` },
+      "comprension-lectora": { bg: "#FFF1F2", color: "#ED1C24", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>` }
+    };
+
+    function getSubjectIcon(slug) {
+      return SUBJECT_ICONS[slug] || { bg: "#F1F5F9", color: "#334155", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('esparta-list');
+      const searchInput = document.getElementById('esparta-search');
+      const countEl = document.getElementById('esparta-count');
+
+      if (typeof COURSES === 'undefined' || typeof COURSE_ORDER === 'undefined') {
+        container.innerHTML = '<p style="text-align:center; padding: 40px;">No se encontraron cursos de Esparta.</p>';
+        return;
+      }
+
+      function renderEsparta(filter = '') {
+        container.innerHTML = '';
+        const q = filter.trim().toLowerCase();
+        let totalCount = 0;
+
+        COURSE_ORDER.forEach((slug) => {
+          const course = COURSES[slug];
+          if (!course) return;
+
+          const iconData = getSubjectIcon(slug);
+          const matchesTitle = course.name.toLowerCase().includes(q);
+          const matchedLessons = course.lessons.filter(l => 
+            !q || matchesTitle || (l.title && l.title.toLowerCase().includes(q)) || (`clase ${l.n}`).includes(q)
+          );
+
+          if (q && !matchesTitle && matchedLessons.length === 0) return;
+
+          totalCount++;
+          const item = document.createElement('article');
+          item.className = 'academy-item' + (q ? ' active' : '');
+
+          let lessonsHtml = '';
+          (q ? matchedLessons : course.lessons).forEach(lesson => {
+            const ytUrl = lesson.url || `https://www.youtube.com/watch?v=${lesson.yt}`;
+
+            lessonsHtml += `
+              <div class="lesson-box">
+                <div class="lesson-box-top">
+                  <span class="lesson-box-num" style="background: ${iconData.bg}; color: ${iconData.color}; font-weight: 800;">${lesson.n}</span>
+                  <div>
+                    <div class="lesson-box-title">Clase ${lesson.n} · ${course.name}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Clase grabada</div>
+                  </div>
+                </div>
+                
+                <div class="lesson-box-actions" style="margin-top: 8px;">
+                  <a href="${ytUrl}" target="_blank" rel="noopener noreferrer" class="btn-lesson-play" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Abrir en YouTube ↗
+                  </a>
+                </div>
+              </div>
+            `;
+          });
+
+          item.innerHTML = `
+            <button type="button" class="academy-item-header">
+              <div class="academy-item-left">
+                <span class="item-icon-box" style="background: ${iconData.bg}; color: ${iconData.color};">
+                  ${iconData.svg}
+                </span>
+                <div class="item-info">
+                  <span class="item-title">${course.name}</span>
+                  <span class="item-desc">Asignatura completa de preparación</span>
+                </div>
+              </div>
+              <div class="academy-item-right">
+                <span class="item-badge" style="background: ${iconData.bg}; color: ${iconData.color}; font-weight: 700;">${course.lessons.length} clases</span>
+                <span class="item-chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </span>
+              </div>
+            </button>
+            <div class="academy-item-content">
+              <div class="academy-lessons-grid">
+                ${lessonsHtml}
+              </div>
+            </div>
+          `;
+
+          const header = item.querySelector('.academy-item-header');
+          header.addEventListener('click', () => {
+            item.classList.toggle('active');
+          });
+
+          container.appendChild(item);
+        });
+
+        if (countEl) {
+          countEl.textContent = q 
+            ? `${totalCount} materias encontradas para "${filter}"` 
+            : `${COURSE_ORDER.length} materias completas disponibles`;
+        }
+      }
+
+      searchInput.addEventListener('input', (e) => {
+        renderEsparta(e.target.value);
+    </a>
+    <a href="simulador.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <path d="M8 16v-3"/>
+        <path d="M12 16V8"/>
+        <path d="M16 16v-5"/>
+      </svg>
+      Simulador
+    </a>
+  </nav>
+
+  <!-- SCRIPTS -->
+  <script src="assets/users.js"></script>
+  <script src="assets/frases.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+
+  <script>
+    const SUBJECT_ICONS = {
+      "literatura": { bg: "#FFF1F2", color: "#F43F5E", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` },
+      "biologia": { bg: "#ECFDF5", color: "#10B981", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M7 7a5 5 0 0 1 10 0M7 17a5 5 0 0 0 10 0"/><circle cx="12" cy="12" r="3"/></svg>` },
+      "anatomia": { bg: "#FEF2F2", color: "#ED1C24", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>` },
+      "quimica": { bg: "#F5F3FF", color: "#8B5CF6", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.15 19.3A2 2 0 0 0 5.86 22h12.28a2 2 0 0 0 1.71-2.7L14 9.31V2h-4Z"/><path d="M8.5 2h7M7 16h10"/></svg>` },
+      "fisica": { bg: "#FFFBEB", color: "#D97706", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>` },
+      "matematica-1": { bg: "#EEF2FF", color: "#2B388F", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="12" y1="5" x2="12" y2="19"/><circle cx="12" cy="12" r="10"/></svg>` },
+      "matematica-2": { bg: "#EEF2FF", color: "#2B388F", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6M15 9l-6 6"/></svg>` },
+      "razonamiento-matematico": { bg: "#F0F9FF", color: "#0284C7", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>` },
+      "razonamiento-logico": { bg: "#F0FDFA", color: "#0D9488", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 14a4 4 0 1 1 4-4 4 4 0 0 1-4 4Z"/></svg>` },
+      "historia": { bg: "#FFFBEB", color: "#B45309", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M4 18h16M6 18v-7M10 18v-7M14 18v-7M18 18v-7M2 7l10-4 10 4v2H2z"/></svg>` },
+      "geografia": { bg: "#ECFDF5", color: "#059669", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>` },
+      "civica": { bg: "#EEF2FF", color: "#2B388F", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-8 4v7c0 5 8 7 8 7s8-2 8-7V7l-8-4z"/></svg>` },
+      "filosofia": { bg: "#F5F3FF", color: "#7C3AED", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>` },
+      "psicologia": { bg: "#FDF2F8", color: "#EC4899", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>` },
+      "ingles": { bg: "#F0F9FF", color: "#0284C7", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>` },
+      "lenguaje": { bg: "#ECFEFF", color: "#0891B2", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>` },
+      "razonamiento-verbal": { bg: "#F0FDFA", color: "#0D9488", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>` },
+      "comprension-lectora": { bg: "#FFF1F2", color: "#ED1C24", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>` }
+    };
+
+    function getSubjectIcon(slug) {
+      return SUBJECT_ICONS[slug] || { bg: "#F1F5F9", color: "#334155", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('esparta-list');
+      const searchInput = document.getElementById('esparta-search');
+      const countEl = document.getElementById('esparta-count');
+
+      if (typeof COURSES === 'undefined' || typeof COURSE_ORDER === 'undefined') {
+        container.innerHTML = '<p style="text-align:center; padding: 40px;">No se encontraron cursos de Esparta.</p>';
+        return;
+      }
+
+      function renderEsparta(filter = '') {
+        container.innerHTML = '';
+        const q = filter.trim().toLowerCase();
+        let totalCount = 0;
+
+        COURSE_ORDER.forEach((slug) => {
+          const course = COURSES[slug];
+          if (!course) return;
+
+          const iconData = getSubjectIcon(slug);
+          const matchesTitle = course.name.toLowerCase().includes(q);
+          const matchedLessons = course.lessons.filter(l => 
+            !q || matchesTitle || (l.title && l.title.toLowerCase().includes(q)) || (`clase ${l.n}`).includes(q)
+          );
+
+          if (q && !matchesTitle && matchedLessons.length === 0) return;
+
+          totalCount++;
+          const item = document.createElement('article');
+          item.className = 'academy-item' + (q ? ' active' : '');
+
+          let lessonsHtml = '';
+          (q ? matchedLessons : course.lessons).forEach(lesson => {
+            const ytUrl = lesson.url || `https://www.youtube.com/watch?v=${lesson.yt}`;
+
+            lessonsHtml += `
+              <div class="lesson-box">
+                <div class="lesson-box-top">
+                  <span class="lesson-box-num" style="background: ${iconData.bg}; color: ${iconData.color}; font-weight: 800;">${lesson.n}</span>
+                  <div>
+                    <div class="lesson-box-title">Clase ${lesson.n} · ${course.name}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Clase grabada</div>
+                  </div>
+                </div>
+                
+                <div class="lesson-box-actions" style="margin-top: 8px;">
+                  <a href="${ytUrl}" target="_blank" rel="noopener noreferrer" class="btn-lesson-play" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Abrir en YouTube ↗
+                  </a>
+                </div>
+              </div>
+            `;
+          });
+
+          item.innerHTML = `
+            <button type="button" class="academy-item-header">
+              <div class="academy-item-left">
+                <span class="item-icon-box" style="background: ${iconData.bg}; color: ${iconData.color};">
+                  ${iconData.svg}
+                </span>
+                <div class="item-info">
+                  <span class="item-title">${course.name}</span>
+                  <span class="item-desc">Asignatura completa de preparación</span>
+                </div>
+              </div>
+              <div class="academy-item-right">
+                <span class="item-badge" style="background: ${iconData.bg}; color: ${iconData.color}; font-weight: 700;">${course.lessons.length} clases</span>
+                <span class="item-chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </span>
+              </div>
+            </button>
+            <div class="academy-item-content">
+              <div class="academy-lessons-grid">
+                ${lessonsHtml}
+              </div>
+            </div>
+          `;
+
+          const header = item.querySelector('.academy-item-header');
+          header.addEventListener('click', () => {
+            item.classList.toggle('active');
+          });
+
+          container.appendChild(item);
+        });
+
+        if (countEl) {
+          countEl.textContent = q 
+            ? `${totalCount} materias encontradas para "${filter}"` 
+            : `${COURSE_ORDER.length} materias completas disponibles`;
+        }
+      }
+
+      searchInput.addEventListener('input', (e) => {
+        renderEsparta(e.target.value);
+      });
+
+      renderEsparta();
+    });
+  </script>
+  <!-- =====================================================
+       BARRA DE NAVEGACIÓN INFERIOR (BOTTOM NAV MOBILE APP)
+  ===================================================== -->
+  <nav class="app-bottom-nav" aria-label="Navegación Móvil">
+    <a href="index.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Inicio</span>
+    </a>
+    <a href="cursos.html" class="app-nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>Cursos</span>
+    </a>
+    <a href="biblioteca.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      <span>Recursos</span>
+      <span class="app-nav-badge">NUEVO</span>
+    </a>
+    <a href="simulador.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polygon points="10 8 16 12 10 16 10 8"></polygon>
+      </svg>
+      <span>Simulador</span>
+    </a>
+  </nav>
+
+</body>
+</html>

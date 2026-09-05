@@ -1,0 +1,105 @@
+/* ===========================================================
+   RUMBO — BASE.CSS (Fundamentos, Variables y Layout Móvil PWA)
+   =========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&family=Outfit:wght@500;600;700;800&family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+
+:root {
+  /* Tipografía */
+  --font-body: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --font-title: 'Nunito', 'Outfit', 'Poppins', sans-serif;
+  --font-hand: 'Patrick Hand', cursive;
+
+  /* Paleta RUMBO */
+  --rumbo-cyan: #4CC3F0;
+  --rumbo-cyan-dark: #0284C7;
+  --rumbo-cyan-light: #E0F2FE;
+  --rumbo-cyan-glow: rgba(76, 195, 240, 0.35);
+
+  --rumbo-coral: #E8433F;
+  --rumbo-coral-dark: #DC2626;
+  --rumbo-coral-light: #FEF2F2;
+  --rumbo-coral-glow: rgba(232, 67, 63, 0.3);
+
+  --navy: #0B1229;
+  --navy-light: #162244;
+  --navy-surface: #1E2D5A;
+
+  --bg-main: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --border: #E2E8F0;
+
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 4px 6px -1px rgba(15, 23, 42, 0.07);
+  --shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.09);
+
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  background-color: #030712;
+}
+
+/* MARCO CONTENEDOR WEB APP PWA */
+body {
+  min-height: 100vh;
+  margin: 0 auto;
+  max-width: 480px; /* Ancho exacto de pantalla de teléfono */
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  position: relative;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
+  padding-bottom: 96px !important; /* Espacio obligatorio para que la barra inferior no tape nada */
+  overflow-x: hidden;
+}
+
+@media (max-width: 600px) {
+  body {
+    max-width: 100%;
+    box-shadow: none;
+  }
+}
+
+.container {
+  width: 100%;
+  padding: 0 18px;
+  margin: 0 auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+img, svg {
+  max-width: 100%;
+  display: block;
+}

@@ -1,0 +1,216 @@
+/* ===========================================================
+   RUMBO — COMPONENTS.CSS (Componentes UI, Tarjetas, Modales & Forms)
+   =========================================================== */
+
+/* ----- Site Header (Cabecera Superior) ----- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 5000;
+  background: rgba(11, 18, 41, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 62px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #FFFFFF;
+}
+
+.logo-box {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logo-mark {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nav-toggle {
+  color: #FFFFFF;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Ocultar barra superior de escritorio en modo móvil Web App */
+.main-nav {
+  display: none;
+}
+
+/* ----- Hero & Secciones Principales ----- */
+.hero-card, .estudiante-hero-section, .academy-hero {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 22px 18px;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.eyebrow, .estudiante-hero-kicker, .section-kicker {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--rumbo-cyan-dark);
+  background: var(--rumbo-cyan-light);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+.lead, .sub {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ----- Tarjetas & Grids ----- */
+.academy-grid, .process-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.academy-card, .ally-card, .library-category-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 20px 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-bounce), box-shadow var(--transition-normal);
+  display: block;
+}
+
+.academy-card:active, .ally-card:active {
+  transform: scale(0.97);
+}
+
+.btn-academy, .btn-hero-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-top: 14px;
+  transition: transform 0.2s ease;
+}
+
+.btn-academy:active {
+  transform: scale(0.95);
+}
+
+/* ----- Buscador e Inputs ----- */
+.academy-search-box input, .search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid #CBD5E1;
+  font-size: 0.95rem;
+  background: #FFFFFF;
+  outline: none;
+  font-family: inherit;
+}
+
+.academy-search-box input:focus, .search-input:focus {
+  border-color: var(--rumbo-cyan-dark);
+  box-shadow: 0 0 0 3px var(--rumbo-cyan-glow);
+}
+
+/* ----- Tarjetas de Biblioteca y Visores PDF / Imágenes ----- */
+.drive-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: transform var(--transition-bounce), box-shadow var(--transition-normal);
+}
+
+.drive-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.drive-card-info h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.drive-card-info p {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.btn-drive-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  background: var(--rumbo-cyan-dark);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.82rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-drive-open:active {
+  transform: scale(0.94);
+}
+
+.btn-drive-open svg {
+  width: 14px;
+  height: 14px;
+}

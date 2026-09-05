@@ -1,0 +1,21 @@
+{
+  "short_name": "RUMBO",
+  "name": "RUMBO · Plataforma PREU",
+  "icons": [
+    {
+      "src": "assets/LOGOR.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "assets/LOGOR.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./",
+  "background_color": "#0F172A",
+  "theme_color": "#4285F4",
+  "display": "standalone",
+  "orientation": "portrait"
+}

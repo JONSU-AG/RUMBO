@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academia Briceño · RUMBO</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&family=Outfit:wght@500;600;700;800&family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Estilos Modulares RUMBO Web App PWA (3 Archivos) -->
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/components.css">
+  <link rel="stylesheet" href="assets/mobile-app.css">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="icon" href="assets/LOGOR.png">
+</head>
+<body class="theme-briceno">
+
+  <!-- =====================================================
+       HEADER / NAVBAR UNIFICADA
+  ===================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <div class="logo-box">
+          <img class="logo-mark" src="assets/LOGOR.png" alt="RUMBO">
+        </div>
+        <span class="brand-name">RUMBO</span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="index.html">Inicio</a>
+        <a href="cursos.html" class="active">Cursos</a>
+        <a href="biblioteca.html">Recursos y Comunidad</a>
+        <a href="simulador.html">Simulador</a>
+      </nav>
+
+      <button class="nav-toggle" aria-label="Abrir menú">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- =====================================================
+       CONTENIDO PRINCIPAL
+  ===================================================== -->
+  <main class="container" style="padding-top: 16px;">
+
+    <!-- CABECERA HERO CON LOGO INSTITUCIONAL DE BRICEÑO -->
+    <section class="academy-hero briceno-hero">
+      <div class="academy-hero-top">
+        <nav class="breadcrumb" style="margin: 0;">
+          <a href="cursos.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a Cursos
+          </a>
+          <span>/</span>
+          <span>Briceño</span>
+        </nav>
+
+        <span class="status-pill in-progress" id="briceno-status-pill">
+          <span class="pulse-dot"></span>
+          Ciclo 2027 en curso
+        </span>
+      </div>
+
+      <div style="margin-bottom: 8px;">
+        <span class="academy-badge briceno">🎓 Academia y Colegios</span>
+      </div>
+
+      <h1 style="color: #008C99; font-size: clamp(2rem, 4vw, 2.7rem); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px;">BRICEÑO</h1>
+      <p class="sub" id="briceno-hero-sub" style="color: #334155;">Selecciona el ciclo o proceso académico que deseas revisar.</p>
+    </section>
+
+    <!-- FRASE / VERSÍCULO DEL DÍA -->
+    <div class="daily-quote-card" style="margin: 0 auto 20px; max-width: 960px;">
+      <div class="quote-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+      <div class="quote-body">
+        <span class="quote-kicker">💬 Mensaje del día</span>
+        <span class="quote-text">«Los pensamientos del diligente ciertamente tienden a la abundancia; mas todo el que se apresura alocadamente, de cierto va a la pobreza.» — Proverbios 21:5</span>
+      </div>
+    </div>
+
+    <!-- BOTÓN SIMPLIFICADO WHATSAPP -->
+    <div class="academy-whatsapp-simple-wrap">
+      <a href="https://whatsapp.com/channel/0029VbDFAEu7YScyVZBNul0X" target="_blank" rel="noopener noreferrer" class="btn-academy-whatsapp" aria-label="Canal oficial de WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.52 3.48A11.82 11.82 0 0 0 12.08 0C5.55 0 .24 5.31.24 11.84c0 2.09.55 4.13 1.6 5.93L.13 24l6.37-1.67a11.84 11.84 0 0 0 5.58 1.42h.01c6.53 0 11.84-5.31 11.84-11.84 0-3.17-1.23-6.15-3.41-8.43ZM12.09 21.7c-1.75 0-3.46-.47-4.96-1.36l-.36-.21-3.78.99 1.01-3.68-.23-.38a9.82 9.82 0 0 1-1.51-5.22c0-5.43 4.42-9.85 9.85-9.85 2.63 0 5.1 1.03 6.96 2.89a9.78 9.78 0 0 1 2.89 6.96c0 5.43-4.42 9.85-9.85 9.85Zm5.4-7.38c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.21 5.09 4.5.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/>
+        </svg>
+        <span>Canal de WhatsApp ↗</span>
+      </a>
+    </div>
+
+    <!-- =====================================================
+         CONTENEDORES EN CUADROS DE SELECCIÓN DE PROCESO
+    ===================================================== -->
+    <div class="process-cards-grid">
+      
+      <!-- CUADRO 1: BRICEÑO 2027 (EN CURSO) -->
+      <article class="process-card active" id="card-proc-2027" onclick="setProceso('2027')">
+        <div class="process-card-top">
+          <div class="process-card-title">
+            <span style="font-size: 1.3rem;">📚</span>
+            BRICEÑO 2027
+          </div>
+          <span class="status-pill in-progress">
+            <span class="pulse-dot"></span>
+            CICLO EN CURSO
+          </span>
+        </div>
+        <p class="process-card-desc">II Fase CEPREUNSA / Ordinario / CEPREQUINTOS 2027.</p>
+        <div class="process-card-footer" style="color: #008C99; font-weight: 700;">
+          🟢 Actualizaciones constantes semana a semana
+        </div>
+      </article>
+
+      <!-- CUADRO 2: BRICEÑO 2026 (FINALIZADO) -->
+      <article class="process-card" id="card-proc-2026" onclick="setProceso('2026')">
+        <div class="process-card-top">
+          <div class="process-card-title">
+            <span style="font-size: 1.3rem;">🎓</span>
+            BRICEÑO 2026
+          </div>
+          <span class="status-pill finished">
+            CICLO FINALIZADO
+          </span>
+        </div>
+        <p class="process-card-desc">Proceso Intensivo 2026 clasificado por áreas académicas.</p>
+        <div class="process-card-footer" style="color: #64748B;">
+          ⚪ Banco completo de clases grabadas
+        </div>
+      </article>
+
+    </div>
+
+    <!-- =====================================================
+         SECCIÓN DINÁMICA DE INFORMACIÓN DEL PROCESO 2027
+    ===================================================== -->
+    <div id="section-2027-details" class="section-details-wrap">
+      
+      <!-- CUADRO 1: ARCHIVOS EN DRIVE DEL CICLO EN CURSO -->
+      <div class="cycle-info-card drive-box">
+        <div class="cycle-info-left">
+          <div class="cycle-icon-box" style="background: #FEF08A; color: #854D0E;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <strong style="color: #854D0E; font-size: 0.98rem; display: block;">📂 Archivos compartidos en clase (Ciclo 2027)</strong>
+            <span style="color: #A16207; font-size: 0.84rem;">Aquí están todos los archivos y diapositivas utilizados durante las clases de este ciclo.</span>
+          </div>
+        </div>
+        <a href="https://drive.google.com/drive/folders/1sGaLVsVGtWeggLUWtw_vB14iwH3mHHH1" target="_blank" rel="noopener noreferrer" class="btn-drive-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Abrir Google Drive ↗
+        </a>
+      </div>
+
+      <!-- CUADRO 2: AVISO DIRECTO DE ANATOMÍA -->
+      <div class="cycle-info-card notice-box" style="padding: 10px 16px; margin-bottom: 12px;">
+        <div class="cycle-info-left" style="gap: 10px; align-items: center;">
+          <span style="font-size: 1.2rem;">📌</span>
+          <strong style="color: #15803D; font-size: 0.92rem; font-weight: 700;">Anatomía está incluida dentro de Biología</strong>
+        </div>
+      </div>
+
+      <!-- CUADRO 3: SELECTOR DESPLEGABLE PERSONALIZADO Y RESPONSIVE -->
+      <div class="cycle-info-card semana-card-responsive">
+        <div class="semana-header-row">
+          <div class="cycle-icon-box" style="background: var(--blue-light); color: var(--blue); width: 36px; height: 36px; font-size: 1.05rem; flex-shrink: 0;">
+            📅
+          </div>
+          <span class="semana-header-title">Semana de avance</span>
+        </div>
+
+        <div class="semana-custom-dropdown" id="semana-custom-dropdown">
+          <button type="button" class="semana-dropdown-trigger" id="semana-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="semana-trigger-content" id="semana-trigger-text">
+              <span>🌱 Semana 0 (Introducción)</span>
+            </span>
+            <svg class="semana-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="semana-dropdown-options" id="semana-dropdown-options" role="listbox">
+            <!-- Opciones generadas automáticamente por JavaScript -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA INTEGRADA -->
+    <div class="academy-search-wrap">
+      <div class="academy-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="briceno-search" placeholder="Buscar materia, tema o clase en Briceño...">
+      </div>
+      <div class="search-result-count" id="briceno-count">Cargando cursos...</div>
+    </div>
+
+    <!-- LISTA MAESTRA DE ASIGNATURAS Y CLASES -->
+    <section class="academy-accordion-list" id="briceno-list">
+      <!-- Generado dinámicamente -->
+    </section>
+
+  </main>
+
+  <!-- =====================================================
+       BOTTOM NAV MÓVIL
+  ===================================================== -->
+  <nav class="bottom-nav" style="grid-template-columns: repeat(4, 1fr);">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 11l9-8 9 8"/>
+        <path d="M5 10v10h14V10"/>
+      </svg>
+      Inicio
+    </a>
+    <a href="cursos.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Cursos
+    </a>
+    <a href="biblioteca.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+          Recursos y Comunidad
+    </a>
+    <a href="simulador.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <path d="M8 16v-3"/>
+        <path d="M12 16V8"/>
+        <path d="M16 16v-5"/>
+      </svg>
+      Simulador
+    </a>
+  </nav>
+
+  <!-- SCRIPTS -->
+  <script src="assets/users.js"></script>
+  <script src="assets/frases.js"></script>
+  <script src="assets/auth.js"></script>
+  <script src="assets/data.js"></script>
+  <script src="assets/briceñoareas2027.js"></script>
+  <script src="assets/app.js"></script>
+
+  <script>
+    let currentProceso = '2027'; // Por defecto Ciclo 2027 en curso
+    let currentSemana = 'all'; // Por defecto muestra todos los cursos subidos del Ciclo 2027
+
+    const SUBJECT_SVGS_MAP = {
+      'BIOLOGIA': { bg: '#ECFDF5', color: '#059669', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M7 7a5 5 0 0 1 10 0M7 17a5 5 0 0 0 10 0"/><circle cx="12" cy="12" r="3"/></svg>` },
+      'BIOLOGÍA': { bg: '#ECFDF5', color: '#059669', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M7 7a5 5 0 0 1 10 0M7 17a5 5 0 0 0 10 0"/><circle cx="12" cy="12" r="3"/></svg>` },
+      'ANATOMIA': { bg: '#FEF2F2', color: '#E52421', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>` },
+      'ANATOMÍA': { bg: '#FEF2F2', color: '#E52421', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>` },
+      'MATEMÁTICA': { bg: '#F0FDFA', color: '#008C99', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="12" y1="5" x2="12" y2="19"/><circle cx="12" cy="12" r="10"/></svg>` },
+      'MATEMATICA': { bg: '#F0FDFA', color: '#008C99', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="12" y1="5" x2="12" y2="19"/><circle cx="12" cy="12" r="10"/></svg>` },
+      'QUIMICA': { bg: '#FFF7ED', color: '#EA580C', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.15 20.3a1 1 0 0 0 .85 1.7h14a1 1 0 0 0 .85-1.7L14 9.31V2"/></svg>` },
+      'QUÍMICA': { bg: '#FFF7ED', color: '#EA580C', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31L4.15 20.3a1 1 0 0 0 .85 1.7h14a1 1 0 0 0 .85-1.7L14 9.31V2"/></svg>` },
+      'FISICA': { bg: '#FDF4FF', color: '#C026D3', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg>` },
+      'FÍSICA': { bg: '#FDF4FF', color: '#C026D3', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg>` },
+      'LENGUAJE': { bg: '#ECFEFF', color: '#0891B2', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>` },
+      'LITERATURA': { bg: '#FFF1F2', color: '#F43F5E', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` },
+      'HISTORIA': { bg: '#FFFBEB', color: '#B45309', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M4 18h16M6 18v-7M10 18v-7M14 18v-7M18 18v-7M2 7l10-4 10 4v2H2z"/></svg>` },
+      'GEOGRAFIA': { bg: '#ECFDF5', color: '#059669', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>` },
+      'GEOGRAFÍA': { bg: '#ECFDF5', color: '#059669', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>` },
+      'CIVICA': { bg: '#EEF2FF', color: '#4F46E5', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-8 4v7c0 5 8 7 8 7s8-2 8-7V7l-8-4z"/></svg>` },
+      'CÍVICA': { bg: '#EEF2FF', color: '#4F46E5', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-8 4v7c0 5 8 7 8 7s8-2 8-7V7l-8-4z"/></svg>` },
+      'FILOSOFIA': { bg: '#F5F3FF', color: '#7C3AED', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>` },
+      'PSICOLOGIA': { bg: '#FDF2F8', color: '#EC4899', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>` },
+      'INGLES': { bg: '#F0F9FF', color: '#0284C7', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>` },
+      'RAZONAMIENTO VERBAL': { bg: '#F0FDFA', color: '#0D9488', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>` },
+      'RAZ. VERBAL': { bg: '#F0FDFA', color: '#0D9488', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>` },
+      'RAZONAMIENTO MATEMATICO': { bg: '#F0FDFA', color: '#008C99', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>` },
+      'RAZ. MATEMÁTICO': { bg: '#F0FDFA', color: '#008C99', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>` },
+      'DEFAULT': { bg: '#F1F5F9', color: '#334155', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` }
+    };
+
+    function getSubjectIcon(name) {
+      const up = (name || '').toUpperCase().trim();
+      if (SUBJECT_SVGS_MAP[up]) return SUBJECT_SVGS_MAP[up];
+      for (const k in SUBJECT_SVGS_MAP) {
+        if (up.includes(k) || k.includes(up)) return SUBJECT_SVGS_MAP[k];
+      }
+      return SUBJECT_SVGS_MAP['DEFAULT'];
+    }
+
+    function drivePreview(url) {
+      if (!url) return '';
+      const match = url.match(/\/file\/d\/([^/]+)/);
+      return match ? `https://drive.google.com/file/d/${match[1]}/preview` : '';
+    }
+
+    function getBricenoSemanasDisponibles() {
+      const semanas = [];
+
+      if (Array.isArray(window.BRICENO_2027_SEMANAS) && window.BRICENO_2027_SEMANAS.length > 0) {
+        window.BRICENO_2027_SEMANAS.forEach(sem => {
+          if (sem && sem.data) {
+            semanas.push({
+              num: Number(sem.num),
+              nombre: sem.nombre || `Semana ${sem.num}`,
+              status: sem.status || '',
+              data: sem.data
+            });
+          }
+        });
+        return semanas;
+      }
+
+      for (let i = 0; i <= 60; i++) {
+        const pad = i < 10 ? `0${i}` : `${i}`;
+        const key = `briceno2027Semana${pad}`;
+        const keyAlt = `briceno2027Semana${i}`;
+        const arr = window[key] || window[keyAlt];
+        if (Array.isArray(arr) && arr.length > 0) {
+          semanas.push({
+            num: i,
+            nombre: i === 0 ? '🌱 Semana 0 (Introducción)' : `📖 Semana ${i}`,
+            status: i === 0 ? 'Disponible' : 'En curso',
+            data: arr
+          });
+        }
+      }
+
+      return semanas;
+    }
+
+    function getBricenoTodasLasSemanas() {
+      const semanas = getBricenoSemanasDisponibles();
+      const todosLosDatos = [];
+      semanas.forEach(s => {
+        if (Array.isArray(s.data)) {
+          todosLosDatos.push(...s.data);
+        }
+      });
+      return todosLosDatos;
+    }
+
+    function populateSemanasDropdown() {
+      const container = document.getElementById('semana-dropdown-options');
+      const triggerText = document.getElementById('semana-trigger-text');
+      if (!container) return;
+
+      const semanas = getBricenoSemanasDisponibles();
+      container.innerHTML = '';
+
+      // Opción 1: Todas las semanas
+      const optAll = document.createElement('button');
+      optAll.type = 'button';
+      optAll.className = 'semana-option-item' + (currentSemana === 'all' ? ' selected' : '');
+      optAll.setAttribute('role', 'option');
+      optAll.setAttribute('aria-selected', currentSemana === 'all' ? 'true' : 'false');
+      optAll.innerHTML = `
+        <div class="semana-option-left">
+          <span>🌟 Todas las semanas (Ver todo el Ciclo 2027)</span>
+        </div>
+        <span class="status-pill finished" style="font-size: 0.72rem; padding: 2px 8px;">Completo</span>
+      `;
+      optAll.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setSemana('all');
+        closeSemanaDropdown();
+      });
+      container.appendChild(optAll);
+
+      // Opciones de semanas individuales
+      semanas.forEach(sem => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'semana-option-item' + (currentSemana === sem.num ? ' selected' : '');
+        btn.setAttribute('role', 'option');
+        btn.setAttribute('aria-selected', currentSemana === sem.num ? 'true' : 'false');
+        
+        btn.innerHTML = `
+          <div class="semana-option-left">
+            <span>${sem.nombre}</span>
+          </div>
+          ${sem.status ? `<span class="status-pill ${sem.status === 'En curso' ? 'in-progress' : 'finished'}" style="font-size: 0.72rem; padding: 2px 8px;">${sem.status === 'En curso' ? '<span class="pulse-dot"></span> ' : ''}${sem.status}</span>` : ''}
+        `;
+
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setSemana(sem.num);
+          closeSemanaDropdown();
+        });
+
+        container.appendChild(btn);
+      });
+
+      if (triggerText) {
+        if (currentSemana === 'all') {
+          triggerText.innerHTML = `<span>🌟 Todas las semanas (Ciclo 2027)</span>`;
+        } else {
+          const semObj = semanas.find(s => s.num === currentSemana) || semanas[0];
+          if (semObj) triggerText.innerHTML = `<span>${semObj.nombre}</span>`;
+        }
+      }
+    }
+
+    function toggleSemanaDropdown() {
+      const dropdown = document.getElementById('semana-custom-dropdown');
+      const trigger = document.getElementById('semana-dropdown-trigger');
+      if (!dropdown) return;
+      const isOpen = dropdown.classList.toggle('open');
+      if (trigger) trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+
+    function closeSemanaDropdown() {
+      const dropdown = document.getElementById('semana-custom-dropdown');
+      const trigger = document.getElementById('semana-dropdown-trigger');
+      if (dropdown) dropdown.classList.remove('open');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function setSemana(sem) {
+      currentSemana = (sem === 'all') ? 'all' : Number(sem);
+      
+      const triggerText = document.getElementById('semana-trigger-text');
+      const semanas = getBricenoSemanasDisponibles();
+
+      if (triggerText) {
+        if (currentSemana === 'all') {
+          triggerText.innerHTML = `<span>🌟 Todas las semanas (Ciclo 2027)</span>`;
+        } else {
+          const semObj = semanas.find(s => s.num === currentSemana) || semanas[0];
+          if (semObj) triggerText.innerHTML = `<span>${semObj.nombre}</span>`;
+        }
+      }
+
+      const options = document.querySelectorAll('.semana-option-item');
+      options.forEach(opt => {
+        const isSelected = (currentSemana === 'all' && opt.textContent.includes('Todas las semanas')) ||
+          (currentSemana !== 'all' && opt.textContent.includes(`Semana ${currentSemana}`));
+        opt.classList.toggle('selected', isSelected);
+        opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      });
+
+      renderBriceno(document.getElementById('briceno-search').value);
+    }
+
+    function procesarMateriasSemana(rawData) {
+      if (!Array.isArray(rawData)) return [];
+
+      const mapMaterias = new Map();
+
+      function normalizarNombre(nombre) {
+        const n = (nombre || '').trim().toUpperCase();
+        if (n.includes('BIOLOG') || n.includes('ANATOM')) return 'BIOLOGÍA';
+        if (n.includes('MATEMÁT') || n.includes('MATEMAT')) return 'MATEMÁTICA';
+        if (n.includes('RAZ') && (n.includes('MAT') || n.includes('NUM'))) return 'RAZ. MATEMÁTICO';
+        if (n.includes('RAZ') && (n.includes('VERB') || n.includes('LECT'))) return 'RAZ. VERBAL';
+        if (n.includes('QUIMIC') || n.includes('QUÍMIC')) return 'QUÍMICA';
+        if (n.includes('FISIC') || n.includes('FÍSIC')) return 'FÍSICA';
+        if (n.includes('LENGUAJ') || n.includes('COMUNIC')) return 'LENGUAJE';
+        if (n.includes('LITERATUR')) return 'LITERATURA';
+        if (n.includes('GEOGRAF')) return 'GEOGRAFÍA';
+        if (n.includes('CIVIC') || n.includes('CÍVIC')) return 'CÍVICA';
+        if (n.includes('FILOSOF')) return 'FILOSOFÍA';
+        if (n.includes('PSICOLOG')) return 'PSICOLOGÍA';
+        if (n.includes('HISTOR')) return 'HISTORIA';
+        if (n.includes('ECONOM')) return 'ECONOMÍA';
+        if (n.includes('INGLES') || n.includes('INGLÉS')) return 'INGLÉS';
+        return n;
+      }
+
+      rawData.forEach(item => {
+        const rawNombre = item.nombre || item.area || 'GENERAL';
+        const materiaNorm = normalizarNombre(rawNombre);
+        const categoria = (item.categoria || '').toUpperCase();
+        const esSeminario = categoria.includes('SEMINARIO') || rawNombre.toUpperCase().includes('SEMINARIO');
+
+        if (!mapMaterias.has(materiaNorm)) {
+          mapMaterias.set(materiaNorm, {
+            nombre: materiaNorm,
+            categoria: item.categoria || 'CIENCIAS ONLINE',
+            videos: []
+          });
+        }
+
+        const target = mapMaterias.get(materiaNorm);
+        const videosArr = Array.isArray(item.videos) ? item.videos : [];
+
+        videosArr.forEach(v => {
+          let vObj = (typeof v === 'string') ? { nombre: v, url: '#' } : { ...v };
+          const tituloUpper = (vObj.nombre || vObj.title || '').toUpperCase();
+          if (esSeminario || tituloUpper.includes('SEMINARIO')) {
+            vObj.isSeminario = true;
+          }
+          target.videos.push(vObj);
+        });
+      });
+
+      return Array.from(mapMaterias.values());
+    }
+
+    function setProceso(proc) {
+      currentProceso = proc;
+      
+      const card2027 = document.getElementById('card-proc-2027');
+      const card2026 = document.getElementById('card-proc-2026');
+      if (card2027) card2027.classList.toggle('active', proc === '2027');
+      if (card2026) card2026.classList.toggle('active', proc === '2026');
+      
+      const sec2027 = document.getElementById('section-2027-details');
+      if (sec2027) sec2027.style.display = proc === '2027' ? 'block' : 'none';
+
+      const statusPill = document.getElementById('briceno-status-pill');
+      const heroSub = document.getElementById('briceno-hero-sub');
+      if (proc === '2027') {
+        statusPill.className = 'status-pill in-progress';
+        statusPill.innerHTML = '<span class="pulse-dot"></span> Ciclo 2027 en curso';
+        heroSub.textContent = 'Clases del Ciclo 2027 (II Fase CEPREUNSA / Ordinario / CEPREQUINTOS) con subidas semanales.';
+      } else {
+        statusPill.className = 'status-pill finished';
+        statusPill.innerHTML = 'Ciclo 2026 Intensivo (Finalizado)';
+        heroSub.textContent = 'Grabaciones del Proceso Intensivo 2026 clasificadas por áreas académicas.';
+      }
+
+      renderBriceno(document.getElementById('briceno-search').value);
+    }
+
+    function renderBriceno(filter = '') {
+      const container = document.getElementById('briceno-list');
+      const countEl = document.getElementById('briceno-count');
+      const q = (filter || '').trim().toLowerCase();
+      container.innerHTML = '';
+
+      let rawData = [];
+      if (currentProceso === '2027') {
+        if (currentSemana === 'all') {
+          rawData = getBricenoTodasLasSemanas();
+        } else {
+          const semanasDisponibles = getBricenoSemanasDisponibles();
+          const semObj = semanasDisponibles.find(s => s.num === currentSemana) || semanasDisponibles[0];
+          rawData = semObj ? semObj.data : (window.briceno2027Semana00 || []);
+        }
+      } else {
+        rawData = window.BRICENO_AREAS || window.bricenoAreas || [];
+      }
+
+      const itemsData = (currentProceso === '2027') ? procesarMateriasSemana(rawData) : rawData;
+
+      let visibleCount = 0;
+
+      itemsData.forEach((area, idx) => {
+        const areaName = area.nombre || area.area || `Área ${idx + 1}`;
+        const videos = area.videos || [];
+        const iconData = getSubjectIcon(areaName);
+
+        const matchesArea = areaName.toLowerCase().includes(q);
+        const matchedVideos = videos.filter((v, vIdx) => {
+          if (!q || matchesArea) return true;
+          const vTitle = (typeof v === 'string') ? `${areaName} Clase ${vIdx + 1}` : (v.nombre || v.title || `Clase ${vIdx + 1}`);
+          return vTitle.toLowerCase().includes(q);
+        });
+
+        if (q && !matchesArea && matchedVideos.length === 0) return;
+
+        visibleCount++;
+        const item = document.createElement('article');
+        item.className = 'academy-item' + (q ? ' active' : '');
+
+        let videosHtml = '';
+        (q ? matchedVideos : videos).forEach((vid, vIdx) => {
+          const vidUrl = (typeof vid === 'string') ? vid : (vid.url || '#');
+          const vidName = (typeof vid === 'string')
+            ? `${areaName} · Clase ${vIdx + 1}`
+            : (vid.nombre || vid.title || `Clase ${vIdx + 1}`);
+          const isDrive = vidUrl.includes('drive.google.com');
+          const isSem = Boolean(vid.isSeminario || vidName.toUpperCase().includes('SEMINARIO'));
+
+          videosHtml += `
+            <div class="lesson-box">
+              <div class="lesson-box-top">
+                <span class="lesson-box-num" style="background: ${iconData.bg}; color: ${iconData.color}; font-weight: 800;">${vIdx + 1}</span>
+                <div style="flex: 1;">
+                  <div class="lesson-box-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+                    <span>${vidName}</span>
+                    ${isSem ? `<span class="status-pill in-progress" style="font-size: 0.70rem; padding: 1px 7px;">Seminario</span>` : ''}
+                  </div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">${isSem ? 'Seminario académico' : 'Clase grabada'}</div>
+                </div>
+              </div>
+
+              <div class="lesson-box-actions" style="margin-top: 8px;">
+                ${isDrive ? `
+                  <button type="button" class="btn-lesson-play" onclick="playBricenoDriveVideo(this, '${drivePreview(vidUrl)}', '${vidName}')" style="background: #008C99;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Reproducir aquí
+                  </button>
+                  <a href="${vidUrl}" target="_blank" rel="noopener noreferrer" class="btn-lesson-link" title="Abrir en Google Drive">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                  </a>
+                ` : `
+                  <a href="${vidUrl}" target="_blank" rel="noopener noreferrer" class="btn-lesson-play" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Abrir en YouTube ↗
+                  </a>
+                `}
+              </div>
+            </div>
+          `;
+        });
+
+        const totalVideos = videos.length;
+        const badgeInfo = `${totalVideos} ${totalVideos === 1 ? 'video' : 'videos'}`;
+
+        item.innerHTML = `
+          <button type="button" class="academy-item-header">
+            <div class="academy-item-left">
+              <span class="item-icon-box" style="background: ${iconData.bg}; color: ${iconData.color};">
+                ${iconData.svg}
+              </span>
+              <div class="item-info">
+                <span class="item-title">${areaName}</span>
+                <span class="item-desc">${currentProceso === '2027' ? 'Briceño 2027 · CEPREUNSA / Ordinario' : 'Briceño 2026 · Intensivo'}</span>
+              </div>
+            </div>
+            <div class="academy-item-right">
+              ${currentProceso === '2027' ? `
+                <span class="status-pill in-progress" style="padding: 2px 8px; font-size: 0.72rem;">
+                  <span class="pulse-dot"></span> Ciclo en curso
+                </span>
+              ` : ''}
+              <span class="item-badge" style="background: ${iconData.bg}; color: ${iconData.color}; font-weight: 700;">${badgeInfo}</span>
+              <span class="item-chevron">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </span>
+            </div>
+          </button>
+          <div class="academy-item-content">
+            <div class="academy-lessons-grid">
+              ${videosHtml}
+            </div>
+            <div class="player-mount"></div>
+          </div>
+        `;
+
+        const header = item.querySelector('.academy-item-header');
+        header.addEventListener('click', () => {
+          item.classList.toggle('active');
+        });
+
+        container.appendChild(item);
+      });
+
+      if (countEl) {
+        countEl.textContent = q 
+          ? `${visibleCount} materias encontradas para "${filter}"` 
+          : `${visibleCount} asignaturas disponibles`;
+      }
+    }
+
+    window.playBricenoDriveVideo = function(btn, embedUrl, title) {
+      const itemContent = btn.closest('.academy-item-content');
+      const mount = itemContent.querySelector('.player-mount');
+      if (!mount) return;
+
+      mount.innerHTML = `
+        <div class="academy-player-box">
+          <div class="academy-player-wrapper">
+            <iframe src="${embedUrl}" title="${title}" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+      `;
+      mount.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('briceno-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          renderBriceno(e.target.value);
+        });
+      }
+
+      const dropdownTrigger = document.getElementById('semana-dropdown-trigger');
+      if (dropdownTrigger) {
+        dropdownTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleSemanaDropdown();
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('semana-custom-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+          closeSemanaDropdown();
+        }
+      });
+
+      populateSemanasDropdown();
+      setProceso('2027');
+    });
+  </script>
+  <!-- =====================================================
+       BARRA DE NAVEGACIÓN INFERIOR (BOTTOM NAV MOBILE APP)
+  ===================================================== -->
+  <nav class="app-bottom-nav" aria-label="Navegación Móvil">
+    <a href="index.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Inicio</span>
+    </a>
+    <a href="cursos.html" class="app-nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>Cursos</span>
+    </a>
+    <a href="biblioteca.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      <span>Recursos</span>
+      <span class="app-nav-badge">NUEVO</span>
+    </a>
+    <a href="simulador.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polygon points="10 8 16 12 10 16 10 8"></polygon>
+      </svg>
+      <span>Simulador</span>
+    </a>
+  </nav>
+
+</body>
+</html>

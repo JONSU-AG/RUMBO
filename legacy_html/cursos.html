@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academias y Cursos · RUMBO</title>
+
+  <!-- Fuentes Google: Nunito, Outfit, Plus Jakarta Sans, Inter y Patrick Hand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&family=Outfit:wght@500;600;700;800&family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos Modulares RUMBO Web App PWA (3 Archivos) -->
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/components.css">
+  <link rel="stylesheet" href="assets/mobile-app.css">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+
+<body class="page-cursos">
+
+  <!-- =====================================================
+       HEADER / CABECERA
+  ===================================================== -->
+  <header class="site-header">
+    <div class="container">
+      
+      <!-- LOGO -->
+      <a href="index.html" class="brand" aria-label="RUMBO Inicio">
+        <span class="logo-box">
+          <img class="logo-mark" src="assets/LOGOR.png" alt="RUMBO" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex'">
+          <svg class="logo-fallback" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="24" r="14" fill="#4CC3F0"/>
+            <circle cx="16" cy="19" r="2.2" fill="#0B1229"/>
+            <path d="M8 24 L2 20 L8 28 Z" fill="#4CC3F0"/>
+            <text x="21" y="34" font-family="Poppins, sans-serif" font-weight="800" font-size="30" fill="#E8433F">R</text>
+          </svg>
+        </span>
+        RUMBO
+      </a>
+
+      <!-- NAVEGACIÓN ESCRITORIO -->
+      <nav class="main-nav" id="main-nav">
+        <a href="index.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11l9-8 9 8"/>
+            <path d="M5 10v10h14V10"/>
+          </svg>
+          Inicio
+        </a>
+
+        <a href="cursos.html" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Cursos
+        </a>
+
+        <a href="biblioteca.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          Recursos y Comunidad
+        </a>
+
+        <a href="simulador.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <path d="M8 16v-3"/>
+            <path d="M12 16V8"/>
+            <path d="M16 16v-5"/>
+          </svg>
+          Simulador
+        </a>
+      </nav>
+
+      <!-- BOTÓN MENÚ MÓVIL -->
+      <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú de navegación" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- =====================================================
+         CABECERA HEROICA EMOTIVA
+    ===================================================== -->
+    <section class="estudiante-hero-section">
+      <div class="estudiante-hero-header">
+        <span class="estudiante-hero-kicker">💙 Mensaje de la comunidad</span>
+        <h1 class="estudiante-hero-title">Te quiero, estudiante promedio 💙</h1>
+      </div>
+
+      <div class="estudiante-narrativa-box">
+        <p class="estudiante-p-main">
+          <strong>Mantener este espacio cuesta tiempo.</strong> Si el contenido <strong>te sirve</strong> y quieres que <strong>sigamos adelante</strong>, solo te pedimos dos cosas a cambio:
+        </p>
+
+        <div class="estudiante-peticiones-list">
+          <a href="https://whatsapp.com/channel/0029VbDFAEu7YScyVZBNul0X" target="_blank" rel="noopener noreferrer" class="peticion-card-link" title="Únete a nuestro canal oficial de WhatsApp">
+            <div class="peticion-card-content">
+              <span class="peticion-icon">📲</span>
+              <span><strong>Únete</strong> a nuestro <strong>canal de WhatsApp</strong>.</span>
+            </div>
+            <span class="peticion-arrow">↗</span>
+          </a>
+
+          <div class="peticion-card-item">
+            <div class="peticion-card-content">
+              <span class="peticion-icon">🚀</span>
+              <span><strong>Comparte la página</strong> con todos tus compañeros.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="estudiante-final-banner">
+          ¡Tu apoyo es lo único que necesitamos para no detenernos!
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 28px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-title); font-size: 1.02rem; font-weight: 800; color: var(--navy); background: #FFFFFF; border: 1.5px solid var(--border); padding: 8px 24px; border-radius: var(--radius-full); box-shadow: var(--shadow-xs);">
+          👇 Selecciona una academia para acceder a sus cursos
+        </span>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         GRID DE ACADEMIAS
+    ===================================================== -->
+    <section class="section" style="padding-top: 0;">
+      <div class="academy-grid">
+
+        <!-- 1. ACADEMIA ESPARTA -->
+        <a href="esparta.html" class="academy-card esparta" aria-label="Ingresar a clases de Academia Esparta">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="academy-badge esparta">⚔️ ESPARTA</span>
+            <span class="status-pill in-progress">
+              <span class="pulse-dot"></span> 18 Materias
+            </span>
+          </div>
+          <h2 style="color: #E11D48;">ESPARTA</h2>
+          <p>Cursos completos, banco de clases teóricas y resolución de problemas por materia.</p>
+          <div class="btn-academy" style="background: linear-gradient(135deg, #E11D48 0%, #2B388F 100%); color: #FFFFFF;">
+            <span>Ver Clases</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+
+        <!-- 2. ACADEMIA KELSEN -->
+        <a href="kelsen.html" class="academy-card kelsen" aria-label="Ingresar a clases de Academia Kelsen">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="academy-badge kelsen">⚖️ KELSEN</span>
+            <span class="status-pill in-progress">
+              <span class="pulse-dot"></span> 51 Jornadas
+            </span>
+          </div>
+          <h2 style="color: #4338CA;">KELSEN</h2>
+          <p>Horarios oficiales, sesiones intensivas y clases organizadas por jornadas diarias.</p>
+          <div class="btn-academy" style="background: linear-gradient(135deg, #4338CA 0%, #7C3AED 100%); color: #FFFFFF;">
+            <span>Ver Clases</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+
+        <!-- 3. ACADEMIA BRICEÑO -->
+        <a href="briceño.html" class="academy-card briceno" aria-label="Ingresar a clases de Academia Briceño">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="academy-badge briceno">🎓 BRICEÑO</span>
+            <span class="status-pill in-progress">
+              <span class="pulse-dot"></span> 2027 EN CURSO
+            </span>
+          </div>
+          <h2 style="color: #059669;">BRICEÑO</h2>
+          <p>Ciclo 2027 en curso (CEPREUNSA / Ordinario / CEPREQUINTOS) y Proceso 2026 intensivo por áreas.</p>
+          <div class="btn-academy" style="background: linear-gradient(135deg, #059669 0%, #2563EB 100%); color: #FFFFFF;">
+            <span>Ver Clases</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================
+       BOTÓN WHATSAPP FLOTANTE
+  ===================================================== -->
+  <a class="rumbo-whatsapp-float" href="https://whatsapp.com/channel/0029VbDFAEu7YScyVZBNul0X" target="_blank" rel="noopener noreferrer" aria-label="Canal de WhatsApp de RUMBO">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.52 3.48A11.82 11.82 0 0 0 12.08 0C5.55 0 .24 5.31.24 11.84c0 2.09.55 4.13 1.6 5.93L.13 24l6.37-1.67a11.84 11.84 0 0 0 5.58 1.42h.01c6.53 0 11.84-5.31 11.84-11.84 0-3.17-1.23-6.15-3.41-8.43ZM12.09 21.7c-1.75 0-3.46-.47-4.96-1.36l-.36-.21-3.78.99 1.01-3.68-.23-.38a9.82 9.82 0 0 1-1.51-5.22c0-5.43 4.42-9.85 9.85-9.85 2.63 0 5.1 1.03 6.96 2.89a9.78 9.78 0 0 1 2.89 6.96c0 5.43-4.42 9.85-9.85 9.85Zm5.4-7.38c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.21 5.09 4.5.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/>
+    </svg>
+    Canal de WhatsApp
+  </a>
+
+  <!-- =====================================================
+       NAVEGACIÓN MÓVIL INFERIOR (BOTTOM NAV)
+  ===================================================== -->
+  <nav class="bottom-nav" style="grid-template-columns: repeat(4, 1fr);">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11l9-8 9 8"/>
+        <path d="M5 10v10h14V10"/>
+      </svg>
+      Inicio
+    </a>
+
+    <a href="cursos.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Cursos
+    </a>
+
+    <a href="biblioteca.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+          Recursos y Comunidad
+    </a>
+
+    <a href="simulador.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <path d="M8 16v-3"/>
+        </a>
+
+        <a href="cursos.html" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Cursos
+        </a>
+
+        <a href="biblioteca.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          Recursos y Comunidad
+        </a>
+
+        <a href="simulador.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <path d="M8 16v-3"/>
+            <path d="M12 16V8"/>
+            <path d="M16 16v-5"/>
+          </svg>
+          Simulador
+        </a>
+      </nav>
+
+      <!-- BOTÓN MENÚ MÓVIL -->
+      <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú de navegación" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- =====================================================
+         CABECERA HEROICA EMOTIVA
+    ===================================================== -->
+    <section class="estudiante-hero-section">
+      <div class="estudiante-hero-header">
+        <span class="estudiante-hero-kicker">💙 Mensaje de la comunidad</span>
+        <h1 class="estudiante-hero-title">Te quiero, estudiante promedio 💙</h1>
+      </div>
+
+      <div class="estudiante-narrativa-box">
+        <p class="estudiante-p-main">
+          <strong>Mantener este espacio cuesta tiempo.</strong> Si el contenido <strong>te sirve</strong> y quieres que <strong>sigamos adelante</strong>, solo te pedimos dos cosas a cambio:
+        </p>
+
+        <div class="estudiante-peticiones-list">
+          <a href="https://whatsapp.com/channel/0029VbDFAEu7YScyVZBNul0X" target="_blank" rel="noopener noreferrer" class="peticion-card-link" title="Únete a nuestro canal oficial de WhatsApp">
+            <div class="peticion-card-content">
+              <span class="peticion-icon">📲</span>
+              <span><strong>Únete</strong> a nuestro <strong>canal de WhatsApp</strong>.</span>
+            </div>
+            <span class="peticion-arrow">↗</span>
+          </a>
+
+          <div class="peticion-card-item">
+            <div class="peticion-card-content">
+              <span class="peticion-icon">🚀</span>
+              <span><strong>Comparte la página</strong> con todos tus compañeros.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="estudiante-final-banner">
+          ¡Tu apoyo es lo único que necesitamos para no detenernos!
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 28px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-title); font-size: 1.02rem; font-weight: 800; color: var(--navy); background: #FFFFFF; border: 1.5px solid var(--border); padding: 8px 24px; border-radius: var(--radius-full); box-shadow: var(--shadow-xs);">
+          👇 Selecciona una academia para acceder a sus cursos
+        </span>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         GRID DE ACADEMIAS
+    ===================================================== -->
+    <section class="section" style="padding-top: 0;">
+      <div class="academy-grid">
+
+        <!-- 1. ACADEMIA ESPARTA -->
+        <a href="esparta.html" class="academy-card esparta" aria-label="Ingresar a clases de Academia Esparta">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="academy-badge esparta">⚔️ ESPARTA</span>
+            <span class="status-pill in-progress">
+              <span class="pulse-dot"></span> 18 Materias
+            </span>
+          </div>
+          <h2 style="color: #E11D48;">ESPARTA</h2>
+          <p>Cursos completos, banco de clases teóricas y resolución de problemas por materia.</p>
+          <div class="btn-academy" style="background: linear-gradient(135deg, #E11D48 0%, #2B388F 100%); color: #FFFFFF;">
+            <span>Ver Clases</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+
+        <!-- 2. ACADEMIA KELSEN -->
+        <a href="kelsen.html" class="academy-card kelsen" aria-label="Ingresar a clases de Academia Kelsen">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="academy-badge kelsen">⚖️ KELSEN</span>
+            <span class="status-pill in-progress">
+              <span class="pulse-dot"></span> 51 Jornadas
+            </span>
+          </div>
+          <h2 style="color: #4338CA;">KELSEN</h2>
+          <p>Horarios oficiales, sesiones intensivas y clases organizadas por jornadas diarias.</p>
+          <div class="btn-academy" style="background: linear-gradient(135deg, #4338CA 0%, #7C3AED 100%); color: #FFFFFF;">
+            <span>Ver Clases</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+
+        <!-- 3. ACADEMIA BRICEÑO -->
+        <a href="briceño.html" class="academy-card briceno" aria-label="Ingresar a clases de Academia Briceño">
+          <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="academy-badge briceno">🎓 BRICEÑO</span>
+            <span class="status-pill in-progress">
+              <span class="pulse-dot"></span> 2027 EN CURSO
+            </span>
+          </div>
+          <h2 style="color: #059669;">BRICEÑO</h2>
+          <p>Ciclo 2027 en curso (CEPREUNSA / Ordinario / CEPREQUINTOS) y Proceso 2026 intensivo por áreas.</p>
+          <div class="btn-academy" style="background: linear-gradient(135deg, #059669 0%, #2563EB 100%); color: #FFFFFF;">
+            <span>Ver Clases</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================
+       BOTÓN WHATSAPP FLOTANTE
+  ===================================================== -->
+  <a class="rumbo-whatsapp-float" href="https://whatsapp.com/channel/0029VbDFAEu7YScyVZBNul0X" target="_blank" rel="noopener noreferrer" aria-label="Canal de WhatsApp de RUMBO">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.52 3.48A11.82 11.82 0 0 0 12.08 0C5.55 0 .24 5.31.24 11.84c0 2.09.55 4.13 1.6 5.93L.13 24l6.37-1.67a11.84 11.84 0 0 0 5.58 1.42h.01c6.53 0 11.84-5.31 11.84-11.84 0-3.17-1.23-6.15-3.41-8.43ZM12.09 21.7c-1.75 0-3.46-.47-4.96-1.36l-.36-.21-3.78.99 1.01-3.68-.23-.38a9.82 9.82 0 0 1-1.51-5.22c0-5.43 4.42-9.85 9.85-9.85 2.63 0 5.1 1.03 6.96 2.89a9.78 9.78 0 0 1 2.89 6.96c0 5.43-4.42 9.85-9.85 9.85Zm5.4-7.38c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.21 5.09 4.5.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/>
+    </svg>
+    Canal de WhatsApp
+  </a>
+
+  <!-- =====================================================
+       BARRA DE NAVEGACIÓN INFERIOR (BOTTOM NAV MOBILE APP)
+  ===================================================== -->
+  <nav class="app-bottom-nav" aria-label="Navegación Móvil">
+    <a href="index.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Inicio</span>
+    </a>
+    <a href="cursos.html" class="app-nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>Cursos</span>
+    </a>
+    <a href="biblioteca.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      <span>Recursos</span>
+      <span class="app-nav-badge">NUEVO</span>
+    </a>
+    <a href="simulador.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polygon points="10 8 16 12 10 16 10 8"></polygon>
+      </svg>
+      <span>Simulador</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="assets/users.js"></script>
+  <script src="assets/auth.js"></script>
+
+  <!-- Script Menú Móvil -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('nav-toggle');
+      const mainNav = document.getElementById('main-nav');
+      if (toggleBtn && mainNav) {
+        toggleBtn.addEventListener('click', () => {
+          mainNav.classList.toggle('open');
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

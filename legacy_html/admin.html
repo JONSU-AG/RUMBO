@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración ✨ RUMBO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Plus+Jakarta+Sans:wght@500;600&display=swap" rel="stylesheet">
+  <!-- Estilos Modulares RUMBO Web App PWA (3 Archivos) -->
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/components.css">
+  <link rel="stylesheet" href="assets/mobile-app.css">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+    .admin-container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    h1 { font-family: 'Nunito', sans-serif; color: #6b21a8; text-align: center; margin-bottom: 5px; }
+    p.subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+    
+    .admin-tabs { display: flex; border-bottom: 2px solid #e5e7eb; margin-bottom: 20px; overflow-x: auto; }
+    .admin-tab { padding: 12px 25px; cursor: pointer; font-weight: bold; color: #6b7280; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+    .admin-tab.active { color: #6b21a8; border-bottom-color: #6b21a8; }
+    
+    /* Filters */
+    .filters-container { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .search-input { flex: 1; min-width: 250px; padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; outline: none; transition: 0.3s; font-family: inherit; }
+    .search-input:focus { border-color: #6b21a8; box-shadow: 0 0 0 3px rgba(107,33,168, 0.1); }
+    .filter-select { padding: 10px 15px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; outline: none; background: #fff; cursor: pointer; }
+    
+    .admin-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 20px; background: #ffffff; transition: 0.3s; }
+    .admin-card-header { display: flex; justify-content: space-between; align-items:center; border-bottom: 1px solid #f3f4f6; padding-bottom: 12px; margin-bottom: 15px; }
+    .admin-card-title { font-size: 1.3rem; margin: 0; font-family: 'Nunito', sans-serif; }
+    .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .admin-field-desc { grid-column: span 2; }
+    .admin-field-label { font-size: 0.8rem; color: #6b7280; font-weight: bold; display: block; margin-bottom: 4px; }
+    .admin-field-value { margin: 0; font-size: 0.95rem; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #f3f4f6; }
+    
+    .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; margin-right: 5px; margin-bottom:5px; transition:0.2s; }
+    .btn-ver { background: #e0f2fe; color: #0284c7; text-decoration: none; display: inline-block; }
+    .btn-aprobar { background: #10b981; color: white; }
+    .btn-rechazar { background: #ef4444; color: white; }
+    .btn-editar { background: #fef3c7; color: #d97706; }
+    .btn-reaprobar { background: #6366f1; color: white; }
+    
+    .edit-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 0.95rem; box-sizing: border-box; }
+    .edit-input:focus { outline: none; border-color: #6b21a8; }
+    .edit-mode { background: #fefce8; border-color: #fde047; }
+    
+    /* iPhone style Modal */
+    .iphone-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+    .iphone-modal { background: #fff; width: 320px; border-radius: 14px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; transform: scale(0.95); transition: transform 0.2s ease; }
+    .iphone-modal-header { background: #6b21a8; color: white; padding: 20px; }
+    .iphone-modal-header h3 { margin: 0; font-size: 1.2rem; font-weight: 600; }
+    .iphone-modal-body { padding: 20px; font-size: 0.95rem; color: #333; line-height: 1.4; }
+    .iphone-modal-buttons { display: flex; border-top: 1px solid #e5e5ea; }
+    .iphone-modal-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.1s; }
+    .iphone-modal-btn:active { background: #f2f2f7; }
+    .btn-cancel { color: #ef4444; border-right: 1px solid #e5e5ea; }
+    .btn-confirm { color: #10b981; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-container">
+    <h1>Panel de Control RUMBO 🛠️</h1>
+    <p class="subtitle">Revisa, aprueba, edita o elimina los recursos de la comunidad.</p>
+    
+    <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px;">
+      <button class="btn" id="btn-modo-recursos" style="background:#6b21a8; color:white; font-size:1.05rem; padding:10px 20px; border-radius:10px;" onclick="cambiarModo('recursos')">📚 Documentos</button>
+      <button class="btn" id="btn-modo-alianzas" style="background:#e5e7eb; color:#4b5563; font-size:1.05rem; padding:10px 20px; border-radius:10px;" onclick="cambiarModo('alianzas')">🤝 Alianzas</button>
+    </div>
+    
+    <div class="admin-tabs" id="tabs-recursos">
+      <div class="admin-tab active" onclick="cambiarTab('pendiente')">⏳ Pendientes</div>
+      <div class="admin-tab" onclick="cambiarTab('reportado')">🚩 Reportados</div>
+      <div class="admin-tab" onclick="cambiarTab('aprobado')">✅ Aprobados</div>
+    </div>
+
+    <div class="admin-tabs" id="tabs-alianzas" style="display:none;">
+      <div class="admin-tab active" onclick="cambiarTab('pendiente')">⏳ Solicitudes Nuevas</div>
+      <div class="admin-tab" onclick="cambiarTab('aprobado')">✅ Aliados Activos</div>
+    </div>
+
+    <div class="filters-container">
+        <select id="filter-tipo" class="filter-select" onchange="renderList()">
+            <option value="todos">Todos los Tipos</option>
+            <option value="file">Solo Archivos PDF</option>
+            <option value="link">Solo Enlaces Drive</option>
+        </select>
+        
+        <!-- El buscador solo se muestra en la pestaña de aprobados -->
+        <input type="text" id="admin-search" class="search-input" placeholder="🔍 Buscar recurso en aprobados..." onkeyup="renderList()" style="display:none;">
+    </div>
+
+    <div id="lista-recursos"><p style="text-align: center;">Cargando base de datos...</p></div>
+  </div>
+
+  <!-- iOS Modal -->
+  <div class="iphone-modal-overlay" id="custom-modal">
+      <div class="iphone-modal">
+          <div class="iphone-modal-header"><h3>Confirmación</h3></div>
+          <div class="iphone-modal-body" id="custom-modal-body">¿Estás seguro?</div>
+          <div class="iphone-modal-buttons">
+              <button class="iphone-modal-btn btn-cancel" onclick="closeModal(false)">Salir</button>
+              <button class="iphone-modal-btn btn-confirm" onclick="closeModal(true)">Aceptar</button>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://ymkasxcjbzusvctsbkkq.supabase.co';
+    const supabaseSecretKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlta2FzeGNqYnp1c3ZjdHNia2txIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODE2MzAwMCwiZXhwIjoyMTAzNzM5MDAwfQ.jSonpizM9NnQPQ94ycd3bT88_m7Z1qXcjYvKe0Ys7ao'; 
+
+    let todosRecursos = [];
+    let todosAlianzas = [];
+    let modoActual = 'recursos';
+    let tabActual = 'pendiente';
+    let editandoId = null;
+
+    let modalResolver = null;
+    function openModal(message) {
+        document.getElementById('custom-modal-body').innerText = message;
+        document.getElementById('custom-modal').style.display = 'flex';
+        setTimeout(() => document.querySelector('.iphone-modal').style.transform = 'scale(1)', 10);
+        return new Promise(resolve => { modalResolver = resolve; });
+    }
+    function closeModal(result) {
+        document.querySelector('.iphone-modal').style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            document.getElementById('custom-modal').style.display = 'none';
+            if(modalResolver) modalResolver(result);
+        }, 150);
+    }
+    function showToast(message) {
+        document.getElementById('custom-modal-body').innerText = message;
+        document.querySelector('.iphone-modal-buttons').style.display = 'none';
+        document.getElementById('custom-modal').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('custom-modal').style.display = 'none';
+            document.querySelector('.iphone-modal-buttons').style.display = 'flex';
+        }, 2000);
+    }
+
+    async function cargarRecursos() {
+      try {
+        const res = await fetch(supabaseUrl + '/rest/v1/recursos?select=*', {
+          headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error("Error HTTP " + res.status);
+        const data = await res.json();
+        todosRecursos = data.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+        renderList();
+      } catch (err) { document.getElementById('lista-recursos').innerHTML = '<p style="color:red; text-align:center;">Error: ' + err.message + '</p>'; }
+    }
+
+    async function cargarAlianzas() {
+      try {
+        const res = await fetch(supabaseUrl + '/rest/v1/alianzas?select=*', {
+          headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error("Error HTTP " + res.status);
+        const data = await res.json();
+        todosAlianzas = data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+        renderList();
+      } catch (err) { document.getElementById('lista-recursos').innerHTML = '<p style="color:red; text-align:center;">Error cargando alianzas: ' + err.message + '</p>'; }
+    }
+
+    function cambiarModo(modo) {
+        modoActual = modo;
+        tabActual = 'pendiente';
+        editandoId = null;
+        
+        if (modo === 'recursos') {
+            document.getElementById('btn-modo-recursos').style.background = '#6b21a8';
+            document.getElementById('btn-modo-recursos').style.color = 'white';
+            document.getElementById('btn-modo-alianzas').style.background = '#e5e7eb';
+            document.getElementById('btn-modo-alianzas').style.color = '#4b5563';
+            document.getElementById('tabs-recursos').style.display = 'flex';
+            document.getElementById('tabs-alianzas').style.display = 'none';
+            document.getElementById('filter-tipo').style.display = 'inline-block';
+            
+            Array.from(document.getElementById('tabs-recursos').children).forEach(t => t.classList.remove('active'));
+            document.getElementById('tabs-recursos').children[0].classList.add('active');
+            
+            cargarRecursos();
+        } else {
+            document.getElementById('btn-modo-alianzas').style.background = '#6b21a8';
+            document.getElementById('btn-modo-alianzas').style.color = 'white';
+            document.getElementById('btn-modo-recursos').style.background = '#e5e7eb';
+            document.getElementById('btn-modo-recursos').style.color = '#4b5563';
+            document.getElementById('tabs-alianzas').style.display = 'flex';
+            document.getElementById('tabs-recursos').style.display = 'none';
+            document.getElementById('filter-tipo').style.display = 'none';
+            document.getElementById('admin-search').style.display = 'none';
+            
+            Array.from(document.getElementById('tabs-alianzas').children).forEach(t => t.classList.remove('active'));
+            document.getElementById('tabs-alianzas').children[0].classList.add('active');
+            
+            cargarAlianzas();
+        }
+    }
+
+    function cambiarTab(tab) {
+        tabActual = tab;
+        editandoId = null;
+        const currentTabs = modoActual === 'recursos' ? document.getElementById('tabs-recursos') : document.getElementById('tabs-alianzas');
+        Array.from(currentTabs.children).forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if (tabActual === 'aprobado') {
+            document.getElementById('admin-search').style.display = 'block';
+        } else {
+            document.getElementById('admin-search').style.display = 'none';
+            document.getElementById('admin-search').value = ''; // limpiar busqueda
+        }
+        
+        renderList();
+    }
+    
+    function activarEdicion(id) { editandoId = id; renderList(); }
+    function cancelarEdicion() { editandoId = null; renderList(); }
+
+    async function guardarEdicion(id) {
+        const confirmed = await openModal("¿Seguro que deseas guardar y aplicar estos cambios?");
+        if (!confirmed) return;
+
+        const nTitulo = document.getElementById('edit-titulo-' + id).value;
+        const nCat = document.getElementById('edit-cat-' + id).value;
+        const nDesc = document.getElementById('edit-desc-' + id).value;
+        const tipoRadio = document.querySelector('input[name="edit-tipo-' + id + '"]:checked').value;
+        
+        let nUrl = "";
+
+        document.getElementById('custom-modal-body').innerText = "Guardando...";
+        document.querySelector('.iphone-modal-buttons').style.display = 'none';
+        document.getElementById('custom-modal').style.display = 'flex';
+        
+        try {
+            if (tipoRadio === 'link') {
+                nUrl = document.getElementById('edit-url-' + id).value;
+            } else {
+                const archivoInput = document.getElementById('edit-file-' + id);
+                if (archivoInput && archivoInput.files && archivoInput.files.length > 0) {
+                    const file = archivoInput.files[0];
+                    const fileName = Date.now() + '_' + file.name;
+                    const res = await fetch(supabaseUrl + '/storage/v1/object/pdf/' + fileName, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': supabaseSecretKey,
+                            'Authorization': 'Bearer ' + supabaseSecretKey,
+                            'Content-Type': file.type || 'application/octet-stream'
+                        },
+                        body: file
+                    });
+                    if (!res.ok) throw new Error("Error subiendo el nuevo PDF.");
+                    nUrl = supabaseUrl + '/storage/v1/object/public/pdf/' + fileName;
+                } else {
+                    const item = todosRecursos.find(i => i.id === id);
+                    nUrl = item.url;
+                }
+            }
+
+            await fetch(supabaseUrl + '/rest/v1/recursos?id=eq.' + id, { 
+                method: 'PATCH', 
+                headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ titulo: nTitulo, categoria: nCat, tipo: tipoRadio, url: nUrl, descripcion: nDesc }) 
+            });
+
+            document.getElementById('custom-modal').style.display = 'none';
+            document.querySelector('.iphone-modal-buttons').style.display = 'flex';
+            showToast("¡Cambios guardados!");
+            editandoId = null;
+            cargarRecursos();
+        } catch (error) {
+            alert(error.message);
+            document.getElementById('custom-modal').style.display = 'none';
+            document.querySelector('.iphone-modal-buttons').style.display = 'flex';
+        }
+    }
+
+    function renderList() {
+      if (modoActual === 'alianzas') {
+          renderListAlianzas();
+          return;
+      }
+      
+      const cont = document.getElementById('lista-recursos');
+      const searchQuery = document.getElementById('admin-search').value.toLowerCase();
+      const tipoFilter = document.getElementById('filter-tipo').value;
+      
+      let filtrados = todosRecursos.filter(r => r.estado === tabActual);
+      
+      if (tipoFilter !== 'todos') {
+          filtrados = filtrados.filter(r => r.tipo === tipoFilter);
+      }
+      
+      if (tabActual === 'aprobado' && searchQuery) {
+          filtrados = filtrados.filter(r => {
+              const tituloMatch = r.titulo && r.titulo.toLowerCase().includes(searchQuery);
+              const descMatch = r.descripcion && r.descripcion.toLowerCase().includes(searchQuery);
+              return tituloMatch || descMatch;
+          });
+      }
+
+      if (filtrados.length === 0) { 
+          cont.innerHTML = '<p style="text-align:center; padding: 40px 0; color:#6b7280; font-size:1.1rem;">No hay archivos en esta sección 🎉</p>'; 
+          return; 
+      }
+      
+      let html = '';
+      filtrados.forEach(item => {
+          let badgeColor = item.estado === 'pendiente' ? '#d97706' : (item.estado === 'reportado' ? '#991b1b' : '#065f46');
+          let badgeBg = item.estado === 'pendiente' ? '#fef3c7' : (item.estado === 'reportado' ? '#fee2e2' : '#d1fae5');
+          let badgeText = item.estado.toUpperCase();
+
+          if (editandoId === item.id) {
+              html += '<div class="admin-card edit-mode"><div class="admin-card-header"><h3 class="admin-card-title">✏️ Editando Documento</h3></div>';
+              html += '<div class="admin-grid">';
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Título</span><input type="text" id="edit-titulo-' + item.id + '" class="edit-input" value="' + item.titulo + '"></div>';
+              html += '<div><span class="admin-field-label">Categoría</span><select id="edit-cat-' + item.id + '" class="edit-input">';
+              html += '<option value="matematicas" ' + (item.categoria=='matematicas'?'selected':'') + '>Matemáticas</option>';
+              html += '<option value="ciencias" ' + (item.categoria=='ciencias'?'selected':'') + '>Ciencias</option>';
+              html += '<option value="letras" ' + (item.categoria=='letras'?'selected':'') + '>Letras</option>';
+              html += '<option value="variado" ' + (item.categoria=='variado'?'selected':'') + '>Variado</option>';
+              html += '</select></div>';
+              
+              // Tipo y Upload Edit Logic
+              html += '<div style="grid-column: span 2;">';
+              html += '<span class="admin-field-label">Tipo de Recurso</span>';
+              html += '<div style="display:flex; gap:20px; margin-bottom:10px; font-size:0.9rem;">';
+              html += '<label><input type="radio" name="edit-tipo-' + item.id + '" value="link" ' + (item.tipo == 'link' ? 'checked' : '') + ' onchange="document.getElementById(\'div-url-' + item.id + '\').style.display=\'block\'; document.getElementById(\'div-file-' + item.id + '\').style.display=\'none\';"> Enlace de Drive</label>';
+              html += '<label><input type="radio" name="edit-tipo-' + item.id + '" value="file" ' + (item.tipo == 'file' ? 'checked' : '') + ' onchange="document.getElementById(\'div-url-' + item.id + '\').style.display=\'none\'; document.getElementById(\'div-file-' + item.id + '\').style.display=\'block\';"> Archivo PDF</label>';
+              html += '</div>';
+              html += '<div id="div-url-' + item.id + '" style="display:' + (item.tipo == 'link' ? 'block' : 'none') + ';">';
+              html += '<span class="admin-field-label">Enlace / URL</span>';
+              html += '<input type="text" id="edit-url-' + item.id + '" class="edit-input" value="' + item.url + '">';
+              html += '</div>';
+              html += '<div id="div-file-' + item.id + '" style="display:' + (item.tipo == 'file' ? 'block' : 'none') + ';">';
+              html += '<span class="admin-field-label">Actualizar Archivo (Opcional)</span>';
+              html += '<input type="file" id="edit-file-' + item.id + '" class="edit-input" style="padding:10px; background:#fff;">';
+              html += '<small style="color:#666;">Enlace actual: <a href="' + item.url + '" target="_blank">Ver Archivo</a></small>';
+              html += '</div></div>';
+
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Descripción</span><textarea id="edit-desc-' + item.id + '" class="edit-input" rows="4">' + item.descripcion + '</textarea></div>';
+              html += '</div><div style="margin-top:15px;"><button class="btn btn-aprobar" onclick="guardarEdicion(' + item.id + ')">💾 Guardar</button><button class="btn" style="background:#e5e7eb; color:#4b5563;" onclick="cancelarEdicion()">Cancelar</button></div></div>';
+          } else {
+              let desc = item.descripcion || '';
+              let reporte = '';
+              if(item.estado === 'reportado' && desc.includes('🚩 REPORTE:')) {
+                  let p = desc.split('🚩 REPORTE:'); desc = p[0];
+                  reporte = '<div style="grid-column: span 2;"><span class="admin-field-label" style="color:red;">MOTIVO DEL REPORTE</span><p class="admin-field-value" style="background:#fee2e2; color:red; font-weight:600;">' + p[1] + '</p></div>';
+              }
+              html += '<div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">' + item.titulo + '</h3><span class="badge" style="background:' + badgeBg + '; color:' + badgeColor + ';">' + badgeText + '</span></div>';
+              html += '<div class="admin-grid"><div><span class="admin-field-label">Categoría</span><p class="admin-field-value" style="text-transform:capitalize;">' + item.categoria + '</p></div><div><span class="admin-field-label">Tipo</span><p class="admin-field-value">' + (item.tipo === 'file' ? 'PDF' : 'Enlace') + '</p></div>';
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Descripción</span><p class="admin-field-value" style="white-space:pre-wrap;">' + desc + '</p></div>' + reporte + '</div><div style="margin-top:15px;">';
+              html += '<a href="' + item.url + '" target="_blank" class="btn btn-ver">👀 Ver Documento</a>';
+              html += '<button class="btn btn-editar" onclick="activarEdicion(' + item.id + ')">✏️ Editar</button>';
+              
+              if(item.estado === 'pendiente') { 
+                  html += '<button class="btn btn-aprobar" onclick="cambiarEstado(' + item.id + ', \'aprobado\')">✅ Aprobar</button>'; 
+              } else if (item.estado === 'reportado') {
+                  html += '<button class="btn btn-reaprobar" onclick="cambiarEstado(' + item.id + ', \'aprobado\')">♻️ Ignorar Reporte (Re-aprobar)</button>';
+              }
+
+              html += '<button class="btn btn-rechazar" onclick="eliminar(' + item.id + ')">❌ Eliminar Definitivo</button></div></div>';
+          }
+      });
+      cont.innerHTML = html;
+    }
+
+    function renderListAlianzas() {
+      const cont = document.getElementById('lista-recursos');
+      let filtrados = todosAlianzas.filter(a => a.estado === tabActual);
+
+      if (filtrados.length === 0) { 
+          cont.innerHTML = '<p style="text-align:center; padding: 40px 0; color:#6b7280; font-size:1.1rem;">No hay alianzas en esta sección 🎉</p>'; 
+          return; 
+      }
+      
+      let html = '';
+      filtrados.forEach(item => {
+          let badgeColor = item.estado === 'pendiente' ? '#d97706' : '#065f46';
+          let badgeBg = item.estado === 'pendiente' ? '#fef3c7' : '#d1fae5';
+          let badgeText = item.estado.toUpperCase();
+
+          let redesHtml = '';
+          if(item.redes && Array.isArray(item.redes)) {
+              item.redes.forEach(red => {
+                  redesHtml += '<a href="' + red.link + '" target="_blank" style="display:inline-block; margin-right:10px; margin-top:5px; background:#f1f5f9; padding:5px 10px; border-radius:6px; text-decoration:none; color:#334155; font-size:0.85rem; border:1px solid #e2e8f0;">🔗 ' + (red.nombre || red.tipo) + '</a>';
+              });
+          }
+          
+          let qrHtml = '';
+          if(item.imagen_qr) {
+              qrHtml = '<div style="margin-top:10px;"><a href="' + item.imagen_qr + '" target="_blank" class="btn btn-ver" style="font-size:0.8rem; padding:5px 10px;">📸 Ver Foto/QR Adjunto</a></div>';
+          }
+
+          if (editandoId === item.id) {
+              html += '<div class="admin-card edit-mode"><div class="admin-card-header"><h3 class="admin-card-title">✏️ Editando Alianza</h3></div>';
+              html += '<div class="admin-grid">';
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Nombre del Aliado</span><input type="text" id="edit-alianza-nombre-' + item.id + '" class="edit-input" value="' + (item.nombre_aliado || '') + '"></div>';
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Descripción</span><textarea id="edit-alianza-desc-' + item.id + '" class="edit-input" rows="4">' + (item.descripcion || '') + '</textarea></div>';
+              
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Contacto (Opcional)</span><input type="text" id="edit-alianza-contacto-' + item.id + '" class="edit-input" value="' + (item.contacto || '') + '"></div>';
+              
+              if(item.redes && Array.isArray(item.redes)) {
+                  html += '<div class="admin-field-desc"><span class="admin-field-label">Enlaces (Redes Sociales)</span>';
+                  item.redes.forEach((red, index) => {
+                      html += '<div style="display:flex; gap:10px; margin-bottom:5px; flex-wrap:wrap;">';
+                      html += '<select id="edit-alianza-red-tipo-' + item.id + '-' + index + '" class="edit-input" style="width:120px; padding:8px;">';
+                      html += '<option value="whatsapp" ' + (red.tipo==='whatsapp'?'selected':'') + '>WhatsApp</option>';
+                      html += '<option value="telegram" ' + (red.tipo==='telegram'?'selected':'') + '>Telegram</option>';
+                      html += '<option value="youtube" ' + (red.tipo==='youtube'?'selected':'') + '>YouTube</option>';
+                      html += '<option value="instagram" ' + (red.tipo==='instagram'?'selected':'') + '>Instagram</option>';
+                      html += '<option value="tiktok" ' + (red.tipo==='tiktok'?'selected':'') + '>TikTok</option>';
+                      html += '<option value="facebook" ' + (red.tipo==='facebook'?'selected':'') + '>Facebook</option>';
+                      html += '<option value="otra" ' + (red.tipo==='otra'?'selected':'') + '>Otra</option>';
+                      html += '</select>';
+                      html += '<input type="text" id="edit-alianza-red-nombre-' + item.id + '-' + index + '" class="edit-input" style="width:130px; padding:8px;" placeholder="Nombre de red" value="' + (red.nombre || '') + '">';
+                      html += '<input type="text" id="edit-alianza-red-' + item.id + '-' + index + '" class="edit-input" style="padding:8px; flex:1; min-width:150px;" placeholder="Enlace" value="' + red.link + '">';
+                      html += '</div>';
+                  });
+                  html += '</div>';
+              }
+              
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Actualizar Foto/QR (Opcional)</span><input type="file" id="edit-alianza-img-' + item.id + '" class="edit-input" style="padding:10px; background:#fff;" accept="image/*">';
+              if(item.imagen_qr) {
+                  html += '<small style="color:#666; display:block; margin-top:5px;">Foto actual: <a href="' + item.imagen_qr + '" target="_blank">Ver Archivo</a></small>';
+              }
+              html += '</div>';
+              
+              html += '</div><div style="margin-top:15px;"><button class="btn btn-aprobar" onclick="guardarEdicionAlianza(\'' + item.id + '\')">💾 Guardar Cambios</button><button class="btn" style="background:#e5e7eb; color:#4b5563;" onclick="cancelarEdicion()">Cancelar</button></div></div>';
+          } else {
+              html += '<div class="admin-card"><div class="admin-card-header"><h3 class="admin-card-title">' + (item.nombre_aliado || 'Sin Nombre') + '</h3><span class="badge" style="background:' + badgeBg + '; color:' + badgeColor + ';">' + badgeText + '</span></div>';
+              html += '<div class="admin-grid">';
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Descripción / Contenido</span><p class="admin-field-value" style="white-space:pre-wrap;">' + (item.descripcion || 'Sin descripción') + '</p></div>';
+              
+              if (item.contacto) {
+                  html += '<div class="admin-field-desc"><span class="admin-field-label">Contacto</span><p class="admin-field-value">' + item.contacto + '</p></div>';
+              }
+              
+              html += '<div class="admin-field-desc"><span class="admin-field-label">Redes Sociales</span><div style="margin-top:5px;">' + redesHtml + qrHtml + '</div></div>';
+              html += '</div><div style="margin-top:20px; border-top:1px solid #f1f5f9; padding-top:15px;">';
+              
+              if(item.estado === 'pendiente') { 
+                  html += '<button class="btn btn-aprobar" onclick="cambiarEstadoAlianza(\'' + item.id + '\', \'aprobado\')">✅ Aprobar Aliado</button>'; 
+              }
+              
+              html += '<button class="btn btn-editar" onclick="activarEdicion(\'' + item.id + '\')">✏️ Editar</button>';
+              html += '<button class="btn btn-rechazar" onclick="eliminarAlianza(\'' + item.id + '\')">❌ Eliminar Definitivo</button></div></div>';
+          }
+      });
+      cont.innerHTML = html;
+    }
+
+    async function guardarEdicionAlianza(id) {
+        const confirmed = await openModal("¿Seguro que deseas guardar estos cambios?");
+        if (!confirmed) return;
+
+        const nNombre = document.getElementById('edit-alianza-nombre-' + id).value;
+        const nDesc = document.getElementById('edit-alianza-desc-' + id).value;
+        const nContactoInput = document.getElementById('edit-alianza-contacto-' + id);
+        const nContacto = nContactoInput ? nContactoInput.value : '';
+        
+        const item = todosAlianzas.find(i => i.id === id);
+        let nRedes = [];
+        if(item.redes && Array.isArray(item.redes)) {
+            nRedes = JSON.parse(JSON.stringify(item.redes)); // copy
+            nRedes.forEach((red, index) => {
+                const inputRed = document.getElementById('edit-alianza-red-' + id + '-' + index);
+                const inputNombre = document.getElementById('edit-alianza-red-nombre-' + id + '-' + index);
+                const inputTipo = document.getElementById('edit-alianza-red-tipo-' + id + '-' + index);
+                
+                if(inputRed) {
+                    red.link = inputRed.value;
+                }
+                if(inputNombre) {
+                    red.nombre = inputNombre.value;
+                }
+                if(inputTipo) {
+                    red.tipo = inputTipo.value;
+                }
+            });
+        } else {
+            nRedes = item.redes; // fallback
+        }
+
+        document.getElementById('custom-modal-body').innerText = "Guardando...";
+        document.querySelector('.iphone-modal-buttons').style.display = 'none';
+        document.getElementById('custom-modal').style.display = 'flex';
+        
+        let nImgUrl = item.imagen_qr;
+        const imgInput = document.getElementById('edit-alianza-img-' + id);
+        
+        try {
+            if (imgInput && imgInput.files && imgInput.files.length > 0) {
+                const file = imgInput.files[0];
+                const fileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+                
+                const res = await fetch(supabaseUrl + '/storage/v1/object/pdf/' + fileName, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': supabaseSecretKey,
+                        'Authorization': 'Bearer ' + supabaseSecretKey,
+                        'Content-Type': file.type || 'image/png'
+                    },
+                    body: file
+                });
+                
+                if (!res.ok) {
+                    throw new Error("Error subiendo la imagen QR.");
+                }
+                
+                nImgUrl = supabaseUrl + '/storage/v1/object/public/pdf/' + fileName;
+            }
+
+            await fetch(supabaseUrl + '/rest/v1/alianzas?id=eq.' + id, { 
+                method: 'PATCH', 
+                headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ nombre_aliado: nNombre, descripcion: nDesc, contacto: nContacto, redes: nRedes, imagen_qr: nImgUrl }) 
+            });
+
+            document.getElementById('custom-modal').style.display = 'none';
+            document.querySelector('.iphone-modal-buttons').style.display = 'flex';
+            showToast("¡Cambios guardados!");
+            editandoId = null;
+            cargarAlianzas();
+        } catch (error) {
+            alert(error.message);
+            document.getElementById('custom-modal').style.display = 'none';
+            document.querySelector('.iphone-modal-buttons').style.display = 'flex';
+        }
+    }
+
+    async function cambiarEstadoAlianza(id, nuevoEstado) {
+      let msg = "¿Aprobar este canal/grupo para que aparezca en la biblioteca?";
+      const confirmed = await openModal(msg);
+      if(!confirmed) return;
+      document.getElementById('lista-recursos').innerHTML = '<p style="text-align:center;">Guardando...</p>';
+      
+      await fetch(supabaseUrl + '/rest/v1/alianzas?id=eq.' + id, { 
+          method: 'PATCH', 
+          headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ estado: nuevoEstado }) 
+      });
+      cargarAlianzas();
+    }
+    
+    async function eliminarAlianza(id) {
+      const confirmed = await openModal("¿Seguro que deseas eliminar esta alianza permanentemente?");
+      if(!confirmed) return;
+      document.getElementById('lista-recursos').innerHTML = '<p style="text-align:center;">Eliminando...</p>';
+      await fetch(supabaseUrl + '/rest/v1/alianzas?id=eq.' + id, { 
+          method: 'DELETE', 
+          headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' } 
+      });
+      cargarAlianzas();
+    }
+
+
+    async function cambiarEstado(id, nuevoEstado) {
+      let msg = nuevoEstado === 'aprobado' ? "¿Aprobar y publicar esto en la biblioteca?" : "¿Estás seguro?";
+      const confirmed = await openModal(msg);
+      if(!confirmed) return;
+      document.getElementById('lista-recursos').innerHTML = '<p style="text-align:center;">Guardando...</p>';
+      const item = todosRecursos.find(i => i.id === id);
+      let desc = item.descripcion;
+      if (desc.includes('🚩 REPORTE:')) desc = desc.split('🚩 REPORTE:')[0].trim();
+      await fetch(supabaseUrl + '/rest/v1/recursos?id=eq.' + id, { method: 'PATCH', headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: nuevoEstado, descripcion: desc }) });
+      cargarRecursos();
+    }
+    
+    async function eliminar(id) {
+      const confirmed = await openModal("¿Seguro que deseas eliminarlo permanentemente?");
+      if(!confirmed) return;
+      document.getElementById('lista-recursos').innerHTML = '<p style="text-align:center;">Eliminando...</p>';
+      await fetch(supabaseUrl + '/rest/v1/recursos?id=eq.' + id, { method: 'DELETE', headers: { 'apikey': supabaseSecretKey, 'Authorization': 'Bearer ' + supabaseSecretKey, 'Content-Type': 'application/json' } });
+      cargarRecursos();
+    }
+    
+    cargarRecursos();
+  </script>
+  <!-- =====================================================
+       BARRA DE NAVEGACIÓN INFERIOR (BOTTOM NAV MOBILE APP)
+  ===================================================== -->
+  <nav class="app-bottom-nav" aria-label="Navegación Móvil">
+    <a href="index.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Inicio</span>
+    </a>
+    <a href="cursos.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>Cursos</span>
+    </a>
+    <a href="biblioteca.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      <span>Recursos</span>
+      <span class="app-nav-badge">NUEVO</span>
+    </a>
+    <a href="simulador.html" class="app-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polygon points="10 8 16 12 10 16 10 8"></polygon>
+      </svg>
+      <span>Simulador</span>
+    </a>
+  </nav>
+
+</body>
+</html>
+
