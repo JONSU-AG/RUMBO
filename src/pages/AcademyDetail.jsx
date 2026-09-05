@@ -7,6 +7,8 @@ import { SuccessModal } from '../components/SuccessModal';
 import { InspirationalDailyBanner } from '../components/InspirationalDailyBanner';
 import { CommentsSection } from '../components/CommentsSection';
 import { searchMatches } from '../lib/searchHelper';
+import { db } from '../lib/firebase';
+import { collection, doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { COURSES, KELSEN_VIDEOS, BRICENO_AREAS, BRICENO_2027, SUBJECT_ICONS } from '../data/legacyData';
 
 const getCourseSvgData = (courseName) => {
@@ -48,6 +50,8 @@ export const AcademyDetail = () => {
   const [query, setQuery] = useState('');
   const [data, setData] = useState(null);
   const [bricenoTab, setBricenoTab] = useState('2027');
+  const [briceno2027Data, setBriceno2027Data] = useState(BRICENO_2027);
+  const [bricenoAreasData, setBricenoAreasData] = useState(BRICENO_AREAS);
   const [selectedWeek, setSelectedWeek] = useState('all');
   const [expandedWeeks, setExpandedWeeks] = useState({}); // { [weekNum]: boolean }
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -72,6 +76,37 @@ export const AcademyDetail = () => {
         name: 'Briceño', 
         type: 'briceno' 
       });
+
+      // Subscribe to real-time Firestore database for Briceño 2027 and Briceño Areas
+      try {
+        const ref2027 = doc(db, 'academias_data', 'briceno_2027');
+        const refAreas = doc(db, 'academias_data', 'briceno_areas');
+
+        const unsub2027 = onSnapshot(ref2027, (snap) => {
+          if (snap.exists() && snap.data()?.weeks) {
+            setBriceno2027Data(snap.data().weeks);
+          } else {
+            // Seed initial data if missing in Firestore
+            setDoc(ref2027, { weeks: BRICENO_2027, updatedAt: new Date().toISOString() }, { merge: true });
+          }
+        }, (err) => console.warn("Notice Briceño 2027 listener:", err));
+
+        const unsubAreas = onSnapshot(refAreas, (snap) => {
+          if (snap.exists() && snap.data()?.areas) {
+            setBricenoAreasData(snap.data().areas);
+          } else {
+            // Seed initial data if missing in Firestore
+            setDoc(refAreas, { areas: BRICENO_AREAS, updatedAt: new Date().toISOString() }, { merge: true });
+          }
+        }, (err) => console.warn("Notice Briceño Areas listener:", err));
+
+        return () => {
+          unsub2027();
+          unsubAreas();
+        };
+      } catch (e) {
+        console.warn("Firestore Briceño setup notice:", e);
+      }
     }
   }, [id]);
 
@@ -107,7 +142,7 @@ export const AcademyDetail = () => {
         });
       });
     } else if (data.type === 'briceno') {
-      (BRICENO_2027 || []).forEach(week => {
+      (briceno2027Data || []).forEach(week => {
         (week.data || []).forEach(course => {
           (course.videos || []).forEach((vid, vIdx) => {
             list.push({
@@ -122,7 +157,7 @@ export const AcademyDetail = () => {
         });
       });
 
-      (BRICENO_AREAS || []).forEach(area => {
+      (bricenoAreasData || []).forEach(area => {
         (area.videos || []).forEach((vidUrl, vIdx) => {
           list.push({
             id: `briceno-2026-${area.nombre}-${vIdx + 1}`,
@@ -137,7 +172,7 @@ export const AcademyDetail = () => {
     }
 
     return list;
-  }, [data]);
+  }, [data, briceno2027Data, bricenoAreasData]);
 
   if (!data) {
     return (
@@ -448,7 +483,7 @@ export const AcademyDetail = () => {
                   🌟 Todas
                 </button>
 
-                {BRICENO_2027.map(w => (
+                {briceno2027Data.map(w => (
                   <button
                     key={w.num}
                     onClick={() => setSelectedWeek(w.num)}
@@ -783,7 +818,7 @@ export const AcademyDetail = () => {
         {data.type === 'briceno' && (
           <>
             {bricenoTab === '2027' ? (
-              BRICENO_2027
+              briceno2027Data
                 .filter(weekItem => selectedWeek === 'all' || weekItem.num === selectedWeek)
                 .map((weekItem, wIdx) => {
                   const filteredCourses = (weekItem.data || []).filter(subCat => {
@@ -964,7 +999,7 @@ export const AcademyDetail = () => {
             ) : (
               /* Ciclo Intensivo 2026 - Áreas con SVG */
               <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-                {BRICENO_AREAS
+                {bricenoAreasData
                   .filter(category => searchMatches([category.nombre], query))
                   .map((category, idx) => {
                     const iconData = getCourseSvgData(category.nombre);
