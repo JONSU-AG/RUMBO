@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, BookOpen, Cpu, Library, User, Palette, UploadCloud, Shield, Bell, Sparkles, MoreHorizontal, ChevronUp } from 'lucide-react';
+import { Home, BookOpen, Cpu, Library, User, Palette, UploadCloud, Shield, Bell, Sparkles, MoreHorizontal, ChevronUp, MessageSquare } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeSelectorModal } from './ThemeSelectorModal';
 import { UploadModal } from './UploadModal';
