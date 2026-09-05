@@ -1127,14 +1127,14 @@ export const UserProfile = () => {
         </div>
 
         {/* ──────────────── TARJETA PRINCIPAL DEL PERFIL ──────────────── */}
-        <div style={{ maxWidth: '880px', margin: '-75px auto 28px', padding: '0 20px', position: 'relative', zIndex: 10 }}>
-          <div className="ios-glass-card" style={{
-            padding: '28px 32px',
-            borderRadius: '32px',
+        <div style={{ maxWidth: '880px', margin: '-60px auto 20px', padding: '0 12px', position: 'relative', zIndex: 10 }}>
+          <div className="ios-glass-card profile-main-card" style={{
+            padding: '20px 16px',
+            borderRadius: '28px',
             boxShadow: '0 20px 40px rgba(0,0,0,0.16)'
           }}>
             {/* Header Row: Avatar & User Name + Badges */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '14px' }}>
               {/* Avatar Container with Frame */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 {(() => {
@@ -1261,9 +1261,9 @@ export const UserProfile = () => {
               </div>
 
               {/* User Name & High Level Badges side by side */}
-              <div style={{ flex: 1, minWidth: '220px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                  <h1 style={{ fontSize: '1.9rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <h1 style={{ fontSize: 'clamp(1.35rem, 5vw, 1.85rem)', fontWeight: 800, margin: 0, color: 'var(--text-main)', wordBreak: 'break-word' }}>
                     {profileUser.displayName || 'Estudiante RUMBO'}
                   </h1>
 
