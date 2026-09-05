@@ -21,7 +21,8 @@ import {
   Plus,
   Star,
   Sparkles,
-  UploadCloud
+  UploadCloud,
+  Megaphone
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { uploadFileReliable, getDirectImageUrl } from '../lib/storageHelper';
@@ -37,19 +38,25 @@ import {
   deleteDoc, 
   addDoc,
   query, 
-  orderBy 
+  orderBy,
+  where,
+  serverTimestamp
 } from 'firebase/firestore';
 import { ConfirmModal, NoticeModal } from '../components/ConfirmModal';
 
 export const Admin = () => {
   const { user, isAdmin, loading: authLoading, loginWithGoogle, claimAdminRole } = useAuth();
-  const [activeTab, setActiveTab] = useState('pendientes'); // 'pendientes' | 'reportados' | 'aprobados' | 'usuarios' | 'carrusel'
+  const [activeTab, setActiveTab] = useState('pendientes'); // 'pendientes' | 'reportados' | 'aprobados' | 'usuarios' | 'carrusel' | 'anuncios'
   const [uploads, setUploads] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [solicitudesAliados, setSolicitudesAliados] = useState([]);
   const [classComments, setClassComments] = useState([]);
   const [profileComments, setProfileComments] = useState([]);
   const [foroPosts, setForoPosts] = useState([]);
+  const [sentBroadcasts, setSentBroadcasts] = useState([]);
+  const [anuncioTitle, setAnuncioTitle] = useState('');
+  const [anuncioMessage, setAnuncioMessage] = useState('');
+  const [isSubmittingAnuncio, setIsSubmittingAnuncio] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', author: '', url: '', desc: '' });
@@ -254,6 +261,58 @@ export const Admin = () => {
       unsub3();
     };
   }, []);
+
+  // Subscribe to sent broadcast community announcements
+  useEffect(() => {
+    try {
+      const q = query(
+        collection(db, 'notificaciones'),
+        where('recipientUid', '==', 'all')
+      );
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        docs.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+          const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+          return timeB - timeA;
+        });
+        setSentBroadcasts(docs);
+      });
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn("Broadcasts listener error:", e);
+    }
+  }, []);
+
+  const handleSendBroadcast = async (e) => {
+    e.preventDefault();
+    if (!anuncioTitle.trim() || !anuncioMessage.trim()) {
+      showNotice("Campo Requerido", "Por favor completa el título y mensaje del aviso a la comunidad.");
+      return;
+    }
+    setIsSubmittingAnuncio(true);
+    try {
+      await addDoc(collection(db, 'notificaciones'), {
+        recipientUid: 'all',
+        type: 'admin_broadcast',
+        title: anuncioTitle.trim(),
+        message: anuncioMessage.trim(),
+        senderUid: user?.uid || 'admin',
+        senderName: 'ADMINISTRACIÓN RUMBO',
+        senderPhoto: './assets/LOGOR.png',
+        read: false,
+        createdAt: serverTimestamp(),
+        timestamp: Date.now()
+      });
+      setAnuncioTitle('');
+      setAnuncioMessage('');
+      showNotice("Aviso Publicado", "¡El aviso a la comunidad fue enviado con éxito a la campanita de todos los estudiantes!");
+    } catch (err) {
+      showNotice("Error", "Error al publicar aviso: " + err.message);
+    } finally {
+      setIsSubmittingAnuncio(false);
+    }
+  };
 
   // Actions
   const handleApprove = async (id) => {
@@ -594,7 +653,8 @@ export const Admin = () => {
           { id: 'triples', label: `🚨 Reportes Triples (3+) (${triplesList.length})` },
           { id: 'aprobados', label: `✅ Activos (${aprobadosList.length})` },
           { id: 'carrusel', label: `🎯 Carrusel de Aliados (${1 + (solicitudesAliados?.length || 0)})` },
-          { id: 'usuarios', label: `👥 Aliados y Usuarios (${usersList.length})` }
+          { id: 'usuarios', label: `👥 Aliados y Usuarios (${usersList.length})` },
+          { id: 'anuncios', label: `📢 Avisos Comunidad (${sentBroadcasts.length})` }
         ].map(tab => (
           <button
             key={tab.id}
@@ -670,7 +730,7 @@ export const Admin = () => {
       </div>
 
       {/* ──────────────── TAB: UPLOADS LIST ──────────────── */}
-      {activeTab !== 'usuarios' && activeTab !== 'carrusel' && (
+      {activeTab !== 'usuarios' && activeTab !== 'carrusel' && activeTab !== 'anuncios' && (
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {filteredItems.length === 0 ? (
             <div className="glass-card" style={{ padding: '40px', textAlign: 'center', borderRadius: '24px' }}>
@@ -1582,6 +1642,175 @@ export const Admin = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ──────────────── TAB: ANUNCIOS Y AVISOS A LA COMUNIDAD ──────────────── */}
+      {activeTab === 'anuncios' && (
+        <div style={{ maxWidth: '840px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Form Box */}
+          <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', border: '1.5px solid #A855F7', background: 'var(--card-bg)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #A855F7, #6366F1)',
+                color: '#FFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Megaphone size={22} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  Publicar Aviso a Toda la Comunidad
+                </h3>
+                <p style={{ margin: '2px 0 0', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+                  Envía un comunicado oficial a la campanita de notificaciones de todos los estudiantes.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSendBroadcast} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: 700, fontSize: '0.82rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>
+                  Título del Aviso *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. 📢 Novedades RUMBO 2026: Nuevos simuladores y tomos disponibles"
+                  value={anuncioTitle}
+                  onChange={(e) => setAnuncioTitle(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '14px',
+                    border: '1.5px solid var(--card-border)',
+                    background: 'rgba(120, 120, 128, 0.06)',
+                    color: 'var(--text-main)',
+                    fontSize: '0.9rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 700, fontSize: '0.82rem', marginBottom: '6px', color: 'var(--text-secondary)' }}>
+                  Mensaje Completo del Comunicado *
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Escribe aquí el contenido detallado del aviso. Los estudiantes lo verán en una ventana flotante (popup) al hacer clic..."
+                  value={anuncioMessage}
+                  onChange={(e) => setAnuncioMessage(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '14px',
+                    border: '1.5px solid var(--card-border)',
+                    background: 'rgba(120, 120, 128, 0.06)',
+                    color: 'var(--text-main)',
+                    fontSize: '0.9rem',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isSubmittingAnuncio || !anuncioTitle.trim() || !anuncioMessage.trim()}
+                style={{
+                  padding: '12px 20px',
+                  borderRadius: '14px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #A855F7, #6366F1)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.92rem',
+                  cursor: isSubmittingAnuncio ? 'wait' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 6px 18px rgba(168, 85, 247, 0.35)'
+                }}
+              >
+                <Megaphone size={18} />
+                {isSubmittingAnuncio ? 'Publicando...' : '📢 Emitir Comunicado a la Comunidad'}
+              </motion.button>
+            </form>
+          </div>
+
+          {/* List of Sent Broadcasts */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h4 style={{ margin: '8px 0 4px', fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              Avisos Emitidos ({sentBroadcasts.length})
+            </h4>
+
+            {sentBroadcasts.length === 0 ? (
+              <div className="glass-card" style={{ padding: '24px', textAlign: 'center', borderRadius: '18px', color: 'var(--text-secondary)' }}>
+                No has emitido avisos a la comunidad aún.
+              </div>
+            ) : (
+              sentBroadcasts.map(b => (
+                <div
+                  key={b.id}
+                  className="glass-card"
+                  style={{
+                    padding: '18px',
+                    borderRadius: '20px',
+                    border: '1px solid var(--card-border)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, padding: '2px 8px', borderRadius: '8px', background: 'rgba(168, 85, 247, 0.15)', color: '#A855F7' }}>
+                      📢 AVISO PÚBLICO
+                    </span>
+                    <button
+                      onClick={() => {
+                        setConfirmModal({
+                          isOpen: true,
+                          title: "Eliminar Aviso",
+                          message: "¿Deseas eliminar este aviso de las notificaciones de la comunidad?",
+                          confirmText: "Eliminar",
+                          onConfirm: async () => {
+                            try {
+                              await deleteDoc(doc(db, 'notificaciones', b.id));
+                              showNotice("Eliminado", "Aviso retirado con éxito.");
+                            } catch (e) {
+                              showNotice("Error", e.message);
+                            }
+                          }
+                        });
+                      }}
+                      style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    {b.title || 'Aviso RUMBO'}
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.4, whiteSpace: 'pre-wrap' }}>
+                    {b.message}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}

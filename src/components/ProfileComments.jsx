@@ -836,6 +836,26 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
         timestamp: Date.now()
       });
 
+      // Send notification to profile owner if posting on someone else's wall
+      if (user.uid !== profileUid) {
+        try {
+          await addDoc(collection(db, 'notificaciones'), {
+            recipientUid: profileUid,
+            senderUid: user.uid,
+            senderName: user.displayName || 'Estudiante RUMBO',
+            senderPhoto: user.photoURL || null,
+            type: 'wall_post',
+            profileUid: profileUid,
+            message: `publicó en tu muro social: "${newComment.trim().slice(0, 45)}"`,
+            read: false,
+            createdAt: serverTimestamp(),
+            timestamp: Date.now()
+          });
+        } catch (eNotif) {
+          console.warn("Notification error:", eNotif);
+        }
+      }
+
       setNewComment('');
       setSelectedImage(null);
       setImageUrl('');

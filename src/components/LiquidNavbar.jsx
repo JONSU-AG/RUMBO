@@ -26,17 +26,34 @@ export const LiquidNavbar = () => {
       return;
     }
     try {
-      const q = query(
+      const qUser = query(
         collection(db, 'notificaciones'),
         where('recipientUid', '==', user.uid),
         where('read', '==', false)
       );
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        setUnreadCount(snapshot.docs.length);
-      }, (err) => {
-        console.warn("Notifications count error:", err);
+      const qAll = query(
+        collection(db, 'notificaciones'),
+        where('recipientUid', '==', 'all'),
+        where('read', '==', false)
+      );
+
+      let userUnread = 0;
+      let allUnread = 0;
+
+      const unsubUser = onSnapshot(qUser, (snap) => {
+        userUnread = snap.docs.length;
+        setUnreadCount(userUnread + allUnread);
       });
-      return () => unsubscribe();
+
+      const unsubAll = onSnapshot(qAll, (snap) => {
+        allUnread = snap.docs.length;
+        setUnreadCount(userUnread + allUnread);
+      });
+
+      return () => {
+        unsubUser();
+        unsubAll();
+      };
     } catch (e) {
       console.warn("Notifications count catch:", e);
     }
