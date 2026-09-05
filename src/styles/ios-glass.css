@@ -785,6 +785,27 @@ body {
   .hide-on-mobile {
     display: none !important;
   }
+
+  /* Profile Banner Header Actions Mobile Adaptability (Prevent Collisions) */
+  .profile-banner-back {
+    top: 10px !important;
+    left: 10px !important;
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .profile-banner-actions {
+    top: 10px !important;
+    right: 10px !important;
+    gap: 6px !important;
+  }
+
+  .profile-banner-actions button,
+  .profile-banner-actions a {
+    padding: 6px 10px !important;
+    font-size: 0.76rem !important;
+    border-radius: 12px !important;
+  }
 }
 
 /* Mobile Touch & Haptic Feedback Polish */

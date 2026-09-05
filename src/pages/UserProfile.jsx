@@ -265,6 +265,8 @@ export const UserProfile = () => {
   const [academicStatus, setAcademicStatus] = useState('postulante'); // 'postulante' | 'estudiante_unsa' | 'cachimbo' | 'egresado'
   const [showAcademicBadge, setShowAcademicBadge] = useState(true);
   const [showRoleBadges, setShowRoleBadges] = useState(true);
+  const [customBadgeText, setCustomBadgeText] = useState('');
+  const [customBadgeEmoji, setCustomBadgeEmoji] = useState('🌟');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [coverPositionY, setCoverPositionY] = useState(50);
@@ -447,6 +449,8 @@ export const UserProfile = () => {
           setAcademicStatus(academicStatus);
           setShowAcademicBadge(data.showAcademicBadge !== undefined ? Boolean(data.showAcademicBadge) : true);
           setShowRoleBadges(data.showRoleBadges !== undefined ? Boolean(data.showRoleBadges) : true);
+          setCustomBadgeText(data.customBadgeText || '');
+          setCustomBadgeEmoji(data.customBadgeEmoji || '🌟');
           setSelectedGradient(data.coverGradient || BANNER_PRESETS[0].style);
           setCustomCoverUrl(data.coverUrl || '');
           setCoverType(data.coverUrl ? 'custom' : 'preset');
@@ -586,6 +590,8 @@ export const UserProfile = () => {
         academicStatus: academicStatus,
         showAcademicBadge: showAcademicBadge,
         showRoleBadges: showRoleBadges,
+        customBadgeText: customBadgeText.trim(),
+        customBadgeEmoji: customBadgeEmoji || '🌟',
         wallpaperUrl: '',
         ...(isUserAdmin ? {
           creatorCustomFrame: {
@@ -1354,21 +1360,40 @@ export const UserProfile = () => {
                       <span style={{
                         padding: '5px 14px',
                         borderRadius: '12px',
-                        background: 'rgba(245, 158, 11, 0.15)',
-                        border: '1.5px solid #F59E0B',
-                        color: '#D97706',
+                        background: 'rgba(239, 68, 68, 0.18)',
+                        border: '1.5px solid #EF4444',
+                        color: '#EF4444',
                         fontWeight: 800,
                         fontSize: '0.8rem',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px'
                       }}>
-                        ⚠️ AVISO DE MODERACIÓN
+                        ⚠️ ALERTA MODERACIÓN
                       </span>
                     )}
                   </>
                 )}
-              </div>
+
+                {/* Insignia Personalizada elegida por el Usuario */}
+                {(profileUser.customBadgeText || customBadgeText) && (
+                  <span style={{
+                    padding: '5px 14px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.16), rgba(168, 85, 247, 0.16))',
+                    border: '1.5px solid var(--accent-color)',
+                    color: 'var(--accent-color)',
+                    fontWeight: 800,
+                    fontSize: '0.8rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 10px rgba(0,122,255,0.15)'
+                  }}>
+                    {profileUser.customBadgeEmoji || customBadgeEmoji || '🌟'} {profileUser.customBadgeText || customBadgeText}
+                  </span>
+                )}
+                </div>
 
               {/* University & Career Pills (Social Pre-U info) con Valoraciones */}
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginTop: '8px' }}>
@@ -3279,6 +3304,63 @@ export const UserProfile = () => {
                   style={{ width: '18px', height: '18px', accentColor: 'var(--accent-color)', cursor: 'pointer' }}
                 />
               </label>
+
+              {/* Custom Personal Badge */}
+              <div style={{
+                padding: '14px',
+                borderRadius: '16px',
+                background: 'rgba(0,122,255,0.05)',
+                border: '1px solid rgba(0,122,255,0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                marginTop: '4px'
+              }}>
+                <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🎨 Crear tu Insignia Personalizada:
+                </div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <select
+                    value={customBadgeEmoji}
+                    onChange={(e) => setCustomBadgeEmoji(e.target.value)}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: '12px',
+                      border: '1px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.9rem',
+                      fontWeight: 800
+                    }}
+                  >
+                    {['🌟', '⚡', '🔥', '🎯', '💎', '🚀', '🧠', '👑', '🌿', '🎓', '🏆'].map(em => (
+                      <option key={em} value={em}>{em}</option>
+                    ))}
+                  </select>
+
+                  <input
+                    type="text"
+                    value={customBadgeText}
+                    onChange={(e) => setCustomBadgeText(e.target.value)}
+                    placeholder="Ej. Desarrollador, Top Aportador, Cachimbo 2026..."
+                    maxLength={32}
+                    style={{
+                      flex: 1,
+                      minWidth: '180px',
+                      padding: '8px 12px',
+                      borderRadius: '12px',
+                      border: '1px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.85rem',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                  Puedes escribir lo que quieras (o dejarlo en blanco si prefieres no mostrarla).
+                </span>
+              </div>
             </div>
           </div>
 
