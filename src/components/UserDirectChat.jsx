@@ -41,7 +41,7 @@ import { useAuth, ADMIN_EMAILS } from '../context/AuthContext';
 import { LiveUserAvatar, LiveUserName } from './LiveUserAvatar';
 import { ConfirmModal, NoticeModal } from './ConfirmModal';
 import { Link } from 'react-router-dom';
-import { uploadFileReliable, getDirectImageUrl, getDriveThumbnailUrl } from '../lib/storageHelper';
+import { uploadFileReliable, getDirectImageUrl, getDriveThumbnailUrl, getDriveExportUrl } from '../lib/storageHelper';
 
 export const UserDirectChat = ({ 
   profileUid, 
@@ -805,11 +805,12 @@ export const UserDirectChat = ({
                         src={getDirectImageUrl(msg.imageUrl)}
                         alt="Adjunto"
                         onError={(e) => {
-                          const driveThumb = getDriveThumbnailUrl(msg.imageUrl, 'w800');
-                          if (e.target.src !== driveThumb) {
-                            e.target.src = driveThumb;
-                          } else {
-                            e.target.style.display = 'none';
+                          const thumbUrl = getDriveThumbnailUrl(msg.imageUrl, 'w800');
+                          const exportUrl = getDriveExportUrl(msg.imageUrl);
+                          if (e.target.src !== thumbUrl && e.target.src !== exportUrl) {
+                            e.target.src = thumbUrl;
+                          } else if (e.target.src === thumbUrl && thumbUrl !== exportUrl) {
+                            e.target.src = exportUrl;
                           }
                         }}
                         style={{
@@ -1177,6 +1178,15 @@ export const UserDirectChat = ({
               exit={{ scale: 0.9 }}
               src={fullViewImageUrl}
               alt="Vista completa"
+              onError={(e) => {
+                const thumbUrl = getDriveThumbnailUrl(fullViewImageUrl, 'w1600');
+                const exportUrl = getDriveExportUrl(fullViewImageUrl);
+                if (e.target.src !== thumbUrl && e.target.src !== exportUrl) {
+                  e.target.src = thumbUrl;
+                } else if (e.target.src === thumbUrl && thumbUrl !== exportUrl) {
+                  e.target.src = exportUrl;
+                }
+              }}
               onClick={e => e.stopPropagation()}
               style={{
                 maxWidth: '94vw',

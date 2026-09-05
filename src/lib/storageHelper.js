@@ -171,3 +171,15 @@ export const getDriveThumbnailUrl = (rawUrl, size = 'w1000') => {
   return rawUrl;
 };
 
+export const getDriveExportUrl = (rawUrl) => {
+  if (!rawUrl || typeof rawUrl !== 'string') return '';
+  const driveMatch = rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+                     rawUrl.match(/(?:\?id=|\&id=)([a-zA-Z0-9_-]+)/) ||
+                     rawUrl.match(/(?:open\?id=|uc\?id=)([a-zA-Z0-9_-]+)/) ||
+                     rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+  }
+  return rawUrl;
+};
+
