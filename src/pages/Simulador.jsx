@@ -19,13 +19,16 @@ import {
   Award,
   Zap,
   Flame,
-  Check
+  Check,
+  Flag,
+  Trash2
 } from 'lucide-react';
 import { InspirationalDailyBanner } from '../components/InspirationalDailyBanner';
 import { datosSimulador } from '../data/simuladorData';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
+import { ReportModal } from '../components/ReportModal';
 
 const DEFAULT_FLASHCARDS = [
   { id: '1', q: "¿Qué es la Mitosis?", a: "Proceso de división celular que da como resultado dos células hijas genéticamente idénticas a la célula madre.", subject: "Biología", authorName: "Comunidad RUMBO" },
@@ -120,8 +123,9 @@ const getCategoryStyle = (curso) => {
 };
 
 export const Simulador = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('puntaje'); // Default to puntaje to show user
+  const [reportData, setReportData] = useState({ isOpen: false, targetId: null, targetTitle: '', targetType: 'flashcard' });
   
   // Flashcards state
   const [communityCards, setCommunityCards] = useState(DEFAULT_FLASHCARDS);
@@ -395,7 +399,7 @@ export const Simulador = () => {
               {/* Header with filters and "+ Crear Tarjeta" */}
               <div style={{
                 width: '100%',
-                maxWidth: '640px',
+                maxWidth: '600px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -403,7 +407,7 @@ export const Simulador = () => {
                 gap: '12px',
                 marginBottom: '18px'
               }}>
-                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '70%' }}>
+                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%', flex: 1 }}>
                   {['Todos', 'Biología', 'Anatomía', 'Química', 'Física', 'Historia'].map(sub => {
                     const isSel = selectedSubject === sub;
                     return (
@@ -445,7 +449,8 @@ export const Simulador = () => {
                     alignItems: 'center',
                     gap: '6px',
                     boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    flexShrink: 0
                   }}
                 >
                   <PlusCircle size={16} /> + Crear Tarjeta
@@ -454,7 +459,7 @@ export const Simulador = () => {
 
               {/* Flashcard 3D Scene */}
               {filteredCards.length > 0 ? (
-                <div style={{ perspective: '1000px', width: '100%', maxWidth: '600px', height: '320px', marginBottom: '28px' }}>
+                <div style={{ perspective: '1000px', width: '100%', maxWidth: '600px', height: '340px', marginBottom: '28px' }}>
                   <motion.div
                     onClick={() => setIsFlipped(!isFlipped)}
                     animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -476,25 +481,61 @@ export const Simulador = () => {
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '32px',
+                      justifyContent: 'space-between',
+                      padding: '24px 28px',
                       textAlign: 'center',
-                      borderRadius: '26px'
+                      borderRadius: '26px',
+                      boxSizing: 'border-box'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '16px' }}>
-                        <span style={{ fontSize: '0.8rem', background: 'rgba(0,122,255,0.1)', color: 'var(--accent)', padding: '3px 10px', borderRadius: '8px', fontWeight: 700 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <span style={{ fontSize: '0.8rem', background: 'rgba(0,122,255,0.1)', color: 'var(--accent-color)', padding: '4px 12px', borderRadius: '10px', fontWeight: 800 }}>
                           {filteredCards[activeCardIndex]?.subject || 'General'}
                         </span>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                          Pregunta de Repaso
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {(isAdmin || (user && user.uid === filteredCards[activeCardIndex]?.authorUid)) && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const cardToDelete = filteredCards[activeCardIndex];
+                                if (!cardToDelete.id || cardToDelete.id === '1' || cardToDelete.id === '2' || cardToDelete.id === '3' || cardToDelete.id === '4') {
+                                  alert("Esta es una tarjeta predeterminada del sistema.");
+                                  return;
+                                }
+                                if (window.confirm("¿Deseas eliminar esta tarjeta de repaso?")) {
+                                  deleteDoc(doc(db, 'flashcards', cardToDelete.id)).catch(err => alert("Error al eliminar: " + err.message));
+                                }
+                              }}
+                              title="Eliminar Tarjeta"
+                              style={{ background: 'rgba(239, 68, 68, 0.12)', border: 'none', color: '#EF4444', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setReportData({
+                                isOpen: true,
+                                targetId: filteredCards[activeCardIndex]?.id || 'flashcard_item',
+                                targetTitle: filteredCards[activeCardIndex]?.q || 'Tarjeta Flashcard',
+                                targetType: 'flashcard'
+                              });
+                            }}
+                            title="Reportar Tarjeta"
+                            style={{ background: 'rgba(120,120,128,0.12)', border: 'none', color: 'var(--text-secondary)', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                          >
+                            <Flag size={15} />
+                          </button>
+                        </div>
                       </div>
                       
-                      <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main)', fontWeight: 700, lineHeight: 1.4, margin: 'auto 0' }}>
+                      <h2 style={{ fontSize: '1.35rem', color: 'var(--text-main)', fontWeight: 700, lineHeight: 1.45, margin: '16px 0', wordBreak: 'break-word' }}>
                         {filteredCards[activeCardIndex]?.q}
                       </h2>
                       
-                      <p style={{ marginTop: 'auto', fontSize: '0.85rem', color: 'var(--text-secondary)', opacity: 0.7 }}>
+                      <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
                         👆 Toca para ver la respuesta
                       </p>
                     </div>
@@ -508,23 +549,65 @@ export const Simulador = () => {
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '32px',
+                      justifyContent: 'space-between',
+                      padding: '24px 28px',
                       textAlign: 'center',
                       transform: 'rotateY(180deg)',
                       background: 'linear-gradient(135deg, #007aff, #6366F1)',
                       border: 'none',
                       borderRadius: '26px',
-                      color: '#fff'
+                      color: '#fff',
+                      boxSizing: 'border-box'
                     }}>
-                      <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
-                        Respuesta & Fundamento
-                      </span>
-                      <h3 style={{ fontSize: '1.25rem', color: '#fff', fontWeight: 600, lineHeight: 1.5, margin: 'auto 0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 800 }}>
+                          Respuesta & Fundamento
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {(isAdmin || (user && user.uid === filteredCards[activeCardIndex]?.authorUid)) && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const cardToDelete = filteredCards[activeCardIndex];
+                                if (!cardToDelete.id || cardToDelete.id === '1' || cardToDelete.id === '2' || cardToDelete.id === '3' || cardToDelete.id === '4') {
+                                  alert("Esta es una tarjeta predeterminada del sistema.");
+                                  return;
+                                }
+                                if (window.confirm("¿Deseas eliminar esta tarjeta de repaso?")) {
+                                  deleteDoc(doc(db, 'flashcards', cardToDelete.id)).catch(err => alert("Error al eliminar: " + err.message));
+                                }
+                              }}
+                              title="Eliminar Tarjeta"
+                              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#FFF', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setReportData({
+                                isOpen: true,
+                                targetId: filteredCards[activeCardIndex]?.id || 'flashcard_item',
+                                targetTitle: filteredCards[activeCardIndex]?.q || 'Tarjeta Flashcard',
+                                targetType: 'flashcard'
+                              });
+                            }}
+                            title="Reportar Tarjeta"
+                            style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#FFF', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                          >
+                            <Flag size={15} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <h3 style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 600, lineHeight: 1.5, margin: '14px 0', wordBreak: 'break-word' }}>
                         {filteredCards[activeCardIndex]?.a}
                       </h3>
                       
-                      <div style={{ marginTop: 'auto', fontSize: '0.78rem', color: 'rgba(255,255,255,0.85)' }}>
+                      <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.95)', fontWeight: 600 }}>
                         ✍️ Aportado por: {filteredCards[activeCardIndex]?.authorName || 'Comunidad RUMBO'}
                       </div>
                     </div>
@@ -1129,6 +1212,14 @@ export const Simulador = () => {
         </AnimatePresence>
 
       </div>
+
+      <ReportModal
+        isOpen={reportData.isOpen}
+        onClose={() => setReportData({ ...reportData, isOpen: false })}
+        targetId={reportData.targetId}
+        targetTitle={reportData.targetTitle}
+        targetType={reportData.targetType}
+      />
     </div>
   );
 };
