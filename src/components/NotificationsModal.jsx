@@ -363,17 +363,17 @@ export const NotificationsModal = ({ isOpen, onClose }) => {
                             {formatDate(n.createdAt)}
                           </span>
 
-                          <span style={{ fontSize: '0.76rem', fontWeight: 700, color: isBroadcast ? '#A855F7' : 'var(--accent-color)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                            {isBroadcast ? (
-                              (n.message && n.message.length > 140) ? (
-                                <><Eye size={13} /> Ver más</>
-                              ) : (
-                                <><Eye size={13} /> Leer Aviso</>
-                              )
-                            ) : (
-                              <>Ver en Perfil <ExternalLink size={12} /></>
-                            )}
-                          </span>
+                          {isBroadcast ? (
+                            (n.message && n.message.length > 140) ? (
+                              <span style={{ fontSize: '0.76rem', fontWeight: 700, color: '#A855F7', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                <Eye size={13} /> Ver más
+                              </span>
+                            ) : null
+                          ) : (
+                            <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-color)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              Ver en Perfil <ExternalLink size={12} />
+                            </span>
+                          )}
                         </div>
                       </div>
 
