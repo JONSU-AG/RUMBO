@@ -56,7 +56,7 @@ export const Biblioteca = () => {
   }, [location]);
 
   // Preview toggle state: dictionary of id -> boolean
-  const [showAllPreviews, setShowAllPreviews] = useState(false);
+  const [showAllPreviews, setShowAllPreviews] = useState(true);
   const [expandedPreviews, setExpandedPreviews] = useState({});
   const [expandedFileComments, setExpandedFileComments] = useState({});
 
@@ -831,28 +831,52 @@ export const Biblioteca = () => {
                 Revisa los recursos con vista previa interactiva o aporta el tuyo.
               </p>
 
-              {/* 👁️ Botón General de Ver / No Ver Vista Previa (En defecto: NO) */}
-              <button
+              {/* General Toggle Switch: Mostrar vistas previas (Predeterminado: SÍ / ON) */}
+              <div
                 onClick={() => setShowAllPreviews(prev => !prev)}
                 style={{
-                  padding: '8px 16px',
-                  borderRadius: '14px',
-                  border: showAllPreviews ? '1.5px solid var(--accent-color)' : '1.5px solid var(--card-border)',
-                  background: showAllPreviews ? 'rgba(0, 122, 255, 0.14)' : 'rgba(120, 120, 128, 0.08)',
-                  color: showAllPreviews ? 'var(--accent-color)' : 'var(--text-secondary)',
-                  fontWeight: 800,
-                  fontSize: '0.84rem',
-                  cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  transition: 'all 0.2s ease',
-                  boxShadow: showAllPreviews ? '0 4px 14px rgba(0, 122, 255, 0.25)' : 'none'
+                  gap: '10px',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  padding: '6px 12px',
+                  borderRadius: '12px',
+                  background: 'rgba(120, 120, 128, 0.06)',
+                  border: '1px solid var(--card-border)',
+                  transition: 'background 0.2s ease'
                 }}
               >
-                {showAllPreviews ? <EyeOff size={16} /> : <Eye size={16} />}
-                <span>{showAllPreviews ? '👁️ Vista Previa en Todos: SÍ (Desactivar)' : '👁️ Vista Previa en Todos: NO (Activar)'}</span>
-              </button>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  Mostrar vistas previas
+                </span>
+                
+                {/* Switch UI Track */}
+                <div style={{
+                  width: '40px',
+                  height: '22px',
+                  borderRadius: '12px',
+                  background: showAllPreviews ? 'var(--accent-color)' : 'rgba(120, 120, 128, 0.3)',
+                  position: 'relative',
+                  transition: 'background 0.25s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '2px'
+                }}>
+                  {/* Switch Handle / Knob */}
+                  <motion.div
+                    animate={{ x: showAllPreviews ? 18 : 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      background: '#FFFFFF',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             <motion.button
