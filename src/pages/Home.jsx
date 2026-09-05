@@ -56,7 +56,9 @@ const formatFileSize = (bytes) => {
 };
 
 export const Home = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, userData, isAdmin } = useAuth();
+  const profileDisplayName = userData?.displayName || user?.displayName || 'Estudiante RUMBO';
+
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [successContent, setSuccessContent] = useState({ title: '', message: '' });
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -77,7 +79,7 @@ export const Home = () => {
   const [isMatConfirmOpen, setIsMatConfirmOpen] = useState(false);
 
   // Aliado Form State
-  const [allyName, setAllyName] = useState(user?.displayName || '');
+  const [allyName, setAllyName] = useState(userData?.displayName || user?.displayName || '');
   const [allyWhatsapp, setAllyWhatsapp] = useState('');
   const [allyTiktok, setAllyTiktok] = useState('');
   const [allyPhone, setAllyPhone] = useState('');
@@ -197,7 +199,7 @@ export const Home = () => {
 
       const newUpload = {
         title: matTitle.trim(),
-        author: matAuthor.trim() || (user?.displayName || 'Anónimo'),
+        author: matAuthor.trim() || profileDisplayName,
         category: matCategory,
         categoriaLabel: categoriaLabel,
         url: finalUrl,
@@ -897,7 +899,7 @@ export const Home = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder={user?.displayName || "Ej: Juan Pérez / Grupo de Estudio"}
+                  placeholder={profileDisplayName || "Ej: Juan Pérez / Grupo de Estudio"}
                   value={matAuthor}
                   onChange={(e) => setMatAuthor(e.target.value)}
                   style={{
@@ -1213,7 +1215,7 @@ export const Home = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <LiveUserAvatar
                       uid={user?.uid || 'preview-user'}
-                      fallbackName={allyName || user?.displayName || 'Aliado RUMBO'}
+                      fallbackName={allyName || profileDisplayName}
                       fallbackPhoto={user?.photoURL || './assets/LOGOR.png'}
                       size={52}
                     />
@@ -1228,7 +1230,7 @@ export const Home = () => {
                           lineHeight: 1.25,
                           wordBreak: 'break-word'
                         }}>
-                          {allyName || user?.displayName || 'Tu Nombre o Canal'}
+                          {allyName || profileDisplayName}
                         </h4>
                         <CheckCircle2 size={16} style={{ color: '#34C759', flexShrink: 0 }} />
                       </div>
