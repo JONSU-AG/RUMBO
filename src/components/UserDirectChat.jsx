@@ -931,12 +931,15 @@ export const UserDirectChat = ({
 
       {/* WhatsApp Chat Input Bar */}
       <form onSubmit={handleSendMessage} style={{
-        padding: '10px 14px',
+        padding: '10px 10px',
         borderTop: '1px solid var(--card-border)',
         background: 'var(--card-bg)',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px'
+        gap: '6px',
+        width: '100%',
+        boxSizing: 'border-box',
+        overflow: 'hidden'
       }}>
         {/* Hidden File Input for Image Attachment */}
         <input
@@ -963,8 +966,8 @@ export const UserDirectChat = ({
           onClick={() => fileInputRef.current?.click()}
           title="Adjuntar Imagen"
           style={{
-            width: '38px',
-            height: '38px',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
             border: 'none',
             background: selectedImage ? 'rgba(16, 185, 129, 0.18)' : 'rgba(120, 120, 128, 0.12)',
@@ -976,22 +979,23 @@ export const UserDirectChat = ({
             flexShrink: 0
           }}
         >
-          <ImageIcon size={18} />
+          <ImageIcon size={17} />
         </button>
 
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder={`Escribe un mensaje para ${displayPartnerName}...`}
+          placeholder={`Escribe a ${displayPartnerName}...`}
           style={{
             flex: 1,
-            padding: '11px 16px',
+            minWidth: 0,
+            padding: '10px 12px',
             borderRadius: '20px',
             border: '1.5px solid var(--card-border)',
             background: 'rgba(120, 120, 128, 0.05)',
             color: 'var(--text-main)',
-            fontSize: '0.9rem',
+            fontSize: '0.86rem',
             outline: 'none',
             boxSizing: 'border-box'
           }}
