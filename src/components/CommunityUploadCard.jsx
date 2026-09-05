@@ -80,9 +80,15 @@ export const CommunityUploadCard = ({
   onDelete,
   getPreviewUrl,
   setNoticeModal,
-  setLightboxImage
+  setLightboxImage,
+  defaultPreviewOpen = false
 }) => {
-  const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(defaultPreviewOpen);
+
+  useEffect(() => {
+    setIsPreviewOpen(defaultPreviewOpen);
+  }, [defaultPreviewOpen]);
+
   const [showComments, setShowComments] = useState(false);
   const [subComments, setSubComments] = useState([]);
   const [showAllComments, setShowAllComments] = useState(false);

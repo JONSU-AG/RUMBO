@@ -56,6 +56,7 @@ export const Biblioteca = () => {
   }, [location]);
 
   // Preview toggle state: dictionary of id -> boolean
+  const [showAllPreviews, setShowAllPreviews] = useState(false);
   const [expandedPreviews, setExpandedPreviews] = useState({});
   const [expandedFileComments, setExpandedFileComments] = useState({});
 
@@ -820,15 +821,38 @@ export const Biblioteca = () => {
       {/* ──────────────── SECTION 2: APORTES DE LA COMUNIDAD ──────────────── */}
       {mainTab === 'comunidad' && (
         <section style={{ maxWidth: '900px', margin: '0 auto' }}>
-          {/* Top action banner */}
-          <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', marginBottom: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          {/* Top action banner con Toggle General de Vista Previa */}
+          <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
             <div>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 4px', color: 'var(--text-main)' }}>
                 Material Compartido por Aliados y Estudiantes 🌟
               </h2>
-              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              <p style={{ margin: '0 0 12px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                 Revisa los recursos con vista previa interactiva o aporta el tuyo.
               </p>
+
+              {/* 👁️ Botón General de Ver / No Ver Vista Previa (En defecto: NO) */}
+              <button
+                onClick={() => setShowAllPreviews(prev => !prev)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '14px',
+                  border: showAllPreviews ? '1.5px solid var(--accent-color)' : '1.5px solid var(--card-border)',
+                  background: showAllPreviews ? 'rgba(0, 122, 255, 0.14)' : 'rgba(120, 120, 128, 0.08)',
+                  color: showAllPreviews ? 'var(--accent-color)' : 'var(--text-secondary)',
+                  fontWeight: 800,
+                  fontSize: '0.84rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: showAllPreviews ? '0 4px 14px rgba(0, 122, 255, 0.25)' : 'none'
+                }}
+              >
+                {showAllPreviews ? <EyeOff size={16} /> : <Eye size={16} />}
+                <span>{showAllPreviews ? '👁️ Vista Previa en Todos: SÍ (Desactivar)' : '👁️ Vista Previa en Todos: NO (Activar)'}</span>
+              </button>
             </div>
 
             <motion.button
@@ -896,6 +920,7 @@ export const Biblioteca = () => {
                   getPreviewUrl={getPreviewUrl}
                   setNoticeModal={setNoticeModal}
                   setLightboxImage={setLightboxImage}
+                  defaultPreviewOpen={showAllPreviews}
                 />
               ))}
             </div>
