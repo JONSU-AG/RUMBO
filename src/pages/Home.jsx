@@ -687,40 +687,39 @@ export const Home = () => {
             WebkitBackdropFilter: 'blur(16px)'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: '280px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: '240px' }}>
             <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '16px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '14px',
               background: 'linear-gradient(135deg, #F59E0B, #EC4899)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.6rem',
-              boxShadow: '0 6px 18px rgba(245, 158, 11, 0.4)',
+              fontSize: '1.3rem',
+              boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)',
               flexShrink: 0
             }}>
               🤝
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
-                  ¡Comunidad RUMBO en Acción! ✨
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
+                  ¡Comunidad RUMBO en Acción!
                 </h3>
                 <span style={{ 
-                  fontSize: '0.72rem', 
+                  fontSize: '0.68rem', 
                   fontWeight: 900, 
-                  padding: '3px 10px', 
-                  borderRadius: '10px', 
+                  padding: '2px 8px', 
+                  borderRadius: '8px', 
                   background: 'linear-gradient(135deg, #FFE066, #F59E0B)', 
-                  color: '#000000',
-                  boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                  color: '#000000'
                 }}>
-                  🔥 APUNTES Y RESÚMENES
+                  APUNTES Y RESÚMENES
                 </span>
               </div>
-              <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-                En la plataforma hay una <strong>comunidad activa de estudiantes</strong> compartiendo sus <strong>apuntes de clase, resúmenes, exámenes y guías de práctica</strong>. ¡Explora todos los aportes o sube tus propios apuntes para ayudar a la comunidad! 📚🚀
+              <p style={{ margin: '3px 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                Encuentra y comparte apuntes de clase, resúmenes y exámenes con otros estudiantes.
               </p>
             </div>
           </div>
@@ -730,27 +729,25 @@ export const Home = () => {
             style={{ textDecoration: 'none' }}
           >
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: '0 8px 25px rgba(236, 72, 153, 0.5)' }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               style={{
-                padding: '12px 22px',
-                borderRadius: '16px',
+                padding: '10px 18px',
+                borderRadius: '14px',
                 background: 'linear-gradient(135deg, #F59E0B 0%, #EC4899 50%, #8B5CF6 100%)',
                 border: 'none',
                 color: '#FFFFFF',
-                fontWeight: 900,
-                fontSize: '0.9rem',
+                fontWeight: 800,
+                fontSize: '0.85rem',
                 cursor: 'pointer',
-                boxShadow: '0 6px 20px rgba(245, 158, 11, 0.35)',
+                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                whiteSpace: 'nowrap',
-                textShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                gap: '6px',
+                whiteSpace: 'nowrap'
               }}
             >
               <span>Ver Apuntes de la Comunidad</span>
-              <span>✨</span>
             </motion.button>
           </Link>
         </motion.div>
