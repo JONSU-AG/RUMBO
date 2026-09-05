@@ -235,7 +235,8 @@ export const UserProfile = () => {
   const [userUploads, setUserUploads] = useState([]);
   const [savedMaterials, setSavedMaterials] = useState(() => getLocalSavedMaterials());
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('muro'); // 'muro' | 'guardados' | 'comentarios'
+  const [activeTab, setActiveTab] = useState('muro'); // 'muro' | 'guardados' | 'chat'
+  const [isDirectChatModalOpen, setIsDirectChatModalOpen] = useState(false);
   const [isPersonalizarOpen, setIsPersonalizarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -993,6 +994,27 @@ export const UserProfile = () => {
             {!isOwnProfile && (
               <>
                 <button
+                  onClick={() => setIsDirectChatModalOpen(true)}
+                  style={{
+                    padding: '9px 16px',
+                    borderRadius: '16px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #007AFF 0%, #00C6FF 100%)',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    fontSize: '0.83rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(0, 122, 255, 0.4)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <MessageSquare size={15} /> Enviar Mensaje
+                </button>
+
+                <button
                   onClick={copyProfileLink}
                   style={{
                     padding: '9px 15px',
@@ -1670,7 +1692,30 @@ export const UserProfile = () => {
                 transition: 'all 0.2s ease'
               }}
             >
-              <BookOpen size={17} /> Mis Aportes ({userUploads.length})
+              <BookOpen size={17} /> Muro Social & Aportes ({userUploads.length})
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setActiveTab('chat')}
+              style={{
+                padding: '12px 22px',
+                borderRadius: '16px',
+                fontWeight: 800,
+                fontSize: '0.92rem',
+                border: activeTab === 'chat' ? 'none' : '1px solid var(--card-border)',
+                background: activeTab === 'chat' ? 'linear-gradient(135deg, #A855F7 0%, #6366F1 100%)' : 'var(--card-bg)',
+                color: activeTab === 'chat' ? '#FFFFFF' : 'var(--text-main)',
+                cursor: 'pointer',
+                boxShadow: activeTab === 'chat' ? '0 6px 20px rgba(168, 85, 247, 0.35)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <MessageSquare size={17} /> Mensajes Directos
             </motion.button>
 
             <motion.button
@@ -1693,7 +1738,7 @@ export const UserProfile = () => {
                 transition: 'all 0.2s ease'
               }}
             >
-              <Bookmark size={17} /> Guardados ({savedMaterials.length})
+              <Bookmark size={17} /> Materiales Guardados ({savedMaterials.length})
             </motion.button>
           </div>
 
@@ -1999,28 +2044,35 @@ export const UserProfile = () => {
                 </div>
               )}
             </div>
+          ) : activeTab === 'chat' ? (
+            <UserDirectChat
+              profileUid={targetUid}
+              profileName={profileUser.displayName || 'este usuario'}
+              isOwnProfile={isOwnProfile}
+            />
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '24px',
-              alignItems: 'start'
-            }}>
-              <ProfileComments
-                profileUid={targetUid}
-                profileName={profileUser.displayName || 'este usuario'}
-                userUploads={userUploads}
-                onReport={(id, title, type) => setReportData({ isOpen: true, targetId: id, targetTitle: title, targetType: type })}
-              />
-              <UserDirectChat
-                profileUid={targetUid}
-                profileName={profileUser.displayName || 'este usuario'}
-                isOwnProfile={isOwnProfile}
-              />
-            </div>
+            <ProfileComments
+              profileUid={targetUid}
+              profileName={profileUser.displayName || 'este usuario'}
+              userUploads={userUploads}
+              onReport={(id, title, type) => setReportData({ isOpen: true, targetId: id, targetTitle: title, targetType: type })}
+            />
           )}
         </div>
       </div>
+
+      {/* 💬 Modal Flotante para Chat Directo */}
+      <IOSModal
+        isOpen={isDirectChatModalOpen}
+        onClose={() => setIsDirectChatModalOpen(false)}
+        title={`💬 Mensajes Directos con ${profileUser.displayName || 'este usuario'}`}
+      >
+        <UserDirectChat
+          profileUid={targetUid}
+          profileName={profileUser.displayName || 'este usuario'}
+          isOwnProfile={isOwnProfile}
+        />
+      </IOSModal>
 
       <IOSModal
         isOpen={isPersonalizarOpen}
