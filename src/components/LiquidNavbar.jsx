@@ -106,10 +106,10 @@ export const LiquidNavbar = () => {
   return (
     <>
       {/* Mobile Header (Fixed Top Bar with Labels for New Users) */}
-      <header className="mobile-header" style={{ padding: '6px 8px', gap: '4px', justifyContent: 'space-between' }}>
-        <Logo showText={true} size={24} />
+      <header className="mobile-header" style={{ padding: '8px 10px', gap: '6px', justifyContent: 'space-between' }}>
+        <Logo showText={true} size={28} />
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
 
           {/* Dedicated Standalone Chats Route Button */}
           {user && (
@@ -117,21 +117,21 @@ export const LiquidNavbar = () => {
               to="/chats"
               title="Mis Mensajes Privados"
               style={{
-                padding: '4px 6px',
-                borderRadius: '10px',
+                padding: '6px 9px',
+                borderRadius: '12px',
                 border: 'none',
                 background: 'rgba(16, 185, 129, 0.14)',
                 color: '#059669',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '2px',
-                fontSize: '0.65rem',
+                gap: '4px',
+                fontSize: '0.78rem',
                 fontWeight: 800,
                 textDecoration: 'none',
                 cursor: 'pointer'
               }}
             >
-              <MessageSquare size={12} />
+              <MessageSquare size={14} />
               <span className="hide-on-xs">Chats</span>
             </NavLink>
           )}
@@ -142,33 +142,33 @@ export const LiquidNavbar = () => {
               onClick={() => setIsNotifOpen(true)}
               title="Notificaciones y Avisos"
               style={{
-                padding: '4px 6px',
-                borderRadius: '10px',
+                padding: '6px 9px',
+                borderRadius: '12px',
                 border: 'none',
                 background: 'rgba(0, 122, 255, 0.12)',
                 color: 'var(--accent-color)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '2px',
-                fontSize: '0.65rem',
+                gap: '4px',
+                fontSize: '0.78rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 position: 'relative'
               }}
             >
-              <Bell size={12} />
+              <Bell size={14} />
               <span className="hide-on-xs">Avisos</span>
               {unreadCount > 0 && (
                 <span style={{
                   position: 'absolute',
-                  top: '-3px',
-                  right: '-3px',
+                  top: '-4px',
+                  right: '-4px',
                   background: '#EF4444',
                   color: '#FFFFFF',
-                  fontSize: '0.55rem',
+                  fontSize: '0.6rem',
                   fontWeight: 800,
-                  width: '13px',
-                  height: '13px',
+                  width: '15px',
+                  height: '15px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
@@ -186,20 +186,20 @@ export const LiquidNavbar = () => {
             onClick={() => setIsUploadOpen(true)}
             title="Aportar Material Educativo"
             style={{
-              padding: '4px 6px',
-              borderRadius: '10px',
+              padding: '6px 9px',
+              borderRadius: '12px',
               border: 'none',
               background: 'rgba(0, 122, 255, 0.12)',
               color: 'var(--accent-color)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '2px',
-              fontSize: '0.65rem',
+              gap: '4px',
+              fontSize: '0.78rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <UploadCloud size={12} />
+            <UploadCloud size={14} />
             <span className="hide-on-xs">Subir</span>
           </button>
 
@@ -208,20 +208,20 @@ export const LiquidNavbar = () => {
             onClick={() => setIsThemeOpen(true)}
             title="Cambiar Tema Visual"
             style={{
-              padding: '4px 6px',
-              borderRadius: '10px',
+              padding: '6px 9px',
+              borderRadius: '12px',
               border: 'none',
               background: 'rgba(120, 120, 128, 0.12)',
               color: 'var(--text-main)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '2px',
-              fontSize: '0.65rem',
+              gap: '4px',
+              fontSize: '0.78rem',
               fontWeight: 800,
               cursor: 'pointer'
             }}
           >
-            <Palette size={12} />
+            <Palette size={14} />
             <span className="hide-on-xs">Tema</span>
           </button>
         </div>
