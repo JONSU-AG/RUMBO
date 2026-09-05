@@ -34,19 +34,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Generate Android APK via Bubblewrap
+      - name: Build Standalone APK with Bubblewrap
         run: |
           npm install -g @bubblewrap/cli
-          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="./twa-build" --skipPrompt || true
-          if [ -d "./twa-build" ]; then
-            cd twa-build
+          npx @bubblewrap/cli init --manifest="https://rumbo.vercel.app/manifest.json" --directory="./apk-output" --skipPrompt || true
+          if [ -d "./apk-output" ]; then
+            cd apk-output
             npx @bubblewrap/cli build --skipSigning || true
           fi
 
-      - name: Upload Web Build Artifacts
+      - name: Upload Standalone APK File
         uses: actions/upload-artifact@v4
         with:
-          name: RUMBO-APK-Package
-          path: |
-            dist/
-            twa-build/
+          name: RUMBO-Instalador-Android
+          path: apk-output/
