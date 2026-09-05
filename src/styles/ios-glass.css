@@ -251,6 +251,29 @@ body {
   --pill-active-text: #FFFFFF;
 }
 
+/* Beige Oscuro Carmesí & Vino Theme Overrides */
+[data-theme="beige-carmesi"] {
+  --bg-main: #2b1f1a;
+  --text-primary: #fdf8f5;
+  --text-main: #fdf8f5;
+  --text-secondary: #e6d3c8;
+  --text-muted: rgba(230, 211, 200, 0.75);
+  --card-bg: rgba(61, 41, 34, 0.88);
+  --glass-bg: rgba(61, 41, 34, 0.88);
+  --card-border: rgba(159, 18, 57, 0.4);
+  --glass-border: rgba(159, 18, 57, 0.4);
+  --navbar-bg: rgba(43, 31, 26, 0.94);
+  --accent-color: #9f1239;
+  --accent: #9f1239;
+  --accent-rgb: 159, 18, 57;
+  --accent-gradient: linear-gradient(135deg, #9f1239 0%, #881337 50%, #e11d48 100%);
+  --accent-gradient-warm: linear-gradient(135deg, #be123c 0%, #f43f5e 100%);
+  --accent-gradient-green: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  --accent-gradient-purple: linear-gradient(135deg, #9f1239 0%, #7e22ce 100%);
+  --pill-active-bg: #9f1239;
+  --pill-active-text: #FFFFFF;
+}
+
 [data-theme="coraje-dark"] body {
   background-image: 
     radial-gradient(circle at 20% 12%, rgba(236, 72, 153, 0.22) 0%, transparent 45%),
@@ -270,6 +293,13 @@ body {
     radial-gradient(circle at 15% 15%, rgba(225, 29, 72, 0.12) 0%, transparent 45%),
     radial-gradient(circle at 85% 25%, rgba(251, 113, 133, 0.1) 0%, transparent 40%),
     radial-gradient(circle at 50% 80%, rgba(190, 18, 60, 0.08) 0%, transparent 45%);
+}
+
+[data-theme="beige-carmesi"] body {
+  background-image: 
+    radial-gradient(circle at 20% 12%, rgba(159, 18, 57, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(136, 19, 55, 0.24) 0%, transparent 40%),
+    radial-gradient(circle at 40% 85%, rgba(225, 29, 72, 0.2) 0%, transparent 55%);
 }
 
 [data-theme="google-vibrant"] body {
