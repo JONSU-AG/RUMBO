@@ -44,6 +44,7 @@ import {
   Bookmark
 } from 'lucide-react';
 import { searchMatches } from '../lib/searchHelper';
+import { WhatsAppIconSVG } from '../components/AliadosCarousel';
 import { db } from '../lib/firebase';
 import { uploadFileReliable, getDirectImageUrl } from '../lib/storageHelper';
 import { 
@@ -224,7 +225,7 @@ const SUGGESTED_ACADEMIES = [
 
 export const UserProfile = () => {
   const { uid: paramUid } = useParams();
-  const { user, isAdmin, isBanned, logout } = useAuth();
+  const { user, userData, isAdmin, isBanned, logout } = useAuth();
   const navigate = useNavigate();
 
   const targetUid = paramUid || user?.uid;
@@ -459,7 +460,7 @@ export const UserProfile = () => {
             uid: targetUid,
             displayName: isJosnuUser 
               ? 'FUTURO CACHIMBO UNSA (JOSNU)'
-              : (localAllyName || (isOwnProfile ? (user?.displayName || 'Mi Perfil') : 'Estudiante RUMBO')),
+              : (localAllyName || (isOwnProfile ? (userData?.displayName || 'Mi Perfil') : 'Estudiante RUMBO')),
             email: isOwnProfile ? user?.email : '',
             photoURL: isOwnProfile ? user?.photoURL : null,
             uploadCount: 0,
@@ -1018,21 +1019,22 @@ export const UserProfile = () => {
                     href={profileUser.whatsappChannel}
                     target="_blank"
                     rel="noopener noreferrer"
+                    title="Canal WhatsApp"
                     style={{
-                      padding: '9px 15px',
+                      padding: '9px 12px',
                       borderRadius: '16px',
-                      background: '#25D366',
+                      background: 'linear-gradient(135deg, #25D366, #128C7E)',
                       color: '#FFFFFF',
                       textDecoration: 'none',
                       fontWeight: 700,
-                      fontSize: '0.83rem',
-                      display: 'flex',
+                      fontSize: '0.82rem',
+                      display: 'inline-flex',
                       alignItems: 'center',
                       gap: '6px',
-                      boxShadow: '0 4px 14px rgba(37, 211, 102, 0.4)'
+                      boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)'
                     }}
                   >
-                    <MessageCircle size={15} /> Canal WhatsApp ↗
+                    <WhatsAppIconSVG size={16} />
                   </a>
                 )}
 
@@ -1437,8 +1439,34 @@ export const UserProfile = () => {
                   "{profileUser.bio || 'Preparándome para ingresar a la universidad con RUMBO. Compartiendo material para sumar a la comunidad.'}"
                 </p>
 
-                {/* Rating button for bio / motivation */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
+                {/* Rating button & Social SVG icons near description */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  {profileUser.whatsappChannel ? (
+                    <a
+                      href={profileUser.whatsappChannel}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Canal de WhatsApp Oficial"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #25D366, #128C7E)',
+                        color: '#FFFFFF',
+                        textDecoration: 'none',
+                        fontSize: '0.8rem',
+                        fontWeight: 800,
+                        boxShadow: '0 4px 10px rgba(37, 211, 102, 0.35)',
+                        transition: 'transform 0.2s ease'
+                      }}
+                    >
+                      <WhatsAppIconSVG size={16} /> Canal WhatsApp
+                    </a>
+                  ) : <div />}
+
                   <button
                     onClick={() => handleEndorse('bio')}
                     title="Valorar y enviar ánimos a este estudiante"

@@ -3,6 +3,8 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth, ADMIN_EMAILS } from '../context/AuthContext';
 
+import { useNavigate } from 'react-router-dom';
+
 export const AVATAR_FRAMES_MAP = {
   fuego_creador: {
     type: 'conic_flame',
@@ -60,9 +62,28 @@ export const LiveUserAvatar = ({
   fallbackPhoto = null, 
   fallbackFrame = 'none',
   size = 42,
-  showFrame = true 
+  showFrame = true,
+  onClick,
+  disableLink = false
 }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleAvatarClick = (e) => {
+    if (onClick) {
+      onClick(e);
+      return;
+    }
+    if (disableLink) return;
+
+    e.stopPropagation();
+    const targetId = effectiveUid || uid || (isJosnuCard ? 'josnu-admin' : null);
+    if (targetId) {
+      navigate(`/usuario/${targetId}`);
+    } else if (user) {
+      navigate(`/perfil`);
+    }
+  };
   const [profileData, setProfileData] = useState(null);
   const [creatorConfig, setCreatorConfig] = useState(null);
   const [liveCreatorColors, setLiveCreatorColors] = useState(() => {
@@ -174,14 +195,18 @@ export const LiveUserAvatar = ({
     return (
       <div 
         className="frame-fuego-creador-container"
+        onClick={handleAvatarClick}
+        role={disableLink ? undefined : 'button'}
         style={{
           width: `${size}px`,
           height: `${size}px`,
           boxShadow: dynamicGlow,
           flexShrink: 0,
+          cursor: disableLink ? 'default' : 'pointer',
+          transition: 'transform 0.2s ease',
           '--creator-conic': dynamicConicBg
         }}
-        title="👑 Marco VIP Creador de Fuego RUMBO"
+        title={!disableLink ? `Ver perfil de ${nameToUse || 'Usuario'}` : "👑 Marco VIP Creador de Fuego RUMBO"}
       >
         <div 
           className="frame-fuego-creador-spin" 
@@ -231,6 +256,8 @@ export const LiveUserAvatar = ({
 
     return (
       <div 
+        onClick={handleAvatarClick}
+        role={disableLink ? undefined : 'button'}
         style={{
           width: `${size}px`,
           height: `${size}px`,
@@ -240,9 +267,11 @@ export const LiveUserAvatar = ({
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: frameConfig.glow,
-          flexShrink: 0
+          flexShrink: 0,
+          cursor: disableLink ? 'default' : 'pointer',
+          transition: 'transform 0.2s ease'
         }}
-        title="🌈 Marco Arcoíris Neón RUMBO"
+        title={!disableLink ? `Ver perfil de ${nameToUse || 'Usuario'}` : "🌈 Marco Arcoíris Neón RUMBO"}
       >
         <div className="frame-arcoiris-spin" />
         <div style={{
@@ -285,6 +314,9 @@ export const LiveUserAvatar = ({
 
   return (
     <div 
+      onClick={handleAvatarClick}
+      role={disableLink ? undefined : 'button'}
+      title={!disableLink ? `Ver perfil de ${nameToUse || 'Usuario'}` : undefined}
       style={{
         width: `${size}px`,
         height: `${size}px`,
@@ -296,7 +328,8 @@ export const LiveUserAvatar = ({
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        transition: 'all 0.3s ease'
+        cursor: disableLink ? 'default' : 'pointer',
+        transition: 'transform 0.2s ease'
       }}
     >
       <div style={{

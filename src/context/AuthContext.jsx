@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
             const newRecord = {
               uid: currentUser.uid,
               email: currentUser.email,
-              displayName: currentUser.displayName || 'Usuario RUMBO',
+              displayName: 'Estudiante RUMBO',
               photoURL: currentUser.photoURL,
               uploadCount: 0,
               isAlly: isAuthor,

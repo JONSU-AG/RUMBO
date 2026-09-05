@@ -247,32 +247,62 @@ export const Biblioteca = () => {
           </motion.button>
         </div>
 
-        {/* Mensaje pequeño / Banner informativo de la comunidad */}
+        {/* Banner Interactivo y Llamativo: Aportes de la Comunidad / Aliados */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.02, boxShadow: '0 8px 30px rgba(245, 158, 11, 0.35)' }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setMainTab('comunidad')}
           style={{
-            maxWidth: '720px',
+            maxWidth: '740px',
             margin: '20px auto 0',
-            padding: '12px 20px',
-            borderRadius: '18px',
+            padding: '16px 22px',
+            borderRadius: '22px',
             background: mainTab === 'comunidad' 
-              ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(236, 72, 153, 0.16) 100%)' 
-              : 'rgba(245, 158, 11, 0.08)',
-            border: '1.5px solid rgba(245, 158, 11, 0.35)',
+              ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.24) 0%, rgba(236, 72, 153, 0.24) 100%)' 
+              : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%)',
+            border: '2px solid #F59E0B',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-            justifyContent: 'center',
-            textAlign: 'center',
+            gap: '14px',
+            justifyContent: 'space-between',
             flexWrap: 'wrap',
-            boxShadow: '0 4px 16px rgba(245, 158, 11, 0.08)'
+            cursor: 'pointer',
+            boxShadow: '0 6px 22px rgba(245, 158, 11, 0.2)',
+            transition: 'all 0.25s ease'
           }}
         >
-          <span style={{ fontSize: '1.3rem' }}>💡</span>
-          <span style={{ fontSize: '0.88rem', color: 'var(--text-main)', lineHeight: 1.45 }}>
-            <strong>¡Hay una comunidad activa compartiendo conocimientos!</strong> En <strong>Aportes de la Comunidad</strong> encontrarás apuntes de clase, resúmenes, exámenes y guías de práctica subidas por estudiantes. ¡Explora los archivos o comparte tus apuntes! ✨
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: '240px' }}>
+            <span style={{ fontSize: '1.6rem' }}>💡</span>
+            <div style={{ textAlign: 'left' }}>
+              <strong style={{ fontSize: '0.96rem', color: 'var(--text-main)', display: 'block' }}>
+                ¡Comunidad & Aliados activos compartiendo material! ✨
+              </strong>
+              <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+                Encuentra resúmenes, exámenes, guías de práctica y apuntes valiosos.
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); setMainTab('comunidad'); }}
+            style={{
+              padding: '10px 18px',
+              borderRadius: '14px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #F59E0B, #EC4899)',
+              color: '#FFFFFF',
+              fontWeight: 900,
+              fontSize: '0.86rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(245, 158, 11, 0.45)',
+              letterSpacing: '0.02em'
+            }}
+          >
+            🔥 Toca para ver Material ➔
+          </button>
         </motion.div>
 
         {/* Global Accent-Insensitive Search Bar */}
