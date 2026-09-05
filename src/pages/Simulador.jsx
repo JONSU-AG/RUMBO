@@ -131,6 +131,8 @@ export const Simulador = () => {
   // Flashcards state
   const [communityCards, setCommunityCards] = useState(DEFAULT_FLASHCARDS);
   const [selectedSubject, setSelectedSubject] = useState('Todos');
+  const [cardSearch, setCardSearch] = useState('');
+  const [cardAuthorFilter, setCardAuthorFilter] = useState('todos');
   const [currentCard, setCurrentCard] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -199,10 +201,35 @@ export const Simulador = () => {
     setIsCreateOpen(true);
   };
 
+  // Group Flashcards Authors for filtering
+  const flashcardAuthors = useMemo(() => {
+    const map = {};
+    communityCards.forEach(c => {
+      const name = c.authorName || 'Comunidad RUMBO';
+      const key = c.authorUid ? c.authorUid : name;
+      if (!map[key]) {
+        map[key] = { key, name };
+      }
+    });
+    return Object.values(map);
+  }, [communityCards]);
+
   const filteredCards = useMemo(() => {
-    if (selectedSubject === 'Todos') return communityCards;
-    return communityCards.filter(c => c.subject === selectedSubject);
-  }, [communityCards, selectedSubject]);
+    return communityCards.filter(c => {
+      const matchSubject = selectedSubject === 'Todos' || c.subject === selectedSubject;
+      const qText = (c.q || '').toLowerCase();
+      const aText = (c.a || '').toLowerCase();
+      const sText = (c.subject || '').toLowerCase();
+      const authorText = (c.authorName || '').toLowerCase();
+      const search = cardSearch.toLowerCase().trim();
+      const matchSearch = !search || qText.includes(search) || aText.includes(search) || sText.includes(search) || authorText.includes(search);
+      
+      const authorKey = c.authorUid ? c.authorUid : (c.authorName || 'Comunidad RUMBO');
+      const matchAuthor = cardAuthorFilter === 'todos' || authorKey === cardAuthorFilter;
+
+      return matchSubject && matchSearch && matchAuthor;
+    });
+  }, [communityCards, selectedSubject, cardSearch, cardAuthorFilter]);
 
   const activeCardIndex = Math.min(currentCard, Math.max(0, filteredCards.length - 1));
 
@@ -218,6 +245,8 @@ export const Simulador = () => {
 
   // Exam Questions State (Community + Default)
   const [communityExamQuestions, setCommunityExamQuestions] = useState(examData);
+  const [examSearch, setExamSearch] = useState('');
+  const [examAuthorFilter, setExamAuthorFilter] = useState('todos');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isExamCreateOpen, setIsExamCreateOpen] = useState(false);
@@ -300,6 +329,34 @@ export const Simulador = () => {
     });
     setIsExamCreateOpen(true);
   };
+
+  // Group Exam Questions Authors for filtering
+  const examAuthors = useMemo(() => {
+    const map = {};
+    communityExamQuestions.forEach(q => {
+      const name = q.authorName || 'Comunidad RUMBO';
+      const key = q.authorUid ? q.authorUid : name;
+      if (!map[key]) {
+        map[key] = { key, name };
+      }
+    });
+    return Object.values(map);
+  }, [communityExamQuestions]);
+
+  const filteredExamQuestions = useMemo(() => {
+    return communityExamQuestions.filter(item => {
+      const qText = (item.q || '').toLowerCase();
+      const optionsText = (item.options || []).join(' ').toLowerCase();
+      const authorText = (item.authorName || '').toLowerCase();
+      const search = examSearch.toLowerCase().trim();
+      const matchSearch = !search || qText.includes(search) || optionsText.includes(search) || authorText.includes(search);
+
+      const authorKey = item.authorUid ? item.authorUid : (item.authorName || 'Comunidad RUMBO');
+      const matchAuthor = examAuthorFilter === 'todos' || authorKey === examAuthorFilter;
+
+      return matchSearch && matchAuthor;
+    });
+  }, [communityExamQuestions, examSearch, examAuthorFilter]);
 
   // Simulador Puntaje State
   const [simArea, setSimArea] = useState('Sociales');
@@ -500,65 +557,104 @@ export const Simulador = () => {
               exit={{ opacity: 0, y: -20 }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}
             >
-              {/* Header with filters and "+ Crear Tarjeta" */}
+              {/* Header with search, subject dropdown, author filter and "+ Crear Tarjeta" */}
               <div style={{
                 width: '100%',
                 maxWidth: '600px',
                 display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
+                flexDirection: 'column',
                 gap: '12px',
                 marginBottom: '18px'
               }}>
-                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%', flex: 1 }}>
-                  {['Todos', 'Biología', 'Anatomía', 'Química', 'Física', 'Historia'].map(sub => {
-                    const isSel = selectedSubject === sub;
-                    return (
-                      <button
-                        key={sub}
-                        onClick={() => { setSelectedSubject(sub); setCurrentCard(0); setIsFlipped(false); }}
-                        style={{
-                          padding: '8px 14px',
-                          borderRadius: '12px',
-                          border: isSel ? 'none' : '1px solid var(--card-border)',
-                          background: isSel ? 'linear-gradient(135deg, #6366F1, #8B5CF6)' : 'var(--card-bg)',
-                          color: isSel ? '#FFFFFF' : 'var(--text-secondary)',
-                          fontSize: '0.82rem',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                          boxShadow: isSel ? '0 4px 12px rgba(99, 102, 241, 0.35)' : 'none',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        {sub}
-                      </button>
-                    );
-                  })}
-                </div>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
+                  <input
+                    type="text"
+                    value={cardSearch}
+                    onChange={(e) => { setCardSearch(e.target.value); setCurrentCard(0); }}
+                    placeholder="🔍 Buscar tema, pregunta o creador..."
+                    style={{
+                      flex: '1 1 200px',
+                      padding: '10px 14px',
+                      borderRadius: '14px',
+                      border: '1.5px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.88rem',
+                      outline: 'none',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                  />
 
-                <button
-                  onClick={() => setIsCreateOpen(true)}
-                  style={{
-                    padding: '9px 18px',
-                    borderRadius: '14px',
-                    border: 'none',
-                    background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-                    color: '#FFFFFF',
-                    fontWeight: 800,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
-                    transition: 'all 0.2s ease',
-                    flexShrink: 0
-                  }}
-                >
-                  <PlusCircle size={16} /> + Crear Tarjeta
-                </button>
+                  {/* Dropdown de Temas/Materias (ideal para móviles y evitar colapso) */}
+                  <select
+                    value={selectedSubject}
+                    onChange={(e) => { setSelectedSubject(e.target.value); setCurrentCard(0); setIsFlipped(false); }}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '14px',
+                      border: '1.5px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      outline: 'none',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <option value="Todos">📚 Todos los Temas</option>
+                    {['Biología', 'Anatomía', 'Química', 'Física', 'Historia', 'Geografía', 'Lenguaje', 'Literatura', 'Matemática', 'Filosofía', 'Psicología'].map(sub => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                  </select>
+
+                  {/* Dropdown de Filtrado por Usuario Creador */}
+                  <select
+                    value={cardAuthorFilter}
+                    onChange={(e) => { setCardAuthorFilter(e.target.value); setCurrentCard(0); }}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '14px',
+                      border: '1.5px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      outline: 'none',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <option value="todos">👤 Todos los Creadores</option>
+                    {flashcardAuthors.map(auth => (
+                      <option key={auth.key} value={auth.key}>
+                        👤 {auth.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={() => setIsCreateOpen(true)}
+                    style={{
+                      padding: '10px 18px',
+                      borderRadius: '14px',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                      color: '#FFFFFF',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
+                      transition: 'all 0.2s ease',
+                      marginLeft: 'auto'
+                    }}
+                  >
+                    <PlusCircle size={16} /> + Crear Tarjeta
+                  </button>
+                </div>
               </div>
 
               {/* Flashcard 3D Scene */}
@@ -856,44 +952,88 @@ export const Simulador = () => {
               exit={{ opacity: 0, y: -20 }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}
             >
-              {/* Header bar for Examen Rápido with "+ Crear Pregunta" button */}
+              {/* Header bar for Examen Rápido with search, author filter and "+ Crear Pregunta" button */}
               <div style={{
                 width: '100%',
                 maxWidth: '680px',
                 display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                flexDirection: 'column',
+                gap: '12px',
                 marginBottom: '16px'
               }}>
-                <span style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                  📝 Examen Rápido de Práctica
-                </span>
-                <button
-                  onClick={() => {
-                    setEditingExamId(null);
-                    setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', answer: 0 });
-                    setIsExamCreateOpen(true);
-                  }}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '14px',
-                    border: 'none',
-                    background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
-                    color: '#FFFFFF',
-                    fontWeight: 800,
-                    fontSize: '0.84rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)'
-                  }}
-                >
-                  <PlusCircle size={15} /> + Crear Pregunta
-                </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    📝 Examen Rápido de Práctica
+                  </span>
+                  <button
+                    onClick={() => {
+                      setEditingExamId(null);
+                      setNewExamQuestion({ q: '', opt0: '', opt1: '', opt2: '', opt3: '', answer: 0 });
+                      setIsExamCreateOpen(true);
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '14px',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
+                      color: '#FFFFFF',
+                      fontWeight: 800,
+                      fontSize: '0.84rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 4px 14px rgba(244, 63, 94, 0.35)'
+                    }}
+                  >
+                    <PlusCircle size={15} /> + Crear Pregunta
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
+                  <input
+                    type="text"
+                    value={examSearch}
+                    onChange={(e) => { setExamSearch(e.target.value); setCurrentQuestion(0); }}
+                    placeholder="🔍 Buscar pregunta o autor del examen..."
+                    style={{
+                      flex: '1 1 200px',
+                      padding: '9px 14px',
+                      borderRadius: '14px',
+                      border: '1.5px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.85rem',
+                      outline: 'none'
+                    }}
+                  />
+
+                  <select
+                    value={examAuthorFilter}
+                    onChange={(e) => { setExamAuthorFilter(e.target.value); setCurrentQuestion(0); }}
+                    style={{
+                      padding: '9px 14px',
+                      borderRadius: '14px',
+                      border: '1.5px solid var(--card-border)',
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="todos">👤 Todos los Creadores</option>
+                    {examAuthors.map(auth => (
+                      <option key={auth.key} value={auth.key}>
+                        👤 {auth.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              {communityExamQuestions.length > 0 ? (
+              {filteredExamQuestions.length > 0 ? (
                 <div
                   className="ios-glass-card"
                   style={{ 
@@ -906,7 +1046,7 @@ export const Simulador = () => {
                   }}
                 >
                   {(() => {
-                    const currentQItem = communityExamQuestions[Math.min(currentQuestion, communityExamQuestions.length - 1)];
+                    const currentQItem = filteredExamQuestions[Math.min(currentQuestion, filteredExamQuestions.length - 1)];
                     const isAuthorOrAdmin = isAdmin || (user && user.uid === currentQItem?.authorUid);
 
                     return (
@@ -921,7 +1061,7 @@ export const Simulador = () => {
                               fontSize: '0.85rem', 
                               fontWeight: 800 
                             }}>
-                              🎯 Pregunta {Math.min(currentQuestion + 1, communityExamQuestions.length)} de {communityExamQuestions.length}
+                              🎯 Pregunta {Math.min(currentQuestion + 1, filteredExamQuestions.length)} de {filteredExamQuestions.length}
                             </span>
                           </div>
 

@@ -405,55 +405,57 @@ export const AcademyDetail = () => {
               </p>
             </motion.div>
 
-            {/* Card 3: Prácticas en Drive */}
-            <motion.a
-              href="https://drive.google.com/drive/folders/1sGaLVsVGtWeggLUWtw_vB14iwH3mHHH1"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="glass-card"
-              style={{
-                padding: '20px 22px',
-                borderRadius: '22px',
-                textDecoration: 'none',
-                position: 'relative',
-                border: '1px solid rgba(0, 122, 255, 0.3)',
-                background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(56, 189, 248, 0.08))',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transition: 'all 0.25s ease'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{
-                    width: '42px', height: '42px', borderRadius: '14px',
-                    background: 'rgba(0, 122, 255, 0.2)', color: 'var(--accent-color)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
-                    <HardDrive size={22} />
+            {/* Card 3: Prácticas en Drive (Exclusivo Ciclo Actual 2027) */}
+            {bricenoTab === '2027' && (
+              <motion.a
+                href="https://drive.google.com/drive/folders/1sGaLVsVGtWeggLUWtw_vB14iwH3mHHH1"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="glass-card"
+                style={{
+                  padding: '20px 22px',
+                  borderRadius: '22px',
+                  textDecoration: 'none',
+                  position: 'relative',
+                  border: '1px solid rgba(0, 122, 255, 0.3)',
+                  background: 'linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(56, 189, 248, 0.08))',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.25s ease'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{
+                      width: '42px', height: '42px', borderRadius: '14px',
+                      background: 'rgba(0, 122, 255, 0.2)', color: 'var(--accent-color)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      <HardDrive size={22} />
+                    </div>
+                    <span style={{
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                      background: 'rgba(0, 122, 255, 0.2)',
+                      color: 'var(--accent-color)'
+                    }}>
+                      EXCLUSIVO CICLO ACTUAL ↗
+                    </span>
                   </div>
-                  <span style={{
-                    padding: '4px 10px',
-                    borderRadius: '12px',
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    background: 'rgba(0, 122, 255, 0.2)',
-                    color: 'var(--accent-color)'
-                  }}>
-                    BANCO OFICIAL ↗
-                  </span>
+                  <h3 style={{ margin: '0 0 4px', fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    Prácticas en Drive (Ciclo en Curso)
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+                    Banco exclusivo en Drive con PDFs del ciclo actual en curso.
+                  </p>
                 </div>
-                <h3 style={{ margin: '0 0 4px', fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                  Prácticas en Drive
-                </h3>
-                <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-                  Acceso directo a la carpeta en Drive con todos los PDFs.
-                </p>
-              </div>
-            </motion.a>
+              </motion.a>
+            )}
           </div>
 
           {/* Week Selector Bar (When in Ciclo 2027) */}
