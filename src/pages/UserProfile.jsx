@@ -1043,7 +1043,7 @@ export const UserProfile = () => {
             {!isOwnProfile && (
               <>
                 <button
-                  onClick={() => setIsDirectChatModalOpen(true)}
+                  onClick={() => navigate(`/chats?with=${targetUid}`)}
                   style={{
                     padding: '9px 16px',
                     borderRadius: '16px',
@@ -1060,7 +1060,7 @@ export const UserProfile = () => {
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  <MessageSquare size={15} /> Enviar Mensaje
+                  <MessageSquare size={15} /> Mandar mensaje
                 </button>
 
                 <button
@@ -1532,6 +1532,31 @@ export const UserProfile = () => {
 
                 {/* Rating heart button & Social SVG buttons for Allies & Admin */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                  {!isOwnProfile && (
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => navigate(`/chats?with=${targetUid}`)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        padding: '8px 18px',
+                        borderRadius: '14px',
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #007AFF 0%, #00C6FF 100%)',
+                        color: '#FFFFFF',
+                        fontSize: '0.88rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(0, 122, 255, 0.35)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <MessageSquare size={16} /> Mandar mensaje
+                    </motion.button>
+                  )}
                   {/* Social Buttons Container (Visible ONLY if profileUser is Ally or Admin) */}
                   {(profileUser.isAlly || isUserAdmin) ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
