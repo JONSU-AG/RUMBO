@@ -1210,7 +1210,7 @@ export const Admin = () => {
       )}
 
       {/* ──────────────── TAB: UPLOADS LIST ──────────────── */}
-      {activeTab !== 'reportes' && activeTab !== 'usuarios' && activeTab !== 'carrusel' && activeTab !== 'anuncios' && (
+      {activeTab !== 'reportes' && activeTab !== 'briceno' && activeTab !== 'usuarios' && activeTab !== 'carrusel' && activeTab !== 'anuncios' && (
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {filteredItems.length === 0 ? (
             <div className="glass-card" style={{ padding: '40px', textAlign: 'center', borderRadius: '24px' }}>
