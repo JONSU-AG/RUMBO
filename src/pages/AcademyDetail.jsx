@@ -54,6 +54,7 @@ export const AcademyDetail = () => {
   const [bricenoAreasData, setBricenoAreasData] = useState(BRICENO_AREAS);
   const [selectedWeek, setSelectedWeek] = useState('all');
   const [expandedWeeks, setExpandedWeeks] = useState({}); // { [weekNum]: boolean }
+  const [expandedCourses, setExpandedCourses] = useState({}); // { [`${weekNum}-${courseName}`]: boolean }
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [isKelsenHorarioOpen, setIsKelsenHorarioOpen] = useState(false);
@@ -912,90 +913,141 @@ export const AcademyDetail = () => {
                                 searchMatches([v.nombre], query)
                               );
 
+                              const courseKey = `${weekItem.num}-${subCat.nombre}-${sIdx}`;
+                              const isCourseExpanded = query.trim().length > 0 || expandedCourses[courseKey];
+
                               return (
                                 <div
                                   key={`course-${sIdx}`}
                                   className="glass-card"
                                   style={{
-                                    padding: '24px',
-                                    borderRadius: '24px',
-                                    border: '1px solid var(--card-border)'
+                                    padding: '20px 24px',
+                                    borderRadius: '22px',
+                                    border: '1px solid var(--card-border)',
+                                    transition: 'all 0.2s ease'
                                   }}
                                 >
-                                  {/* Course Header with Custom SVG */}
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
-                                    <div
-                                      className="subject-icon-wrapper"
-                                      style={{
-                                        width: '48px',
-                                        height: '48px',
-                                        color: iconData.color,
-                                        background: `linear-gradient(135deg, ${iconData.bg}, ${iconData.color}1a)`,
-                                        border: `1.5px solid ${iconData.color}35`,
-                                        borderRadius: '15px',
-                                        padding: '9px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        boxShadow: `0 5px 16px ${iconData.color}22`,
-                                        flexShrink: 0
-                                      }}
-                                      dangerouslySetInnerHTML={{ __html: iconData.svg }}
-                                    />
-                                    <div>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
-                                          {subCat.nombre}
-                                        </h3>
-                                        <span style={{
-                                          fontSize: '0.75rem',
-                                          fontWeight: 700,
-                                          padding: '3px 10px',
-                                          borderRadius: '10px',
-                                          background: 'rgba(0, 122, 255, 0.1)',
-                                          color: 'var(--accent-color)'
-                                        }}>
-                                          {subCat.categoria}
+                                  {/* Clickable Course Header */}
+                                  <div 
+                                    onClick={() => {
+                                      if (!query.trim()) {
+                                        setExpandedCourses(prev => ({ ...prev, [courseKey]: !prev[courseKey] }));
+                                      }
+                                    }}
+                                    style={{ 
+                                      display: 'flex', 
+                                      alignItems: 'center', 
+                                      justifyContent: 'space-between', 
+                                      cursor: query.trim() ? 'default' : 'pointer',
+                                      userSelect: 'none',
+                                      flexWrap: 'wrap',
+                                      gap: '12px'
+                                    }}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                      <div
+                                        className="subject-icon-wrapper"
+                                        style={{
+                                          width: '46px',
+                                          height: '46px',
+                                          color: iconData.color,
+                                          background: `linear-gradient(135deg, ${iconData.bg}, ${iconData.color}1a)`,
+                                          border: `1.5px solid ${iconData.color}35`,
+                                          borderRadius: '15px',
+                                          padding: '9px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          boxShadow: `0 5px 16px ${iconData.color}22`,
+                                          flexShrink: 0
+                                        }}
+                                        dangerouslySetInnerHTML={{ __html: iconData.svg }}
+                                      />
+                                      <div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+                                            {subCat.nombre}
+                                          </h3>
+                                          {subCat.categoria && (
+                                            <span style={{
+                                              fontSize: '0.74rem',
+                                              fontWeight: 700,
+                                              padding: '3px 10px',
+                                              borderRadius: '10px',
+                                              background: 'rgba(0, 122, 255, 0.1)',
+                                              color: 'var(--accent-color)'
+                                            }}>
+                                              {subCat.categoria}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                                          {filteredVideos.length} clase{filteredVideos.length !== 1 ? 's' : ''} en video
                                         </span>
                                       </div>
-                                      <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                                        {filteredVideos.length} clase{filteredVideos.length !== 1 ? 's' : ''} en video
-                                      </span>
                                     </div>
+
+                                    {!query.trim() && (
+                                      <span style={{
+                                        fontSize: '0.8rem',
+                                        fontWeight: 800,
+                                        color: 'var(--accent-color)',
+                                        background: 'rgba(0, 122, 255, 0.1)',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                      }}>
+                                        {isCourseExpanded ? 'Ocultar clases ▲' : 'Ver clases ▼'}
+                                      </span>
+                                    )}
                                   </div>
 
-                                  {/* Videos Grid */}
-                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px' }}>
-                                    {filteredVideos.map((vid, vIdx) => (
-                                      <motion.a
-                                        key={vIdx}
-                                        href={vid.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        whileHover={{ scale: 1.02, y: -2 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        style={{
-                                          background: 'rgba(120, 120, 128, 0.07)',
-                                          border: '1px solid var(--card-border)',
-                                          padding: '16px',
-                                          borderRadius: '18px',
-                                          textDecoration: 'none',
-                                          display: 'flex',
-                                          flexDirection: 'column',
-                                          justifyContent: 'space-between',
-                                          gap: '12px',
-                                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                                        }}
+                                  {/* Videos Grid with Smooth Collapse */}
+                                  <AnimatePresence>
+                                    {isCourseExpanded && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                        animate={{ opacity: 1, height: 'auto', marginTop: 18 }}
+                                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                        transition={{ duration: 0.25 }}
+                                        style={{ overflow: 'hidden' }}
                                       >
-                                        <h4 style={{ fontSize: '0.94rem', fontWeight: 700, margin: 0, color: 'var(--text-main)', lineHeight: 1.4 }}>
-                                          {vid.nombre}
-                                        </h4>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FF0000', fontWeight: 700, fontSize: '0.84rem' }}>
-                                          <PlayCircle size={18} /> Ver en YouTube ↗
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px' }}>
+                                          {filteredVideos.map((vid, vIdx) => (
+                                            <motion.a
+                                              key={vIdx}
+                                              href={vid.url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              whileHover={{ scale: 1.02, y: -2 }}
+                                              whileTap={{ scale: 0.98 }}
+                                              style={{
+                                                background: 'rgba(120, 120, 128, 0.07)',
+                                                border: '1px solid var(--card-border)',
+                                                padding: '16px',
+                                                borderRadius: '18px',
+                                                textDecoration: 'none',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'space-between',
+                                                gap: '12px',
+                                                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                                              }}
+                                            >
+                                              <h4 style={{ fontSize: '0.94rem', fontWeight: 700, margin: 0, color: 'var(--text-main)', lineHeight: 1.4 }}>
+                                                {vid.nombre}
+                                              </h4>
+                                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FF0000', fontWeight: 700, fontSize: '0.84rem' }}>
+                                                <PlayCircle size={18} /> Ver en YouTube ↗
+                                              </div>
+                                            </motion.a>
+                                          ))}
                                         </div>
-                                      </motion.a>
-                                    ))}
-                                  </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </div>
                               );
                             })}
