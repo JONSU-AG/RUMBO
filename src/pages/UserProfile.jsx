@@ -1614,31 +1614,7 @@ export const UserProfile = () => {
                         </a>
                       )}
                     </div>
-                  ) : <div />}
-
-                  {/* Clean ❤️ Heart Reaction Button */}
-                  <button
-                    onClick={() => handleEndorse('bio')}
-                    title="Enviar un corazón de apoyo a este perfil"
-                    style={{
-                      border: 'none',
-                      background: endorsements.bio?.users?.includes(user?.uid) ? 'rgba(239, 68, 68, 0.18)' : 'rgba(120, 120, 128, 0.1)',
-                      color: endorsements.bio?.users?.includes(user?.uid) ? '#EF4444' : 'var(--text-secondary)',
-                      fontSize: '0.82rem',
-                      fontWeight: 800,
-                      padding: '6px 14px',
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      transition: 'all 0.2s ease',
-                      boxShadow: endorsements.bio?.users?.includes(user?.uid) ? '0 2px 10px rgba(239, 68, 68, 0.25)' : 'none'
-                    }}
-                  >
-                    <span style={{ fontSize: '1rem', transform: endorsements.bio?.users?.includes(user?.uid) ? 'scale(1.15)' : 'scale(1)' }}>❤️</span>
-                    <span>{endorsements.bio?.count || 0}</span>
-                  </button>
+                  ) : null}
                 </div>
               </div>
             </div>
