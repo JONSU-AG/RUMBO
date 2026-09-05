@@ -252,17 +252,17 @@ export const AliadosCarousel = ({ onOpenAliadoForm }) => {
               textTransform: 'uppercase',
               letterSpacing: '0.04em'
             }}>
-              📢 Requisito para ser Aliado Oficial:
+              📢 Requisito Aliado Oficial:
             </span>
           </div>
           <p style={{
-            margin: '4px 0 0',
-            fontSize: '0.86rem',
+            margin: '3px 0 0',
+            fontSize: '0.84rem',
             color: 'var(--text-main)',
-            lineHeight: 1.45,
+            lineHeight: 1.4,
             fontWeight: 600
           }}>
-            Debes <strong>haber compartido al menos 10 veces material</strong> a la comunidad y <strong>difundir la página RUMBO en tus redes sociales (WhatsApp / TikTok)</strong>. ¡Una vez verificado tu aporte, tu tarjeta será aprobada y visible aquí!
+            Comparte <strong>10+ materiales</strong> y difunde RUMBO en tus redes (WhatsApp / TikTok) para activar tu tarjeta.
           </p>
         </div>
       </div>

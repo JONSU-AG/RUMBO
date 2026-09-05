@@ -1083,12 +1083,12 @@ export const ProfileComments = ({ profileUid, profileName = 'este usuario', user
       {/* Header & Filter Pills */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles size={22} style={{ color: 'var(--accent-color)' }} />
-            Muro Social & Aportes de {profileName} ({combinedFeed.length})
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={20} style={{ color: 'var(--accent-color)' }} />
+            Muro & Aportes ({combinedFeed.length})
           </h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
-            Publicaciones, fotos, recomendaciones y materiales compartidos por y para la comunidad RUMBO.
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '3px 0 0' }}>
+            Publicaciones y materiales compartidos por la comunidad.
           </p>
         </div>
 
