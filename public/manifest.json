@@ -3,19 +3,20 @@
   "name": "RUMBO · Plataforma PREU",
   "icons": [
     {
-      "src": "/assets/LOGOR.png",
+      "src": "assets/LOGOR.png",
       "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/assets/LOGOR.png",
+      "src": "assets/LOGOR.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "background_color": "#F2F2F7",
   "theme_color": "#F2F2F7",
   "display": "standalone",
